@@ -53,6 +53,8 @@ export default function Header() {
                             </Dropdown.Toggle>
 
                             <Dropdown.Menu>
+                                <Dropdown.Item href={keycloak.createAccountUrl()}>My Account</Dropdown.Item>
+                                <Dropdown.Divider />
                                 <Dropdown.Item as={NavLink} to="/login" onClick={handleLogInOut}>Logout</Dropdown.Item>
                             </Dropdown.Menu>
                         </Dropdown>) : (
