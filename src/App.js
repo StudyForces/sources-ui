@@ -1,19 +1,14 @@
 import React, {StrictMode} from 'react'
 import {ReactKeycloakProvider} from '@react-keycloak/web'
-import Keycloak from 'keycloak-js'
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
-import {config} from './Constants'
+import keycloak from './keycloak';
 import PrivateRoute from "./components/misc/PrivateRoute";
 import Home from "./components/home/Home";
 import Header from "./components/misc/Header";
 import UploadsPage from "./components/uploads/UploadsPage";
+import UploadEditPage from "./components/upload-edit/UploadEditPage";
 
 function App() {
-    const keycloak = new Keycloak({
-        url: `${config.url.KEYCLOAK_BASE_URL}`,
-        realm: "StudyForces",
-        clientId: "sources-ui"
-    })
     const initOptions = {
         pkceMethod: 'S256',
         checkLoginIframe: true,
@@ -46,6 +41,7 @@ function App() {
                         <Route path='/' exact component={Home}/>
                         <Route path='/home' component={Home}/>
                         <PrivateRoute path='/uploads' exact component={UploadsPage}/>
+                        <PrivateRoute path='/uploads/:id' exact component={UploadEditPage}/>
                         <Route component={Home}/>
                     </Switch>
                 </Router>

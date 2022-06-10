@@ -1,8 +1,8 @@
 import React, { Component } from 'react';
 import {Container, Alert, Spinner} from "react-bootstrap";
-import {config} from '../../Constants';
 import UploadsTable from "./UploadsTable";
 import PaginationComponent from "../misc/PaginationComponent";
+import API from "../../api";
 
 class UploadsPage extends Component {
     constructor(props) {
@@ -19,26 +19,11 @@ class UploadsPage extends Component {
     }
 
     componentDidMount() {
-        this.loadPage();
+        this.loadPage(this.state.currentPage, this.state.page.size);
     }
 
     loadPage(page) {
-        fetch(`${config.url.API_BASE_URL}/sourceUploads?page=${page ?? this.state.currentPage}&sort=id,desc&size=${this.state.page.size}`)
-            .then(res => {
-                if (!res.ok) {
-                    throw Error(`${res.status} ${res.statusText}`);
-                }
-                return res;
-            })
-            .then(res => res.json())
-            .then(res => {
-                if (res.content.length === 1) {
-                    if (res.content[0].value !== undefined) {
-                        res.content = [];
-                    }
-                }
-                return res;
-            })
+        API.sourceUploads.list(page ?? this.state.currentPage, this.state.page.size)
             .then(
                 (result) => {
                     this.setState({
@@ -70,7 +55,7 @@ class UploadsPage extends Component {
             return <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
-        } else if (items !== undefined) {
+        } else {
             return (
                 <>
                     <UploadsTable items={items}></UploadsTable>
@@ -80,8 +65,6 @@ class UploadsPage extends Component {
                                          setCurrentPage={this.setPage}></PaginationComponent>
                 </>
             );
-        } else {
-            return <Alert variant="danger">WTF?</Alert>;
         }
     }
 
