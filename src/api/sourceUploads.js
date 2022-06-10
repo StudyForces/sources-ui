@@ -39,6 +39,24 @@ function getById(id) {
         .then(res => res.json());
 }
 
+function update(id, obj) {
+    return fetch(`${config.url.API_BASE_URL}/sourceUploads/${id}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
+}
+
 async function createUpload(file) {
     let res = await fetch(`${config.url.API_BASE_URL}/upload/request`, {
         method: 'POST',
@@ -83,6 +101,7 @@ async function createUpload(file) {
 const sourceUploads = {
     list,
     getById,
+    update,
     createUpload
 };
 
