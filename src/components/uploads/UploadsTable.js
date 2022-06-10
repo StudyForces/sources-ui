@@ -4,7 +4,7 @@ import UploadRow from "./UploadRow";
 import CreateUploadRow from "./CreateUploadRow";
 
 function UploadsTable(props) {
-    const {items} = props;
+    const {items, onRemove} = props;
     return (
         <Table striped hover size="sm">
             <thead>
@@ -18,7 +18,7 @@ function UploadsTable(props) {
             <tbody>
                 <CreateUploadRow></CreateUploadRow>
                 {
-                    items.map((upload) => <UploadRow key={upload.id} upload={upload}></UploadRow>)
+                    items.map((upload) => <UploadRow key={upload.id} upload={upload} onRemove={onRemove}></UploadRow>)
                 }
             </tbody>
         </Table>

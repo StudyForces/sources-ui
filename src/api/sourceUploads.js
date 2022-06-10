@@ -24,7 +24,7 @@ function list(page = 0, size = 20) {
         });
 }
 
-function getById(id) {
+function get(id) {
     return fetch(`${config.url.API_BASE_URL}/sourceUploads/${id}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
@@ -57,7 +57,7 @@ function update(id, obj) {
         .then(res => res.json());
 }
 
-async function createUpload(file) {
+async function create(file) {
     let res = await fetch(`${config.url.API_BASE_URL}/upload/request`, {
         method: 'POST',
         headers: {
@@ -98,11 +98,27 @@ async function createUpload(file) {
     return await res.json();
 }
 
+function remove(id) {
+    return fetch(`${config.url.API_BASE_URL}/sourceUploads/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        });
+}
+
 const sourceUploads = {
     list,
-    getById,
+    get,
     update,
-    createUpload
+    create,
+    remove
 };
 
 export default sourceUploads;

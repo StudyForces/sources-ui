@@ -13,7 +13,7 @@ class UploadEditPage extends Component {
     }
 
     componentDidMount() {
-        API.sourceUploads.getById(parseInt(this.props.match.params.id, 10))
+        API.sourceUploads.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
                     this.setState({

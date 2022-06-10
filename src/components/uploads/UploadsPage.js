@@ -16,6 +16,7 @@ class UploadsPage extends Component {
         };
         this.loadPage = this.loadPage.bind(this);
         this.setPage = this.setPage.bind(this);
+        this.onRemove = this.onRemove.bind(this);
     }
 
     componentDidMount() {
@@ -47,6 +48,10 @@ class UploadsPage extends Component {
         this.loadPage(page-1);
     }
 
+    onRemove() {
+        this.loadPage();
+    }
+
     table() {
         const { error, isLoaded, items, page, currentPage } = this.state;
         if (error) {
@@ -58,7 +63,7 @@ class UploadsPage extends Component {
         } else {
             return (
                 <>
-                    <UploadsTable items={items}></UploadsTable>
+                    <UploadsTable items={items} onRemove={this.onRemove}></UploadsTable>
                     <PaginationComponent currentPage={currentPage+1}
                                          itemsCount={page.totalElements}
                                          itemsPerPage={page.size}

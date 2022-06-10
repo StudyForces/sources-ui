@@ -2,6 +2,7 @@ import React from 'react';
 import {Badge, Button, ButtonGroup, Dropdown} from "react-bootstrap";
 import {config} from "../../Constants";
 import {NavLink} from "react-router-dom";
+import API from "../../api";
 
 const UploadRowStatusColors = {
     'DONE': 'success',
@@ -10,7 +11,7 @@ const UploadRowStatusColors = {
 }
 
 function UploadRow(props) {
-    const {upload} = props;
+    const {upload, onRemove} = props;
 
     const statusGrouped = upload.rects.reduce((groups, item) => {
         if (item.status === null) {
@@ -23,6 +24,15 @@ function UploadRow(props) {
         }
     }, {});
     const statusCounts = Object.keys(statusGrouped).map(key => ({key, count: statusGrouped[key].length}));
+
+    const remove = () => {
+        API.sourceUploads.remove(upload.id)
+            .then(r => onRemove());
+    };
+    const runOCR = () => {
+        API.ocr.request(upload.id)
+            .then(_ => alert(`OCR for ${upload.id} was scheduled!`));
+    };
 
     return (
         <tr>
@@ -44,13 +54,12 @@ function UploadRow(props) {
                     <Dropdown.Toggle split variant="outline-secondary" />
 
                     <Dropdown.Menu>
-                        <Dropdown.Item>Review</Dropdown.Item>
-                        <Dropdown.Item>Run OCR</Dropdown.Item>
+                        <Dropdown.Item onClick={runOCR}>Run OCR</Dropdown.Item>
                         <Dropdown.Item href={`${config.url.API_BASE_URL}/upload/view/${upload.id}`}>
                             View Image
                         </Dropdown.Item>
                         <Dropdown.Divider />
-                        <Dropdown.Item className="text-danger">Delete</Dropdown.Item>
+                        <Dropdown.Item className="text-danger" onClick={remove}>Delete</Dropdown.Item>
                     </Dropdown.Menu>
                 </Dropdown>
             </td>
