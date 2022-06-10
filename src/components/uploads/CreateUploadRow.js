@@ -19,7 +19,7 @@ function CreateUploadRow() {
             <td>
                 <Button variant="outline-secondary" size="sm" onClick={() => {
                     setError(null);
-                    API.sourceUploads.createUpload(file)
+                    API.sourceUploads.create(file)
                         .then(
                             (result) => {
                                 history.push(`/uploads/${result.id}`);

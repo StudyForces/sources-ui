@@ -1,7 +1,9 @@
 import sourceUploads from './sourceUploads';
+import ocr from './ocr';
 
 const API = {
-    sourceUploads
+    sourceUploads,
+    ocr
 }
 
 export default API;
