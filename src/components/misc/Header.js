@@ -16,7 +16,6 @@ export default function Header() {
     }
 
     const getUsername = () => {
-        console.log(keycloak.tokenParsed);
         return keycloak.authenticated && keycloak.tokenParsed && keycloak.tokenParsed.name
     }
 
