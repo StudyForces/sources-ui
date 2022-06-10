@@ -6,6 +6,7 @@ import {config} from './Constants'
 import PrivateRoute from "./components/misc/PrivateRoute";
 import Home from "./components/home/Home";
 import Header from "./components/misc/Header";
+import UploadsPage from "./components/uploads/UploadsPage";
 
 function App() {
     const keycloak = new Keycloak({
@@ -44,7 +45,7 @@ function App() {
                     <Switch>
                         <Route path='/' exact component={Home}/>
                         <Route path='/home' component={Home}/>
-                        <PrivateRoute path='/uploads' component={Home}/>
+                        <PrivateRoute path='/uploads' exact component={UploadsPage}/>
                         <Route component={Home}/>
                     </Switch>
                 </Router>
