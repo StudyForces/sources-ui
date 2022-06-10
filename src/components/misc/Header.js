@@ -31,17 +31,6 @@ export default function Header() {
                         navbarScroll
                     >
                         <Nav.Link as={NavLink} exact to="/home">Home</Nav.Link>
-                        <NavDropdown title="Uploads" id="navbarScrollingDropdown">
-                            <NavDropdown.Item as={NavLink} to="/uploads">All</NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item as={NavLink} to="/uploads?filter=noRects">Non-rected</NavDropdown.Item>
-                            <NavDropdown.Item as={NavLink} to="/uploads?filter=rects">Rected</NavDropdown.Item>
-                            <NavDropdown.Item as={NavLink} to="/uploads?filter=ocred">OCRed</NavDropdown.Item>
-                            <NavDropdown.Divider />
-                            <NavDropdown.Item as={NavLink} to="/uploads?filter=sent">
-                                Sent
-                            </NavDropdown.Item>
-                        </NavDropdown>
                         <Nav.Link as={NavLink} to="/uploads">Uploads</Nav.Link>
                     </Nav>
                     {
