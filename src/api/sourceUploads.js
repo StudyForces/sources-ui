@@ -39,9 +39,51 @@ function getById(id) {
         .then(res => res.json());
 }
 
+async function createUpload(file) {
+    let res = await fetch(`${config.url.API_BASE_URL}/upload/request`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': file.type
+        }
+    });
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed request for PUT signed URL`);
+    }
+    const uploadData = await res.json();
+
+    res = await fetch(uploadData.url, {
+        method: 'PUT',
+        headers: {
+            'Content-Type': file.type
+        },
+        body: file
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed uploading file`);
+    }
+
+    res = await fetch(`${config.url.API_BASE_URL}/upload/save`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fileName: uploadData.fileName
+        })
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed saving upload`);
+    }
+
+    return await res.json();
+}
+
 const sourceUploads = {
     list,
-    getById
+    getById,
+    createUpload
 };
 
 export default sourceUploads;

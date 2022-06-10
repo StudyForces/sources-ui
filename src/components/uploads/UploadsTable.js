@@ -1,7 +1,7 @@
 import React from 'react';
-import {Badge, Button, ButtonGroup, Dropdown, Table} from "react-bootstrap";
-import {config} from "../../Constants";
+import {Table} from "react-bootstrap";
 import UploadRow from "./UploadRow";
+import CreateUploadRow from "./CreateUploadRow";
 
 function UploadsTable(props) {
     const {items} = props;
@@ -16,9 +16,10 @@ function UploadsTable(props) {
             </tr>
             </thead>
             <tbody>
-            {
-                items.map((upload) => <UploadRow key={upload.id} upload={upload}></UploadRow>)
-            }
+                <CreateUploadRow></CreateUploadRow>
+                {
+                    items.map((upload) => <UploadRow key={upload.id} upload={upload}></UploadRow>)
+                }
             </tbody>
         </Table>
     );
