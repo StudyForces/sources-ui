@@ -42,9 +42,15 @@ class UploadRectsEditor extends Component {
         this.convertExistingRectsToImages();
     }
 
-    handleDeleteRect() {
-        console.log("delete");
-        //Delete rect method
+    handleDeleteRect = (index) => {
+        const upload = this.state.upload;
+        upload.rects.splice(index, 1);
+        this.setState({ upload: upload });
+        console.log(this.state.upload);
+
+        const existingRects = this.state.existingRects;
+        existingRects.splice(index, 1);
+        this.setState({ existingRects: existingRects });
     }
 
     addRectToUpload() {
@@ -115,7 +121,7 @@ class UploadRectsEditor extends Component {
                         variant={'success'}
                         onClick={this.addRectToUpload}
                         style={{marginBottom: "10px"}}
-                        disabled={this.state.crop === null && this.state.image === null}>Add text rect</Button>
+                        disabled={this.state.crop === null || this.state.image === null}>Add text rect</Button>
                 </div>
                 <div>
                     {
@@ -134,7 +140,7 @@ class UploadRectsEditor extends Component {
                     this.state.existingRects.map((rect, index) =>
                         <div key={index} style={{marginTop: "10px"}}>
                             <img src={rect} style={{width: "50%", height: "50%"}} alt="Rect"/>
-                            <Button variant="outline-danger" onClick={this.handleDeleteRect}>Delete rect</Button>
+                            <Button variant="outline-danger" onClick={() => this.handleDeleteRect(index)}>Delete rect</Button>
                         </div>
                     )
                 }
