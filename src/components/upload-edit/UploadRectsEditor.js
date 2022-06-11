@@ -121,6 +121,7 @@ class UploadRectsEditor extends Component {
                             variant={'success'}
                             onClick={this.addRectToUpload}
                             style={{marginBottom: "10px"}}
+                            size="sm"
                             disabled={this.state.crop === null || this.state.image === null}>
                                 Add text rect
                         </Button>
@@ -167,13 +168,14 @@ class UploadRectsEditor extends Component {
                                 <Card.Body className='text-center'>
                                     <img 
                                         src={rect} 
-                                        style={{width: "50%", height: "50%"}} 
+                                        style={{width: "60%", height: "60%"}} 
                                         alt="Rect"/>
                                 </Card.Body>
                                 <Card.Footer className="text-muted">
                                     <Button 
                                         variant="outline-danger" 
-                                        onClick={() => this.handleDeleteRect(index)}>
+                                        onClick={() => this.handleDeleteRect(index)}
+                                        size="sm">
                                             Delete rect
                                     </Button>
                                 </Card.Footer>
