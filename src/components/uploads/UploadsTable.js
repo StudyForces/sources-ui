@@ -6,7 +6,7 @@ import CreateUploadRow from "./CreateUploadRow";
 function UploadsTable(props) {
     const {items, onRemove} = props;
     return (
-        <Table striped hover size="sm">
+        <Table responsive striped hover size="sm">
             <thead>
             <tr>
                 <th>#</th>
