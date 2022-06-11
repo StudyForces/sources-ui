@@ -11,7 +11,7 @@ class UploadRectsEditor extends Component {
             upload: this.props.upload,
             src: null,
             image: null,
-            crop: { aspect: 16 / 9 },
+            crop: null,
             existingRects: []
         }
 
@@ -51,8 +51,8 @@ class UploadRectsEditor extends Component {
 
         const upload = this.state.upload;
         upload.rects.push(rect);
-
-        this.setState({ upload: upload });
+        
+        this.setState({ upload: upload, crop: null });
         this.convertExistingRectsToImages();
     }
 
@@ -104,7 +104,11 @@ class UploadRectsEditor extends Component {
             <div>
                 <center>
                     <div>
-                        <Button variant={'success'} onClick={this.addRectToUpload} style={{marginBottom: "10px"}}>Add text rect</Button>
+                        <Button 
+                            variant={'success'} 
+                            onClick={this.addRectToUpload} 
+                            style={{marginBottom: "10px"}}
+                            disabled={this.state.crop !== null ? false : true}>Add text rect</Button>
                     </div>
                     <ReactCrop 
                         src={this.state.src}
