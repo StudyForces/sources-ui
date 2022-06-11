@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import { Button } from 'react-bootstrap';
 import ReactCrop from 'react-image-crop';
-import {config} from "../../Constants";
+import { config } from "../../Constants";
 import 'react-image-crop/dist/ReactCrop.css';
 
 class UploadRectsEditor extends Component {
@@ -37,6 +37,7 @@ class UploadRectsEditor extends Component {
 
     handleDeleteRect = () => {
         console.log("delete");
+        //Delete rect method
     }
 
     addRectToUpload(){
@@ -51,7 +52,7 @@ class UploadRectsEditor extends Component {
 
         const upload = this.state.upload;
         upload.rects.push(rect);
-        
+
         this.setState({ upload: upload, crop: null });
         this.convertExistingRectsToImages();
     }
