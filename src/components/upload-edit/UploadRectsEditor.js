@@ -30,8 +30,9 @@ class UploadRectsEditor extends Component {
 
     handleCropChange = (event) => this.setState({ crop: event });
     handleImageChange = (event) => {
+        
+        event.target.crossOrigin = 'anonymous';
         this.state.image = event.target;
-
         this.convertExistingRectsToImages();
     }
 
@@ -86,7 +87,7 @@ class UploadRectsEditor extends Component {
         );
         
         //Next line should be -> const result = canvas.toDataUrl();
-        const result = canvas;
+        const result = canvas.toDataURL();
         const existingRects = this.state.existingRects;
         existingRects.push(result);
 
