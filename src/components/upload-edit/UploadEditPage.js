@@ -1,5 +1,6 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {Container, Alert, Spinner} from "react-bootstrap";
+import UploadRectsEditor from './UploadRectsEditor';
 import API from "../../api";
 
 class UploadEditPage extends Component {
@@ -32,7 +33,7 @@ class UploadEditPage extends Component {
     }
 
     content() {
-        const { error, isLoaded, upload } = this.state;
+        const {error, isLoaded, upload} = this.state;
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {
@@ -41,12 +42,9 @@ class UploadEditPage extends Component {
             </Spinner>;
         } else {
             return (
-                <Alert variant="primary">
-                    Hey, there will be something soon!
-                    <pre>
-                        {JSON.stringify(upload, null, 2)}
-                    </pre>
-                </Alert>
+                <>
+                    <UploadRectsEditor upload={upload}/>
+                </>
             );
         }
     }
