@@ -122,7 +122,7 @@ class UploadRectsEditor extends Component {
                 {
                     this.state.existingRects.map((rect, index) =>
                         <div key={index} style={{marginTop: "10px"}}>
-                            <img src={rect} />
+                            <img src={rect} style={{width: "50%", height: "50%"}}/>
                             <Button variant="outline-danger" onClick={this.handleDeleteRect}>Delete rect</Button>
                         </div>
                     )
