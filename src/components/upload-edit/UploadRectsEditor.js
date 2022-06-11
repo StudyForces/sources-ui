@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Spinner} from 'react-bootstrap';
+import {Button, Spinner, Card} from 'react-bootstrap';
 import ReactCrop from 'react-image-crop';
 import {config} from "../../Constants";
 import 'react-image-crop/dist/ReactCrop.css';
@@ -46,7 +46,6 @@ class UploadRectsEditor extends Component {
         const upload = this.state.upload;
         upload.rects.splice(index, 1);
         this.setState({ upload: upload });
-        console.log(this.state.upload);
 
         const existingRects = this.state.existingRects;
         existingRects.splice(index, 1);
@@ -115,35 +114,74 @@ class UploadRectsEditor extends Component {
 
     render() {
         return (
-            <div className="text-center">
-                <div>
-                    <Button
-                        variant={'success'}
-                        onClick={this.addRectToUpload}
-                        style={{marginBottom: "10px"}}
-                        disabled={this.state.crop === null || this.state.image === null}>Add text rect</Button>
+            <div className="row" style={{marginBottom: "10px"}}>
+                <div className="col text-center">
+                    <div>
+                        <Button
+                            variant={'success'}
+                            onClick={this.addRectToUpload}
+                            style={{marginBottom: "10px"}}
+                            disabled={this.state.crop === null || this.state.image === null}>
+                                Add text rect
+                        </Button>
+                    </div>
+                    <div>
+                        {
+                            this.state.image === null ? <Spinner animation="border" role="status">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner> : null
+                        }
+                    </div>
+                    <ReactCrop
+                        src={this.state.src}
+                        crop={this.state.crop}
+                        onChange={this.handleCropChange}>
+                        <img 
+                            id="source" 
+                            onLoad={this.handleImageChange} 
+                            src={this.state.src} 
+                            alt="Source image"/>
+                    </ReactCrop>
                 </div>
-                <div>
+                <div 
+                    className="col text-center" 
+                    style={{
+                        borderColor: "#D3D3D3",
+                        borderStyle: "solid",
+                        borderWidth: "1px",
+                        borderRadius: "5px"
+                    }}>
                     {
-                        this.state.image === null ? <Spinner animation="border" role="status">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner> : null
+                        this.state.existingRects.length !== 0 ?
+                            <p>
+                                <b>{this.state.existingRects.length}</b> rect(s)
+                            </p>
+                        :
+                            <p>There are no rects here yet</p>
+                    }    
+                    {
+                        this.state.existingRects.map((rect, index) =>
+                             <Card 
+                                key={index} 
+                                style={{marginBottom: "10px"}}>
+                                <Card.Body className='text-center'>
+                                    <img 
+                                        src={rect} 
+                                        style={{width: "50%", height: "50%"}} 
+                                        alt="Rect"/>
+                                </Card.Body>
+                                <Card.Footer className="text-muted">
+                                    <Button 
+                                        variant="outline-danger" 
+                                        onClick={() => this.handleDeleteRect(index)}>
+                                            Delete rect
+                                    </Button>
+                                </Card.Footer>
+                            </Card>
+                        )
                     }
                 </div>
-                <ReactCrop
-                    src={this.state.src}
-                    crop={this.state.crop}
-                    onChange={this.handleCropChange}>
-                    <img id="source" onLoad={this.handleImageChange} src={this.state.src} alt="Source image"/>
-                </ReactCrop>
-                {
-                    this.state.existingRects.map((rect, index) =>
-                        <div key={index} style={{marginTop: "10px"}}>
-                            <img src={rect} style={{width: "50%", height: "50%"}} alt="Rect"/>
-                            <Button variant="outline-danger" onClick={() => this.handleDeleteRect(index)}>Delete rect</Button>
-                        </div>
-                    )
-                }
+                
             </div>
         )
     }
