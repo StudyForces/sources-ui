@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Container, Alert, Spinner} from "react-bootstrap";
+import UploadRectsEditor from './UploadRectsEditor';
 import API from "../../api";
 
 class UploadEditPage extends Component {
@@ -42,10 +43,9 @@ class UploadEditPage extends Component {
         } else {
             return (
                 <Alert variant="primary">
-                    Hey, there will be something soon!
-                    <pre>
-                        {JSON.stringify(upload, null, 2)}
-                    </pre>
+                    <UploadRectsEditor 
+                        upload = { upload }
+                        />
                 </Alert>
             );
         }
