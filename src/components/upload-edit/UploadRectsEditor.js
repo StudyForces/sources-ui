@@ -32,7 +32,7 @@ class UploadRectsEditor extends Component {
     handleImageChange = (event) => {
         
         event.target.crossOrigin = 'anonymous';
-        this.state.image = event.target;
+        this.setState({image: event.target});
         this.convertExistingRectsToImages();
     }
 
