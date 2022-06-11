@@ -1,11 +1,11 @@
-import React, { Component } from 'react';
-import { Button } from 'react-bootstrap';
+import React, {Component} from 'react';
+import {Button, Spinner} from 'react-bootstrap';
 import ReactCrop from 'react-image-crop';
-import { config } from "../../Constants";
+import {config} from "../../Constants";
 import 'react-image-crop/dist/ReactCrop.css';
 
 class UploadRectsEditor extends Component {
-    constructor(props){
+    constructor(props) {
         super(props);
         this.state = {
             upload: this.props.upload,
@@ -24,24 +24,34 @@ class UploadRectsEditor extends Component {
         this.cropImage = this.cropImage.bind(this);
     }
 
-    componentDidMount(){
-        this.setState({ src: `${config.url.API_BASE_URL}/upload/view/${this.state.upload.id}` });
+    componentDidMount() {
+        this.setState({src: `${config.url.API_BASE_URL}/upload/view/${this.state.upload.id}`});
     }
 
-    handleCropChange = (event) => this.setState({ crop: event });
-    handleImageChange = (event) => {
-        
+    handleCropChange(event) {
+        if (this.state.image === null) {
+            return;
+        }
+
+        this.setState({crop: event});
+    }
+
+    handleImageChange(event) {
         event.target.crossOrigin = 'anonymous';
-        this.state.image = event.target;
+        this.setState({image: event.target});
         this.convertExistingRectsToImages();
     }
 
-    handleDeleteRect = () => {
+    handleDeleteRect() {
         console.log("delete");
         //Delete rect method
     }
 
-    addRectToUpload(){
+    addRectToUpload() {
+        if (this.state.image === null) {
+            return;
+        }
+
         const rect = {
             x: this.state.crop.x,
             y: this.state.crop.y,
@@ -54,11 +64,15 @@ class UploadRectsEditor extends Component {
         const upload = this.state.upload;
         upload.rects.push(rect);
 
-        this.setState({ upload: upload, crop: null });
+        this.setState({upload: upload, crop: null});
         this.convertExistingRectsToImages();
     }
 
-    cropImage(crop){
+    cropImage(crop) {
+        if (this.state.image === null) {
+            return;
+        }
+
         const canvas = document.createElement('canvas');
         const sourceImage = this.state.image;
 
@@ -67,13 +81,13 @@ class UploadRectsEditor extends Component {
         canvas.width = crop.width;
         canvas.height = crop.height;
         const ctx = canvas.getContext('2d');
-    
+
         const pixelRatio = window.devicePixelRatio;
         canvas.width = crop.width * pixelRatio;
         canvas.height = crop.height * pixelRatio;
         ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
         ctx.imageSmoothingQuality = 'high';
-    
+
         ctx.drawImage(
             sourceImage,
             crop.x * scaleX,
@@ -85,44 +99,48 @@ class UploadRectsEditor extends Component {
             crop.width,
             crop.height,
         );
-        
-        //Next line should be -> const result = canvas.toDataUrl();
+
         const result = canvas.toDataURL();
         const existingRects = this.state.existingRects;
         existingRects.push(result);
 
-        this.setState({ existingRects: existingRects });
+        this.setState({existingRects: existingRects});
     }
 
-    convertExistingRectsToImages(){
-        this.state.existingRects.length = 0;
-        this.state.upload.rects.map((rect) => {
+    convertExistingRectsToImages() {
+        this.setState({existingRects: []});
+        this.state.upload.rects.forEach((rect) => {
             this.cropImage(rect);
         });
     }
 
-    render(){
-        return(
-            <div>
-                <center>
-                    <div>
-                        <Button 
-                            variant={'success'} 
-                            onClick={this.addRectToUpload} 
-                            style={{marginBottom: "10px"}}
-                            disabled={this.state.crop !== null ? false : true}>Add text rect</Button>
-                    </div>
-                    <ReactCrop 
-                        src={this.state.src}
-                        crop={this.state.crop}
-                        onChange={this.handleCropChange}>
-                            <img id="source" onLoad={this.handleImageChange} src={this.state.src}/>
-                    </ReactCrop>
-                </center>
+    render() {
+        return (
+            <div className="text-center">
+                <div>
+                    <Button
+                        variant={'success'}
+                        onClick={this.addRectToUpload}
+                        style={{marginBottom: "10px"}}
+                        disabled={this.state.crop === null && this.state.image === null}>Add text rect</Button>
+                </div>
+                <div>
+                    {
+                        this.state.image === null ? <Spinner animation="border" role="status">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner> : null
+                    }
+                </div>
+                <ReactCrop
+                    src={this.state.src}
+                    crop={this.state.crop}
+                    onChange={this.handleCropChange}>
+                    <img id="source" onLoad={this.handleImageChange} src={this.state.src} alt="Source image"/>
+                </ReactCrop>
                 {
                     this.state.existingRects.map((rect, index) =>
                         <div key={index} style={{marginTop: "10px"}}>
-                            <img src={rect} style={{width: "50%", height: "50%"}}/>
+                            <img src={rect} style={{width: "50%", height: "50%"}} alt="Rect"/>
                             <Button variant="outline-danger" onClick={this.handleDeleteRect}>Delete rect</Button>
                         </div>
                     )
