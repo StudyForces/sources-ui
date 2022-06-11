@@ -100,18 +100,11 @@ class UploadRectsEditor extends Component {
             crop.height,
         );
 
-        const result = canvas.toDataURL();
-        const existingRects = this.state.existingRects;
-        existingRects.push(result);
-
-        this.setState({existingRects: existingRects});
+        return canvas.toDataURL();
     }
 
     convertExistingRectsToImages() {
-        this.setState({existingRects: []});
-        this.state.upload.rects.forEach((rect) => {
-            this.cropImage(rect);
-        });
+        this.setState({existingRects: this.state.upload.rects.map((rect) => this.cropImage(rect))});
     }
 
     render() {
