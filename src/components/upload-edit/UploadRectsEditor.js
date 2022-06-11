@@ -12,13 +12,15 @@ class UploadRectsEditor extends Component {
             src: null,
             image: null,
             crop: { aspect: 16 / 9 },
-            output: null
+            existingRects: []
         }
 
         this.handleCropChange = this.handleCropChange.bind(this);
         this.handleImageChange = this.handleImageChange.bind(this);
-        this.addRect = this.addRect.bind(this);
+        this.handleDeleteRect = this.handleDeleteRect.bind(this);
         this.addRectToUpload = this.addRectToUpload.bind(this);
+
+        this.convertExistingRectsToImages = this.convertExistingRectsToImages.bind(this);
         this.cropImage = this.cropImage.bind(this);
     }
 
@@ -27,11 +29,14 @@ class UploadRectsEditor extends Component {
     }
 
     handleCropChange = (event) => this.setState({ crop: event });
-    handleImageChange = (event) => this.setState({ image: event.target });
+    handleImageChange = (event) => {
+        this.state.image = event.target;
 
-    addRect(){
-        this.addRectToUpload();
-        this.cropImage();
+        this.convertExistingRectsToImages();
+    }
+
+    handleDeleteRect = () => {
+        console.log("delete");
     }
 
     addRectToUpload(){
@@ -46,17 +51,17 @@ class UploadRectsEditor extends Component {
 
         const upload = this.state.upload;
         upload.rects.push(rect);
+
         this.setState({ upload: upload });
-        console.log(this.state.upload);
+        this.convertExistingRectsToImages();
     }
 
-    cropImage(){
-        const crop = this.state.crop;
+    cropImage(crop){
         const canvas = document.createElement('canvas');
         const sourceImage = this.state.image;
 
-        const scaleX = sourceImage.naturalWidth / (sourceImage.width * 2);
-        const scaleY = sourceImage.naturalHeight / (sourceImage.height * 2);
+        const scaleX = sourceImage.naturalWidth / sourceImage.width;
+        const scaleY = sourceImage.naturalHeight / sourceImage.height;
         canvas.width = crop.width;
         canvas.height = crop.height;
         const ctx = canvas.getContext('2d');
@@ -79,24 +84,46 @@ class UploadRectsEditor extends Component {
             crop.height,
         );
         
-        const result = canvas.toDataURL('image/jpeg');
-        this.setState({ output: result });
-      };
+        //Next line should be -> const result = canvas.toDataUrl();
+        const result = canvas;
+        const existingRects = this.state.existingRects;
+        existingRects.push(result);
+
+        this.setState({ existingRects: existingRects });
+    }
+
+    convertExistingRectsToImages(){
+        this.state.existingRects.length = 0;
+        this.state.upload.rects.map((rect) => {
+            this.cropImage(rect);
+        });
+    }
 
     render(){
         return(
             <div>
-                <ReactCrop 
-                    src={this.state.src}
-                    crop={this.state.crop}
-                    onChange={this.handleCropChange}>
-                        <img id="source" onLoad={this.handleImageChange} src={this.state.src}/>
-                </ReactCrop>
-                <Button variant={'success'}  onClick={this.addRect}>Add text rect</Button>
-                <img crossOrigin={'Anonymous'} src={this.state.output}/>
+                <center>
+                    <div>
+                        <Button variant={'success'} onClick={this.addRectToUpload} style={{marginBottom: "10px"}}>Add text rect</Button>
+                    </div>
+                    <ReactCrop 
+                        src={this.state.src}
+                        crop={this.state.crop}
+                        onChange={this.handleCropChange}>
+                            <img id="source" onLoad={this.handleImageChange} src={this.state.src}/>
+                    </ReactCrop>
+                </center>
+                {
+                    this.state.existingRects.map((rect, index) =>
+                        <div key={index} style={{marginTop: "10px"}}>
+                            <img src={rect} />
+                            <Button variant="outline-danger" onClick={this.handleDeleteRect}>Delete rect</Button>
+                        </div>
+                    )
+                }
             </div>
         )
     }
 }
-//
+
 export default UploadRectsEditor;
