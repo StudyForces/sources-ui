@@ -43,7 +43,7 @@ class UploadEditPage extends Component {
         } else {
             return (
                 <>
-                    <UploadRectsEditor upload={upload}/>
+                    <UploadRectsEditor upload={upload} {...this.props}/>
                 </>
             );
         }

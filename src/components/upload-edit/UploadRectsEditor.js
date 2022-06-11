@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Button, Spinner, Card} from 'react-bootstrap';
+import {Button, Spinner, Card, Row, Col, ButtonGroup} from 'react-bootstrap';
 import ReactCrop from 'react-image-crop';
 import {config} from "../../Constants";
 import 'react-image-crop/dist/ReactCrop.css';
+import API from "../../api";
 
 class UploadRectsEditor extends Component {
     constructor(props) {
@@ -22,6 +23,9 @@ class UploadRectsEditor extends Component {
 
         this.convertExistingRectsToImages = this.convertExistingRectsToImages.bind(this);
         this.cropImage = this.cropImage.bind(this);
+
+        this.saveUpload = this.saveUpload.bind(this);
+        this.saveUploadAndOCR = this.saveUploadAndOCR.bind(this);
     }
 
     componentDidMount() {
@@ -45,11 +49,11 @@ class UploadRectsEditor extends Component {
     handleDeleteRect = (index) => {
         const upload = this.state.upload;
         upload.rects.splice(index, 1);
-        this.setState({ upload: upload });
+        this.setState({upload: upload});
 
         const existingRects = this.state.existingRects;
         existingRects.splice(index, 1);
-        this.setState({ existingRects: existingRects });
+        this.setState({existingRects: existingRects});
     }
 
     addRectToUpload() {
@@ -57,13 +61,18 @@ class UploadRectsEditor extends Component {
             return;
         }
 
+        const sourceImage = this.state.image;
+
+        const scaleX = sourceImage.naturalWidth / sourceImage.width;
+        const scaleY = sourceImage.naturalHeight / sourceImage.height;
+
         const rect = {
-            x: this.state.crop.x,
-            y: this.state.crop.y,
-            width: this.state.crop.width,
-            height: this.state.crop.height,
+            x: this.state.crop.x * scaleX,
+            y: this.state.crop.y * scaleY,
+            width: this.state.crop.width * scaleX,
+            height: this.state.crop.height * scaleY,
             type: "TEXT",
-            status: ""
+            status: null
         }
 
         const upload = this.state.upload;
@@ -81,8 +90,6 @@ class UploadRectsEditor extends Component {
         const canvas = document.createElement('canvas');
         const sourceImage = this.state.image;
 
-        const scaleX = sourceImage.naturalWidth / sourceImage.width;
-        const scaleY = sourceImage.naturalHeight / sourceImage.height;
         canvas.width = crop.width;
         canvas.height = crop.height;
         const ctx = canvas.getContext('2d');
@@ -95,10 +102,10 @@ class UploadRectsEditor extends Component {
 
         ctx.drawImage(
             sourceImage,
-            crop.x * scaleX,
-            crop.y * scaleY,
-            crop.width * scaleX,
-            crop.height * scaleY,
+            crop.x,
+            crop.y,
+            crop.width,
+            crop.height,
             0,
             0,
             crop.width,
@@ -112,20 +119,21 @@ class UploadRectsEditor extends Component {
         this.setState({existingRects: this.state.upload.rects.map((rect) => this.cropImage(rect))});
     }
 
+    saveUpload() {
+       API.sourceUploads.update(this.state.upload.id, this.state.upload)
+            .then(r => this.props.history.push(`/uploads`));
+    }
+
+    saveUploadAndOCR() {
+        API.sourceUploads.update(this.state.upload.id, this.state.upload)
+            .then(r => API.ocr.request(r.id))
+            .then(_ => this.props.history.push(`/uploads`));
+    }
+
     render() {
         return (
-            <div className="row" style={{marginBottom: "10px"}}>
-                <div className="col text-center">
-                    <div>
-                        <Button
-                            variant={'success'}
-                            onClick={this.addRectToUpload}
-                            style={{marginBottom: "10px"}}
-                            size="sm"
-                            disabled={this.state.crop === null || this.state.image === null}>
-                                Add text rect
-                        </Button>
-                    </div>
+            <Row cols={2} md style={{marginBottom: '10px'}}>
+                <Col sm className="text-center">
                     <div>
                         {
                             this.state.image === null ? <Spinner animation="border" role="status">
@@ -137,54 +145,63 @@ class UploadRectsEditor extends Component {
                         src={this.state.src}
                         crop={this.state.crop}
                         onChange={this.handleCropChange}>
-                        <img 
-                            id="source" 
-                            onLoad={this.handleImageChange} 
-                            src={this.state.src} 
+                        <img
+                            id="source"
+                            onLoad={this.handleImageChange}
+                            src={this.state.src}
                             alt="Source image"/>
                     </ReactCrop>
-                </div>
-                <div 
-                    className="col text-center" 
-                    style={{
-                        borderColor: "#D3D3D3",
-                        borderStyle: "solid",
-                        borderWidth: "1px",
-                        borderRadius: "5px"
-                    }}>
-                    {
-                        this.state.existingRects.length !== 0 ?
-                            <p>
-                                <b>{this.state.existingRects.length}</b> rect(s)
-                            </p>
-                        :
-                            <p>There are no rects here yet</p>
-                    }    
-                    {
-                        this.state.existingRects.map((rect, index) =>
-                             <Card 
-                                key={index} 
-                                style={{marginBottom: "10px"}}>
-                                <Card.Body className='text-center'>
-                                    <img 
-                                        src={rect} 
-                                        style={{width: "60%", height: "60%"}} 
-                                        alt="Rect"/>
-                                </Card.Body>
-                                <Card.Footer className="text-muted">
-                                    <Button 
-                                        variant="outline-danger" 
-                                        onClick={() => this.handleDeleteRect(index)}
-                                        size="sm">
+                </Col>
+                <Col sm className="text-center">
+                    <Button variant="primary"
+                            size="sm"
+                            className="mb-3 me-2"
+                            onClick={this.addRectToUpload}
+                            disabled={this.state.crop === null || this.state.image === null}>
+                        Add text rect
+                    </Button>
+                    <ButtonGroup size="sm"
+                                 className="mb-3">
+                        <Button variant="outline-primary"
+                                onClick={this.saveUploadAndOCR}>
+                            Save {this.state.existingRects.length} region(s) and OCR
+                        </Button>
+                        <Button variant="outline-secondary"
+                                onClick={this.saveUpload}>
+                            Save {this.state.existingRects.length} region(s)
+                        </Button>
+                    </ButtonGroup>
+                    <div className="overflow-scroll" style={{height: '70vh'}}>
+                        {
+                            this.state.existingRects.map((rect, index) =>
+                                <Card
+                                    key={index}
+                                    style={{marginBottom: "10px"}}>
+                                    <Card.Body className='text-center'>
+                                        <img src={rect}
+                                             style={{width: "100%"}}
+                                             alt="Rect"/>
+                                        {
+                                            (this.state.upload.rects[index] !== undefined &&
+                                                this.state.upload.rects[index].type === "TEXT" &&
+                                                this.state.upload.rects[index].data !== undefined) ?
+                                                (<code>{this.state.upload.rects[index].data.text}</code>) : null
+                                        }
+                                    </Card.Body>
+                                    <Card.Footer className="text-muted">
+                                        <Button
+                                            variant="outline-danger"
+                                            onClick={() => this.handleDeleteRect(index)}
+                                            size="sm">
                                             Delete rect
-                                    </Button>
-                                </Card.Footer>
-                            </Card>
-                        )
-                    }
-                </div>
-                
-            </div>
+                                        </Button>
+                                    </Card.Footer>
+                                </Card>
+                            )
+                        }
+                    </div>
+                </Col>
+            </Row>
         )
     }
 }

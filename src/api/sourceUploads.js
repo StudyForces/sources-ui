@@ -41,7 +41,7 @@ function get(id) {
 
 function update(id, obj) {
     return fetch(`${config.url.API_BASE_URL}/sourceUploads/${id}`, {
-        method: 'POST',
+        method: 'PUT',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
             'Content-Type': 'application/json'
