@@ -184,6 +184,7 @@ class UploadRectsEditor extends Component {
                                         {
                                             (this.state.upload.rects[index] !== undefined &&
                                                 this.state.upload.rects[index].type === "TEXT" &&
+                                                this.state.upload.rects[index].data !== null &&
                                                 this.state.upload.rects[index].data !== undefined) ?
                                                 (<code>{this.state.upload.rects[index].data.text}</code>) : null
                                         }
