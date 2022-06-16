@@ -1,5 +1,6 @@
 import React, {Component} from 'react';
 import {Button, Spinner, Card, Row, Col, ButtonGroup} from 'react-bootstrap';
+import Latex from 'react-latex';
 import ReactCrop from 'react-image-crop';
 import {config} from "../../Constants";
 import 'react-image-crop/dist/ReactCrop.css';
@@ -122,7 +123,7 @@ class UploadRectsEditor extends Component {
     }
 
     saveUpload() {
-       API.sourceUploads.update(this.state.upload.id, this.state.upload)
+        API.sourceUploads.update(this.state.upload.id, this.state.upload)
             .then(r => this.props.history.push(`/uploads`));
     }
 
@@ -137,13 +138,13 @@ class UploadRectsEditor extends Component {
             return null;
         }
 
-        switch(rect.type) {
-        case "TEXT":
-            return <code>{rect.data.text}</code>
-        case "FORMULA":
-            return <code>{rect.data.latex}</code>
-        default:
-            return <code>UNKNOWN TYPE: {rect.type}</code>
+        switch (rect.type) {
+            case "TEXT":
+                return <code>{rect.data.text}</code>
+            case "FORMULA":
+                return <Latex children={`$${rect.data.latex}$`}></Latex>
+            default:
+                return <code>UNKNOWN TYPE: {rect.type}</code>
         }
     }
 
@@ -170,9 +171,10 @@ class UploadRectsEditor extends Component {
                         <div className="overflow-scroll position-relative" style={{maxHeight: 'inherit'}}>
                             <div className="text-center sticky-top">
                                 {
-                                    this.state.image === null ? <Spinner animation="border" role="status" className="mx-3">
-                                        <span className="visually-hidden">Loading...</span>
-                                    </Spinner> : null
+                                    this.state.image === null ?
+                                        <Spinner animation="border" role="status" className="mx-3">
+                                            <span className="visually-hidden">Loading...</span>
+                                        </Spinner> : null
                                 }
                                 <ButtonGroup size="sm"
                                              className="mb-3 me-2">
