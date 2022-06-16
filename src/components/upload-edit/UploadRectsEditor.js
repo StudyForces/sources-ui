@@ -169,7 +169,7 @@ class UploadRectsEditor extends Component {
                     <Col sm className="text-center"
                          style={{maxHeight: 'inherit'}}>
                         <div className="overflow-scroll position-relative" style={{maxHeight: 'inherit'}}>
-                            <div className="text-center sticky-top">
+                            <div className="text-center sticky-top bg-white">
                                 {
                                     this.state.image === null ?
                                         <Spinner animation="border" role="status" className="mx-3">
