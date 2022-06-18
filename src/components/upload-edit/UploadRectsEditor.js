@@ -37,7 +37,7 @@ class UploadRectsEditor extends Component {
                     src: URL.createObjectURL(res[0]),
                     results: res[1].content
                 });
-            })
+            });
     }
 
     componentWillUnmount() {
@@ -53,19 +53,19 @@ class UploadRectsEditor extends Component {
     }
 
     handleImageChange(event) {
-        event.target.crossorigin = 'anonymous';
-        this.setState({image: event.target});
-        this.convertExistingRectsToImages();
+        this.setState({image: event.target}, () => {
+            this.convertExistingRectsToImages();
+        })
     }
 
     handleDeleteResult = (index) => {
         const results = this.state.results;
         results.splice(index, 1);
-        this.setState({results});
 
         const existingRects = this.state.existingRects;
         existingRects.splice(index, 1);
-        this.setState({existingRects: existingRects});
+
+        this.setState({results, existingRects});
     }
 
     addRectToUpload(type) {
@@ -93,8 +93,9 @@ class UploadRectsEditor extends Component {
                 status: null
             });
 
-            this.setState({results, crop: null});
-            this.convertExistingRectsToImages();
+            this.setState({results, crop: null}, () => {
+                this.convertExistingRectsToImages();
+            });
         }
     }
 
