@@ -1,5 +1,5 @@
 import React from 'react';
-import {Badge, Button, ButtonGroup, Dropdown} from "react-bootstrap";
+import {Badge, Button, ButtonGroup, Dropdown, Spinner} from "react-bootstrap";
 import {config} from "../../Constants";
 import {NavLink} from "react-router-dom";
 import API from "../../api";
@@ -19,6 +19,9 @@ class UploadRow extends React.Component {
             isLoaded: false,
             ocrResults: []
         };
+
+        this.runOCR = this.runOCR.bind(this);
+        this.remove = this.remove.bind(this);
     }
 
     componentDidMount() {
@@ -40,12 +43,60 @@ class UploadRow extends React.Component {
             );
     }
 
-    render() {
+    remove() {
         const {upload, onRemove} = this.props;
+        API.sourceUploads.remove(upload.id)
+            .then(r => onRemove());
+    }
 
-        const results = this.state.ocrResults;
+    runOCR() {
+        const {upload} = this.props;
+        API.ocr.request(upload.id)
+            .then(_ => alert(`OCR for ${upload.id} was scheduled!`));
+    }
 
-        const statusGrouped = results.reduce((groups, item) => {
+    status(statusCounts) {
+        return statusCounts.map(value => (
+            <Badge key={value.key} pill bg={UploadRowStatusColors[value.key]} className="me-1 align-middle">
+                {value.count} {value.key.toLowerCase()}
+            </Badge>
+        ));
+    }
+
+    actions(done) {
+        const {upload} = this.props;
+
+        return (<Dropdown as={ButtonGroup} size="sm" className="align-middle">
+            {
+                done ? <Button variant="outline-secondary" as={NavLink}
+                               to={`/uploads/${upload.id}/review`}>Review</Button> :
+                    <Button variant="outline-secondary" as={NavLink} to={`/uploads/${upload.id}`}>Edit</Button>
+            }
+
+            <Dropdown.Toggle split variant="outline-secondary"/>
+
+            <Dropdown.Menu>
+                {
+                    done ? <>
+                        <Dropdown.Item as={NavLink} to={`/uploads/${upload.id}`}>Edit</Dropdown.Item>
+                        <Dropdown.Divider/>
+                    </> : null
+                }
+                <Dropdown.Item onClick={this.runOCR}>Run OCR</Dropdown.Item>
+                <Dropdown.Item href={`${config.url.API_BASE_URL}/upload/view/${upload.id}`}>
+                    View Image
+                </Dropdown.Item>
+                <Dropdown.Divider/>
+                <Dropdown.Item className="text-danger" onClick={this.remove}>Delete</Dropdown.Item>
+            </Dropdown.Menu>
+        </Dropdown>);
+    }
+
+    render() {
+        const {upload} = this.props;
+        const {error, isLoaded, ocrResults} = this.state;
+
+        const statusGrouped = ocrResults.reduce((groups, item) => {
             if (item.status === null) {
                 item.status = 'UNKNOWN';
             }
@@ -57,54 +108,35 @@ class UploadRow extends React.Component {
         }, {});
         const statusCounts = Object.keys(statusGrouped).map(key => ({key, count: statusGrouped[key].length}));
 
-        const done = statusGrouped['DONE'] == null ? false : statusGrouped['DONE'].length === results.length;
-
-        const remove = () => {
-            API.sourceUploads.remove(upload.id)
-                .then(r => onRemove());
-        };
-        const runOCR = () => {
-            API.ocr.request(upload.id)
-                .then(_ => alert(`OCR for ${upload.id} was scheduled!`));
-        };
+        const done = statusGrouped['DONE'] == null ? false : statusGrouped['DONE'].length === ocrResults.length;
 
         return (
             <tr>
                 <td className="text-truncate align-middle">{upload.id}</td>
-                <td className="text-truncate align-middle">{results.length} region(s)</td>
-                <td className="text-truncate align-middle">
-                    {
-                        statusCounts.map(value => (
-                            <Badge key={value.key} pill bg={UploadRowStatusColors[value.key]} className="me-1 align-middle">
-                                {value.count} {value.key.toLowerCase()}
-                            </Badge>
-                        ))
-                    }
-                </td>
-                <td>
-                    <Dropdown as={ButtonGroup} size="sm" className="align-middle">
-                        {
-                            done ? <Button variant="outline-secondary" as={NavLink} to={`/uploads/${upload.id}/review`}>Review</Button> :
-                                <Button variant="outline-secondary" as={NavLink} to={`/uploads/${upload.id}`}>Edit</Button>
-                        }
-
-                        <Dropdown.Toggle split variant="outline-secondary" />
-
-                        <Dropdown.Menu>
+                {
+                    error === null && isLoaded ? (
+                        <>
+                            <td className="text-truncate align-middle">{ocrResults.length} region(s)</td>
+                            <td className="text-truncate align-middle">
+                                {
+                                    this.status(statusCounts)
+                                }
+                            </td>
+                        </>
+                    ) : (
+                        <td className="text-truncate align-middle" colSpan={2}>
                             {
-                                done ? <>
-                                    <Dropdown.Item as={NavLink} to={`/uploads/${upload.id}`}>Edit</Dropdown.Item>
-                                    <Dropdown.Divider />
-                                </> : null
+                                error !== null ? error : <Spinner animation="border" role="status" size="sm">
+                                    <span className="visually-hidden">Loading...</span>
+                                </Spinner>
                             }
-                            <Dropdown.Item onClick={runOCR}>Run OCR</Dropdown.Item>
-                            <Dropdown.Item href={`${config.url.API_BASE_URL}/upload/view/${upload.id}`}>
-                                View Image
-                            </Dropdown.Item>
-                            <Dropdown.Divider />
-                            <Dropdown.Item className="text-danger" onClick={remove}>Delete</Dropdown.Item>
-                        </Dropdown.Menu>
-                    </Dropdown>
+                        </td>
+                    )
+                }
+                <td>
+                    {
+                        this.actions(done)
+                    }
                 </td>
             </tr>
         );
