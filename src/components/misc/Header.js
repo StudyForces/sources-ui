@@ -20,7 +20,7 @@ export default function Header() {
     }
 
     return (
-        <Navbar bg="dark" variant="dark" expand="lg" sticky="top">
+        <Navbar bg="dark" variant="dark" expand="lg" sticky="top" className="misc-navbar">
             <Container>
                 <Navbar.Brand as={NavLink} to="/">Sources Toolkit</Navbar.Brand>
                 <Navbar.Toggle aria-controls="navbarScroll" />

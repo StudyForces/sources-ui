@@ -6,4 +6,6 @@ const API = {
     ocr
 }
 
+window.API = API;
+
 export default API;

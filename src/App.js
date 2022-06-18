@@ -7,6 +7,7 @@ import Home from "./components/home/Home";
 import Header from "./components/misc/Header";
 import UploadsPage from "./components/uploads/UploadsPage";
 import UploadEditPage from "./components/upload-edit/UploadEditPage";
+import OCRReviewPage from "./components/ocr-review/OCRReviewPage";
 
 function App() {
     const initOptions = {
@@ -42,6 +43,7 @@ function App() {
                         <Route path='/home' component={Home}/>
                         <PrivateRoute path='/uploads' exact component={UploadsPage}/>
                         <PrivateRoute path='/uploads/:id' exact component={UploadEditPage}/>
+                        <PrivateRoute path='/uploads/:id/review' exact component={OCRReviewPage}/>
                         <Route component={Home}/>
                     </Switch>
                 </Router>

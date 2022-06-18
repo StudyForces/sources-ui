@@ -2,7 +2,6 @@ import React, {Component} from 'react';
 import {Button, Spinner, Card, Row, Col, ButtonGroup} from 'react-bootstrap';
 import Latex from 'react-latex';
 import ReactCrop from 'react-image-crop';
-import {config} from "../../Constants";
 import 'react-image-crop/dist/ReactCrop.css';
 import API from "../../api";
 
@@ -14,23 +13,33 @@ class UploadRectsEditor extends Component {
             src: null,
             image: null,
             crop: null,
+            results: [],
             existingRects: []
         }
 
         this.handleCropChange = this.handleCropChange.bind(this);
         this.handleImageChange = this.handleImageChange.bind(this);
-        this.handleDeleteRect = this.handleDeleteRect.bind(this);
+        this.handleDeleteResult = this.handleDeleteResult.bind(this);
         this.addRectToUpload = this.addRectToUpload.bind(this);
 
         this.convertExistingRectsToImages = this.convertExistingRectsToImages.bind(this);
         this.cropImage = this.cropImage.bind(this);
 
-        this.saveUpload = this.saveUpload.bind(this);
-        this.saveUploadAndOCR = this.saveUploadAndOCR.bind(this);
+        this.save = this.save.bind(this);
+        this.saveAndOCR = this.saveAndOCR.bind(this);
     }
 
     componentDidMount() {
-        this.setState({src: `${config.url.API_BASE_URL}/upload/view/${this.state.upload.id}`});
+        API.sourceUploads.getImage(this.state.upload.id)
+            .then(blob => {
+                this.setState({src: URL.createObjectURL(blob)})
+            });
+        API.sourceUploads.getOCRResults(this.state.upload.id)
+            .then(results => this.setState({results: results.content}));
+    }
+
+    componentWillUnmount() {
+        URL.revokeObjectURL(this.state.src)
     }
 
     handleCropChange(event) {
@@ -42,15 +51,14 @@ class UploadRectsEditor extends Component {
     }
 
     handleImageChange(event) {
-        event.target.crossOrigin = 'anonymous';
         this.setState({image: event.target});
         this.convertExistingRectsToImages();
     }
 
-    handleDeleteRect = (index) => {
-        const upload = this.state.upload;
-        upload.rects.splice(index, 1);
-        this.setState({upload: upload});
+    handleDeleteResult = (index) => {
+        const results = this.state.results;
+        results.splice(index, 1);
+        this.setState({results});
 
         const existingRects = this.state.existingRects;
         existingRects.splice(index, 1);
@@ -73,14 +81,16 @@ class UploadRectsEditor extends Component {
                 y: this.state.crop.y * scaleY,
                 width: this.state.crop.width * scaleX,
                 height: this.state.crop.height * scaleY,
-                type,
-                status: null
             }
 
-            const upload = this.state.upload;
-            upload.rects.push(rect);
+            const results = this.state.results;
+            results.push({
+                rect,
+                type,
+                status: null
+            });
 
-            this.setState({upload: upload, crop: null});
+            this.setState({results, crop: null});
             this.convertExistingRectsToImages();
         }
     }
@@ -119,32 +129,32 @@ class UploadRectsEditor extends Component {
     }
 
     convertExistingRectsToImages() {
-        this.setState({existingRects: this.state.upload.rects.map((rect) => this.cropImage(rect))});
+        this.setState({existingRects: this.state.results.map((result) => this.cropImage(result.rect))});
     }
 
-    saveUpload() {
-        API.sourceUploads.update(this.state.upload.id, this.state.upload)
+    save() {
+        API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
             .then(r => this.props.history.push(`/uploads`));
     }
 
-    saveUploadAndOCR() {
-        API.sourceUploads.update(this.state.upload.id, this.state.upload)
+    saveAndOCR() {
+        API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
             .then(r => API.ocr.request(r.id))
             .then(_ => this.props.history.push(`/uploads`));
     }
 
-    rectContent(rect) {
-        if (rect.data === null || rect.data === undefined) {
+    resultContent(result) {
+        if (result.data === null || result.data === undefined) {
             return null;
         }
 
-        switch (rect.type) {
+        switch (result.type) {
             case "TEXT":
-                return <code>{rect.data.text}</code>
+                return <code>{result.data.text}</code>
             case "FORMULA":
-                return <Latex children={`$${rect.data.latex}$`}></Latex>
+                return <Latex children={`$${result.data.latex}$`}></Latex>
             default:
-                return <code>UNKNOWN TYPE: {rect.type}</code>
+                return <code>UNKNOWN TYPE: {result.type}</code>
         }
     }
 
@@ -154,28 +164,25 @@ class UploadRectsEditor extends Component {
                 <Row cols={2} md style={{maxHeight: '600px'}}>
                     <Col sm className="text-center"
                          style={{maxHeight: 'inherit'}}>
-                        <ReactCrop
-                            src={this.state.src}
-                            crop={this.state.crop}
-                            onChange={this.handleCropChange}
-                            style={{maxHeight: 'inherit'}}>
-                            <img
-                                id="source"
-                                onLoad={this.handleImageChange}
+                        {
+                            this.state.src !== null ? <ReactCrop
                                 src={this.state.src}
-                                alt="Source image"/>
-                        </ReactCrop>
+                                crop={this.state.crop}
+                                onChange={this.handleCropChange}
+                                style={{maxHeight: 'inherit'}}>
+                                <img
+                                    onLoad={this.handleImageChange}
+                                    src={this.state.src}
+                                    alt="Source image"/>
+                            </ReactCrop> : <Spinner animation="border" role="status" className="mx-3">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
+                        }
                     </Col>
                     <Col sm className="text-center"
                          style={{maxHeight: 'inherit'}}>
                         <div className="overflow-scroll position-relative" style={{maxHeight: 'inherit'}}>
-                            <div className="text-center sticky-top bg-white">
-                                {
-                                    this.state.image === null ?
-                                        <Spinner animation="border" role="status" className="mx-3">
-                                            <span className="visually-hidden">Loading...</span>
-                                        </Spinner> : null
-                                }
+                            <div className="text-center sticky-top bg-white" style={{zIndex: 100}}>
                                 <ButtonGroup size="sm"
                                              className="mb-3 me-2">
                                     <Button variant="primary"
@@ -192,11 +199,11 @@ class UploadRectsEditor extends Component {
                                 <ButtonGroup size="sm"
                                              className="mb-3">
                                     <Button variant="outline-primary"
-                                            onClick={this.saveUploadAndOCR}>
+                                            onClick={this.saveAndOCR}>
                                         Save and OCR
                                     </Button>
                                     <Button variant="outline-secondary"
-                                            onClick={this.saveUpload}>
+                                            onClick={this.save}>
                                         Save
                                     </Button>
                                 </ButtonGroup>
@@ -211,14 +218,14 @@ class UploadRectsEditor extends Component {
                                                  style={{width: "100%"}}
                                                  alt="Rect"/>
                                             {
-                                                this.state.upload.rects[index] !== undefined ?
-                                                    this.rectContent(this.state.upload.rects[index]) : null
+                                                this.state.results[index] !== undefined ?
+                                                    this.resultContent(this.state.results[index]) : null
                                             }
                                         </Card.Body>
                                         <Card.Footer className="text-muted">
                                             <Button
                                                 variant="outline-danger"
-                                                onClick={() => this.handleDeleteRect(index)}
+                                                onClick={() => this.handleDeleteResult(index)}
                                                 size="sm">
                                                 Delete rect
                                             </Button>

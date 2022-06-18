@@ -1,9 +1,9 @@
-import React, {Component} from 'react';
+import React, { Component } from 'react';
 import {Container, Alert, Spinner} from "react-bootstrap";
-import UploadRectsEditor from './UploadRectsEditor';
 import API from "../../api";
 
-class UploadEditPage extends Component {
+class OCRReviewPage extends Component {
+
     constructor(props) {
         super(props);
         this.state = {
@@ -37,26 +37,26 @@ class UploadEditPage extends Component {
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {
-            return <Spinner animation="border" role="status" className="text-center">
+            return <Spinner animation="border" role="status">
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
-            return (
-                <>
-                    <UploadRectsEditor upload={upload} {...this.props}/>
-                </>
-            );
+            return <Alert variant="primary">
+                <pre>
+                    {JSON.stringify(upload, null, 2)}
+                </pre>
+            </Alert>;
         }
     }
 
     render() {
         return (
             <Container className="mt-3">
-                <h1>Upload Edit</h1>
+                <h1>OCR Review</h1>
                 {this.content()}
             </Container>
         );
     }
 }
 
-export default UploadEditPage;
+export default OCRReviewPage;
