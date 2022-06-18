@@ -30,15 +30,14 @@ class UploadRectsEditor extends Component {
     }
 
     componentDidMount() {
-        API.sourceUploads.getImage(this.state.upload.id)
-            .then(blob => {
-                this.setState({src: URL.createObjectURL(blob)})
-            });
-        API.sourceUploads.getOCRResults(this.state.upload.id)
-            .then(results => {
-                this.setState({results: results.content});
-                this.convertExistingRectsToImages(results.content);
-            });
+        Promise.all([API.sourceUploads.getImage(this.state.upload.id),
+            API.sourceUploads.getOCRResults(this.state.upload.id)])
+            .then(res => {
+                this.setState({
+                    src: URL.createObjectURL(res[0]),
+                    results: res[1].content
+                });
+            })
     }
 
     componentWillUnmount() {
@@ -54,6 +53,7 @@ class UploadRectsEditor extends Component {
     }
 
     handleImageChange(event) {
+        event.target.crossorigin = 'anonymous';
         this.setState({image: event.target});
         this.convertExistingRectsToImages();
     }
@@ -131,8 +131,8 @@ class UploadRectsEditor extends Component {
         return canvas.toDataURL();
     }
 
-    convertExistingRectsToImages(results = this.state.results) {
-        this.setState({existingRects: results.map((result) => this.cropImage(result.rect))});
+    convertExistingRectsToImages() {
+        this.setState({existingRects: this.state.results.map((result) => this.cropImage(result.rect))});
     }
 
     save() {
