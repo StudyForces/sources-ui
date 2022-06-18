@@ -1,2 +1,10 @@
 @import "~bootstrap/scss/bootstrap";
 @import "~katex/dist/katex.css";
+
+.dropdown-menu {
+  @extend .p-2;
+}
+
+.dropdown-item {
+  @extend .rounded-2;
+}
