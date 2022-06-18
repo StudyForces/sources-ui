@@ -35,7 +35,10 @@ class UploadRectsEditor extends Component {
                 this.setState({src: URL.createObjectURL(blob)})
             });
         API.sourceUploads.getOCRResults(this.state.upload.id)
-            .then(results => this.setState({results: results.content}));
+            .then(results => {
+                this.state.results = results.content;
+                this.convertExistingRectsToImages();
+            });
     }
 
     componentWillUnmount() {
