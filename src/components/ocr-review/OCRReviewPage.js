@@ -14,7 +14,7 @@ class OCRReviewPage extends Component {
     }
 
     componentDidMount() {
-        API.sourceUploads.get(parseInt(this.props.match.params.id, 10))
+        API.sourceUploads.getOCRResults(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
                     this.setState({

@@ -36,8 +36,8 @@ class UploadRectsEditor extends Component {
             });
         API.sourceUploads.getOCRResults(this.state.upload.id)
             .then(results => {
-                this.state.results = results.content;
-                this.convertExistingRectsToImages();
+                this.setState({results: results.content});
+                this.convertExistingRectsToImages(results.content);
             });
     }
 
@@ -131,8 +131,8 @@ class UploadRectsEditor extends Component {
         return canvas.toDataURL();
     }
 
-    convertExistingRectsToImages() {
-        this.setState({existingRects: this.state.results.map((result) => this.cropImage(result.rect))});
+    convertExistingRectsToImages(results = this.state.results) {
+        this.setState({existingRects: results.map((result) => this.cropImage(result.rect))});
     }
 
     save() {
@@ -142,7 +142,7 @@ class UploadRectsEditor extends Component {
 
     saveAndOCR() {
         API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
-            .then(r => API.ocr.request(r.id))
+            .then(r => API.ocr.request(this.state.upload.id))
             .then(_ => this.props.history.push(`/uploads`));
     }
 
