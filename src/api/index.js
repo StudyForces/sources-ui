@@ -6,6 +6,8 @@ const API = {
     ocr
 }
 
-window.API = API;
+if (process.env.NODE_ENV === 'development') {
+    window.API = API;
+}
 
 export default API;
