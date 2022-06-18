@@ -184,6 +184,21 @@ async function saveOCRResults(sourceUpload, results) {
     return true;
 }
 
+function getFileInfo(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/info/${id}`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
+}
+
 const sourceUploads = {
     list,
     get,
@@ -192,7 +207,8 @@ const sourceUploads = {
     update,
     create,
     remove,
-    saveOCRResults
+    saveOCRResults,
+    getFileInfo
 };
 
 export default sourceUploads;

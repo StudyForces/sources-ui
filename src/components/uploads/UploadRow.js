@@ -83,9 +83,6 @@ class UploadRow extends React.Component {
                     </> : null
                 }
                 <Dropdown.Item onClick={this.runOCR}>Run OCR</Dropdown.Item>
-                <Dropdown.Item href={`${config.url.API_BASE_URL}/upload/view/${upload.id}`}>
-                    View Image
-                </Dropdown.Item>
                 <Dropdown.Divider/>
                 <Dropdown.Item className="text-danger" onClick={this.remove}>Delete</Dropdown.Item>
             </Dropdown.Menu>
