@@ -1,4 +1,4 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {Container, Alert, Spinner, Col, Row} from "react-bootstrap";
 import API from "../../api";
 import OCRResultReviewCard from "./OCRResultReviewCard";
@@ -56,7 +56,7 @@ class OCRReviewPage extends Component {
             });
     }
 
-    content() {
+    contentResults() {
         const {error, isLoaded, results} = this.state;
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
@@ -65,25 +65,27 @@ class OCRReviewPage extends Component {
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
-            return <Row cols={2} md>
-                <Col sm>
-                    {
-                        results.map(result =>
-                            <OCRResultReviewCard key={result.id} result={result}
-                                                 onSave={this.handleSave}></OCRResultReviewCard>)
-                    }
-                </Col>
-                <Col sm>
-                </Col>
-            </Row>;
+            return results.map(result =>
+                <OCRResultReviewCard key={result.id} result={result}
+                                     onSave={this.handleSave}></OCRResultReviewCard>);
         }
     }
 
     render() {
         return (
-            <Container className="mt-3">
-                <h1>OCR Review</h1>
-                {this.content()}
+            <Container>
+                <Row cols={2} md>
+                    <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
+                        <div className="mt-3">
+                            <h1>Review Upload #{this.props.match.params.id}</h1>
+                        </div>
+                    </Col>
+                    <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
+                        <div className="mt-3">
+                            {this.contentResults()}
+                        </div>
+                    </Col>
+                </Row>
             </Container>
         );
     }

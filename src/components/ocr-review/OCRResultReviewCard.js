@@ -42,13 +42,28 @@ class OCRResultReviewCard extends Component {
 
         switch (result.type) {
             case "TEXT":
-                return <Form.Control as="textarea" disabled={!editing} rows={6} value={result.data.text}
-                                     onChange={(event) => {
-                                         const newResult = Object.assign(result, {data: {text: event.target.value}});
-                                         this.setState({result: newResult});
-                                     }} />
+                return <>
+                    <Latex children={result.data.text}></Latex>
+                    {
+                        editing ? <Form.Control as="textarea" rows={3} value={result.data.text}
+                            onChange={(event) => {
+                                const newResult = Object.assign(result, {data: {text: event.target.value}});
+                                this.setState({result: newResult});
+                            }} /> : null
+                    }
+                </>;
+
             case "FORMULA":
-                return <Latex children={`$${result.data.latex}$`}></Latex>
+                return <>
+                    <Latex displayMode={true} children={`$${result.data.latex}$`}></Latex>
+                    {
+                        editing ? <Form.Control as="textarea" rows={3} value={result.data.latex}
+                            onChange={(event) => {
+                                const newResult = Object.assign(result, {data: {latex: event.target.value}});
+                                this.setState({result: newResult});
+                            }} /> : null
+                    }
+                </>
             default:
                 return <code>UNKNOWN TYPE: {result.type}</code>
         }
@@ -63,7 +78,7 @@ class OCRResultReviewCard extends Component {
                     <Badge bg="primary" className="me-2">{result.type}</Badge>
                 </Col>
                 <Col md="auto">
-                    <Form.Check type="checkbox" />
+                    <Form.Check type="checkbox" disabled={this.state.editing} />
                 </Col>
             </Row>
             {
