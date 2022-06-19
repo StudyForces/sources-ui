@@ -147,21 +147,6 @@ class UploadRectsEditor extends Component {
             .then(_ => this.props.history.push(`/uploads`));
     }
 
-    resultContent(result) {
-        if (result.data === null || result.data === undefined) {
-            return null;
-        }
-
-        switch (result.type) {
-            case "TEXT":
-                return <code>{result.data.text}</code>
-            case "FORMULA":
-                return <Latex children={`$${result.data.latex}$`}></Latex>
-            default:
-                return <code>UNKNOWN TYPE: {result.type}</code>
-        }
-    }
-
     render() {
         return (
             <>
@@ -216,15 +201,11 @@ class UploadRectsEditor extends Component {
                                 this.state.existingRects.map((rect, index) =>
                                     <Card
                                         key={index}
-                                        style={{marginBottom: "10px"}}>
+                                        className="mb-2">
                                         <Card.Body className='text-center'>
                                             <img src={rect}
                                                  style={{width: "100%"}}
                                                  alt="Rect"/>
-                                            {
-                                                this.state.results[index] !== undefined ?
-                                                    this.resultContent(this.state.results[index]) : null
-                                            }
                                         </Card.Body>
                                         <Card.Footer className="text-muted">
                                             <Button

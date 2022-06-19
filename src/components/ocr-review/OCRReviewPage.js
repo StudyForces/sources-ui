@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
-import {Container, Alert, Spinner} from "react-bootstrap";
+import {Container, Alert, Spinner, Col, Row} from "react-bootstrap";
 import API from "../../api";
+import OCRResultReviewCard from "./OCRResultReviewCard";
 
 class OCRReviewPage extends Component {
 
@@ -9,31 +10,54 @@ class OCRReviewPage extends Component {
         this.state = {
             error: null,
             isLoaded: false,
+            results: [],
             upload: null
         };
+
+        this.handleSave = this.handleSave.bind(this);
     }
 
     componentDidMount() {
-        API.sourceUploads.getOCRResults(parseInt(this.props.match.params.id, 10))
+        const id = parseInt(this.props.match.params.id, 10);
+        Promise.all([
+            API.sourceUploads.getOCRResults(id),
+            API.sourceUploads.get(id)
+        ])
             .then(
                 (result) => {
                     this.setState({
                         isLoaded: true,
-                        upload: result,
+                        results: result[0].content,
+                        upload: result[1],
                     });
                 },
                 (error) => {
                     this.setState({
                         isLoaded: true,
                         error,
+                        results: [],
                         upload: null,
                     });
                 }
             );
     }
 
+    handleSave(result, cb) {
+        API.ocr.update(result.id, result)
+            .then(r => {
+                const {results} = this.state;
+
+                const idx = results.findIndex(res => res.id === r.id);
+
+                if (idx !== -1) {
+                    results[idx] = r;
+                    this.setState({results}, cb);
+                }
+            });
+    }
+
     content() {
-        const {error, isLoaded, upload} = this.state;
+        const {error, isLoaded, results} = this.state;
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {
@@ -41,11 +65,17 @@ class OCRReviewPage extends Component {
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
-            return <Alert variant="primary">
-                <pre>
-                    {JSON.stringify(upload, null, 2)}
-                </pre>
-            </Alert>;
+            return <Row cols={2} md>
+                <Col sm>
+                    {
+                        results.map(result =>
+                            <OCRResultReviewCard key={result.id} result={result}
+                                                 onSave={this.handleSave}></OCRResultReviewCard>)
+                    }
+                </Col>
+                <Col sm>
+                </Col>
+            </Row>;
         }
     }
 
