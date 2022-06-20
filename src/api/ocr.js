@@ -70,6 +70,20 @@ function get(id) {
         .then(res => res.json());
 }
 
+function getProblem(id) {
+    return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}/problem`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                return null
+            }
+            return res.json();
+        });
+}
+
 function update(id, obj) {
     return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}`, {
         method: 'PUT',
@@ -93,6 +107,7 @@ const ocr = {
     saveOCRResult,
     list,
     get,
+    getProblem,
     update
 };
 

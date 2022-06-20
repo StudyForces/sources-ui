@@ -11,13 +11,27 @@ class OCRResultReviewCard extends Component {
         this.state = {
             result: this.props.result,
             editing: false,
-            selected: false
+            selected: false,
+            problem: null
         }
 
         this.enableEditing = this.enableEditing.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
         this.handleSelection = this.handleSelection.bind(this);
+    }
+
+    componentDidMount() {
+        API.ocr.getProblem(this.props.result.id)
+            .then(problem => {
+                this.setState({problem})
+            })
+    }
+
+    static getDerivedStateFromProps(props, state) {
+        return {
+            selected: props.selected
+        };
     }
 
     enableEditing() {
@@ -27,9 +41,7 @@ class OCRResultReviewCard extends Component {
     }
 
     handleSelection(event) {
-        this.setState({selected: event.target.checked}, () => {
-            this.props.onSelect(this.state.result, event.target.checked);
-        });
+        this.props.onSelect(this.state.result, event.target.checked);
     }
 
     saveEdit() {
@@ -82,30 +94,39 @@ class OCRResultReviewCard extends Component {
     render() {
         const {result} = this.props;
 
-        return <Card body key={result.id} className="mb-2">
-            <Row className="mt-0 mb-2">
-                <Col>
-                    <Badge bg="primary" className="me-2">{result.type}</Badge>
-                </Col>
-                <Col md="auto">
-                    <Form.Check type="checkbox" disabled={this.state.editing} checked={this.state.selected}
-                                onChange={this.handleSelection} />
-                </Col>
-            </Row>
-            {
-                this.content()
-            }
-            <div className="mt-3">
+        return <Card key={result.id}>
+            <Card.Header>
+                <Row className="m-0 p-0">
+                    <Col className="m-0 p-0">
+                        <Badge bg="primary" className="me-2">{result.type}</Badge>
+                        {
+                            this.state.problem ? <Badge bg="secondary" className="me-2">
+                                    Problem #{this.state.problem.id}
+                            </Badge> : null
+                        }
+                    </Col>
+                    <Col md="auto" className="m-0 p-0">
+                        <Form.Check type="checkbox" disabled={this.state.editing} checked={this.state.selected}
+                                    onChange={this.handleSelection} />
+                    </Col>
+                </Row>
+            </Card.Header>
+            <Card.Body>
                 {
-                    !this.state.editing ? <Button onClick={this.enableEditing} variant="secondary" size="sm">Edit</Button>
-                        : (
-                            <>
-                                <Button onClick={this.saveEdit} variant="primary" size="sm" className="me-1">Save</Button>
-                                <Button onClick={this.cancelEdit} variant="danger" size="sm">Cancel</Button>
-                            </>
-                        )
+                    this.content()
                 }
-            </div>
+                <div className="mt-3">
+                    {
+                        !this.state.editing ? <Button onClick={this.enableEditing} variant="secondary" size="sm">Edit</Button>
+                            : (
+                                <>
+                                    <Button onClick={this.saveEdit} variant="primary" size="sm" className="me-1">Save</Button>
+                                    <Button onClick={this.cancelEdit} variant="danger" size="sm">Cancel</Button>
+                                </>
+                            )
+                    }
+                </div>
+            </Card.Body>
         </Card>;
     }
 }

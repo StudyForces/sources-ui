@@ -2,6 +2,7 @@ import React, {Component} from 'react';
 import {Container, Alert, Spinner, Col, Row} from "react-bootstrap";
 import API from "../../api";
 import OCRResultReviewCard from "./OCRResultReviewCard";
+import ProblemSubmissionForm from "./ProblemSubmissionForm";
 
 class OCRReviewPage extends Component {
 
@@ -17,6 +18,7 @@ class OCRReviewPage extends Component {
 
         this.handleSave = this.handleSave.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
+        this.onSubmit = this.onSubmit.bind(this);
     }
 
     componentDidMount() {
@@ -82,9 +84,16 @@ class OCRReviewPage extends Component {
             </Spinner>;
         } else {
             return results.map(result =>
-                <OCRResultReviewCard key={result.id} result={result}
-                                     onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>);
+                <Col key={result.id}>
+                    <OCRResultReviewCard result={result}
+                                         selected={this.state.selected.findIndex(r => r === result.id) !== -1}
+                                         onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
+                </Col>);
         }
+    }
+
+    onSubmit(cb) {
+        this.setState({selected: []}, cb);
     }
 
     render() {
@@ -94,12 +103,17 @@ class OCRReviewPage extends Component {
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
                         <div className="mt-3">
                             <h1>Review Upload #{this.props.match.params.id}</h1>
-                            Selected: {this.state.selected.length}
+                            <Row xs={1} className="g-4">
+                                {this.contentResults()}
+                            </Row>
                         </div>
                     </Col>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
                         <div className="mt-3">
-                            {this.contentResults()}
+                            <ProblemSubmissionForm selected={this.state.selected.map(id =>
+                                this.state.results.find(r => r.id === id))} {...this.props}
+                                                   onSubmit={this.onSubmit}>
+                            </ProblemSubmissionForm>
                         </div>
                     </Col>
                 </Row>
