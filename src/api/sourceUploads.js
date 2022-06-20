@@ -161,25 +161,14 @@ async function saveOCRResults(sourceUpload, results) {
         }
     }));
 
-    const resultURLs = saved
-        .map(result => result.links.find(link => link.rel === 'self'))
-        .filter(link => link !== null)
-        .map(link => link.href);
-
-    const res = await fetch(`${config.url.API_BASE_URL}/sourceUploads/${sourceUpload.id}/ocrResults`, {
+    await Promise.all(saved.map(async result => await fetch(`${config.url.API_BASE_URL}/ocrResults/${result.id}/sourceUpload`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
             'Content-Type': 'text/uri-list'
         },
-        body: resultURLs.reduce((previousValue, currentValue) => {
-            return previousValue + `${currentValue}\n`
-        }, '')
-    })
-
-    if (!res.ok) {
-        throw Error(`${res.status} ${res.statusText}`);
-    }
+        body: `${config.url.API_BASE_URL}/sourceUploads/${sourceUpload.id}`
+    })));
 
     return true;
 }

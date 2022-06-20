@@ -55,10 +55,60 @@ function list(page = 0, size = 20) {
         });
 }
 
+function get(id) {
+    return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
+}
+
+function getProblem(id) {
+    return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}/problem`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                return null
+            }
+            return res.json();
+        });
+}
+
+function update(id, obj) {
+    return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify(obj)
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
+}
+
 const ocr = {
     request,
     saveOCRResult,
-    list
+    list,
+    get,
+    getProblem,
+    update
 };
 
 export default ocr;
