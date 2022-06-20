@@ -10,16 +10,26 @@ class OCRResultReviewCard extends Component {
 
         this.state = {
             result: this.props.result,
-            editing: false
+            editing: false,
+            selected: false
         }
 
         this.enableEditing = this.enableEditing.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
+        this.handleSelection = this.handleSelection.bind(this);
     }
 
     enableEditing() {
-        this.setState({editing: true});
+        this.setState({editing: true, selected: false}, () => {
+            this.props.onSelect(this.state.result, false);
+        });
+    }
+
+    handleSelection(event) {
+        this.setState({selected: event.target.checked}, () => {
+            this.props.onSelect(this.state.result, event.target.checked);
+        });
     }
 
     saveEdit() {
@@ -78,7 +88,8 @@ class OCRResultReviewCard extends Component {
                     <Badge bg="primary" className="me-2">{result.type}</Badge>
                 </Col>
                 <Col md="auto">
-                    <Form.Check type="checkbox" disabled={this.state.editing} />
+                    <Form.Check type="checkbox" disabled={this.state.editing} checked={this.state.selected}
+                                onChange={this.handleSelection} />
                 </Col>
             </Row>
             {

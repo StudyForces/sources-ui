@@ -11,10 +11,12 @@ class OCRReviewPage extends Component {
             error: null,
             isLoaded: false,
             results: [],
-            upload: null
+            upload: null,
+            selected: [],
         };
 
         this.handleSave = this.handleSave.bind(this);
+        this.handleSelect = this.handleSelect.bind(this);
     }
 
     componentDidMount() {
@@ -56,6 +58,20 @@ class OCRReviewPage extends Component {
             });
     }
 
+    handleSelect(result, selection) {
+        const { selected } = this.state;
+
+        const idx = selected.findIndex(id => id === result.id);
+
+        if (selection && idx === -1) {
+            selected.push(result.id);
+        } else if (!selection && idx !== -1) {
+            selected.splice(idx, 1);
+        }
+
+        this.setState({ selected });
+    }
+
     contentResults() {
         const {error, isLoaded, results} = this.state;
         if (error) {
@@ -67,7 +83,7 @@ class OCRReviewPage extends Component {
         } else {
             return results.map(result =>
                 <OCRResultReviewCard key={result.id} result={result}
-                                     onSave={this.handleSave}></OCRResultReviewCard>);
+                                     onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>);
         }
     }
 
@@ -78,6 +94,7 @@ class OCRReviewPage extends Component {
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
                         <div className="mt-3">
                             <h1>Review Upload #{this.props.match.params.id}</h1>
+                            Selected: {this.state.selected.length}
                         </div>
                     </Col>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>

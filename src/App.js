@@ -1,4 +1,4 @@
-import React, {StrictMode} from 'react'
+import React, {StrictMode, useState} from 'react'
 import {ReactKeycloakProvider} from '@react-keycloak/web'
 import {BrowserRouter as Router, Route, Switch} from 'react-router-dom'
 import keycloak from './keycloak';
@@ -8,8 +8,11 @@ import Header from "./components/misc/Header";
 import UploadsPage from "./components/uploads/UploadsPage";
 import UploadEditPage from "./components/upload-edit/UploadEditPage";
 import OCRReviewPage from "./components/ocr-review/OCRReviewPage";
+import {Alert, Container} from "react-bootstrap";
 
 function App() {
+    const [accessAllowed, setAccessAllowed] = useState(false);
+
     const initOptions = {
         pkceMethod: 'S256',
         checkLoginIframe: true,
@@ -20,6 +23,7 @@ function App() {
         if (event === 'onAuthSuccess') {
             if (keycloak.authenticated) {
                 // sth
+                setAccessAllowed(keycloak.realmAccess.roles.includes('editor'));
             }
         }
     }
@@ -38,6 +42,16 @@ function App() {
             <StrictMode>
                 <Router>
                     <Header></Header>
+                    {
+                        !accessAllowed ? <Container className="mt-3">
+                            <Alert variant="danger">
+                                You have read-only access to Sources Toolkit unless you have <code>editor</code> role!
+                                <br />
+                                Please contact <a href="mailto:pavel@pkasila.net">pavel@pkasila.net</a> for further
+                                information.
+                            </Alert>
+                        </Container> : null
+                    }
                     <Switch>
                         <Route path='/' exact component={Home}/>
                         <Route path='/home' component={Home}/>

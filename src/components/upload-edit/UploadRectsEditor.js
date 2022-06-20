@@ -58,7 +58,7 @@ class UploadRectsEditor extends Component {
         })
     }
 
-    handleDeleteResult = (index) => {
+    handleDeleteResult(index) {
         const results = this.state.results;
         results.splice(index, 1);
 
