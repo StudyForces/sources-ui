@@ -32,6 +32,7 @@ export default function Header() {
                     >
                         <Nav.Link as={NavLink} exact to="/home">Home</Nav.Link>
                         <Nav.Link as={NavLink} to="/uploads">Uploads</Nav.Link>
+                        <Nav.Link as={NavLink} to="/problems">Problems</Nav.Link>
                     </Nav>
                     {
                         keycloak.authenticated ?
