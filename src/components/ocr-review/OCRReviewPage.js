@@ -93,7 +93,11 @@ class OCRReviewPage extends Component {
     }
 
     onSubmit(cb) {
-        this.setState({selected: []}, cb);
+        const {results} = this.state;
+        this.setState({selected: [], results: []}, () => {
+            this.setState({results});
+            cb()
+        });
     }
 
     render() {

@@ -9,6 +9,8 @@ import UploadsPage from "./components/uploads/UploadsPage";
 import UploadEditPage from "./components/upload-edit/UploadEditPage";
 import OCRReviewPage from "./components/ocr-review/OCRReviewPage";
 import {Alert, Container} from "react-bootstrap";
+import ProblemsPage from "./components/problems/ProblemsPage";
+import ProblemReviewPage from "./components/problem-review/ProblemReviewPage";
 
 function App() {
     const [accessAllowed, setAccessAllowed] = useState(false);
@@ -58,6 +60,8 @@ function App() {
                         <PrivateRoute path='/uploads' exact component={UploadsPage}/>
                         <PrivateRoute path='/uploads/:id' exact component={UploadEditPage}/>
                         <PrivateRoute path='/uploads/:id/review' exact component={OCRReviewPage}/>
+                        <PrivateRoute path='/problems' exact component={ProblemsPage}/>
+                        <PrivateRoute path='/problems/:id' exact component={ProblemReviewPage}/>
                         <Route component={Home}/>
                     </Switch>
                 </Router>

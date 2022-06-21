@@ -1,5 +1,6 @@
 import React, { Component } from 'react';
 import {Badge, Button, Card, Col, Form, Row} from "react-bootstrap";
+import {NavLink} from "react-router-dom";
 import Latex from "react-latex";
 import API from "../../api";
 
@@ -99,15 +100,17 @@ class OCRResultReviewCard extends Component {
                 <Row className="m-0 p-0">
                     <Col className="m-0 p-0">
                         <Badge bg="primary" className="me-2">{result.type}</Badge>
-                        {
-                            this.state.problem ? <Badge bg="secondary" className="me-2">
-                                    Problem #{this.state.problem.id}
-                            </Badge> : null
-                        }
                     </Col>
                     <Col md="auto" className="m-0 p-0">
-                        <Form.Check type="checkbox" disabled={this.state.editing} checked={this.state.selected}
-                                    onChange={this.handleSelection} />
+                        {
+                            this.state.problem ? <NavLink to={`/problems/${this.state.problem.id}`}>
+                                <Badge bg="secondary">
+                                    Problem #{this.state.problem.id}
+                                </Badge>
+                            </NavLink> : <Form.Check type="checkbox" disabled={this.state.editing}
+                                                     checked={this.state.selected}
+                                                     onChange={this.handleSelection} />
+                        }
                     </Col>
                 </Row>
             </Card.Header>
