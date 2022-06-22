@@ -1,6 +1,6 @@
 import React, { Component } from 'react';
 import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
-import Latex from "react-latex";
+import Latex from "../misc/Latex";
 
 class ProblemForm extends Component {
     constructor(props) {
@@ -68,7 +68,7 @@ class ProblemForm extends Component {
                 <Card>
                     <Card.Header>Problem</Card.Header>
                     <Card.Body>
-                        <h6 className="mt-2">Problem Type</h6>
+                        <h6>Problem Type</h6>
                         <div>
                             <Form.Check
                                 inline

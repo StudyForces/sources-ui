@@ -51,8 +51,7 @@ class UploadEditPage extends Component {
 
     render() {
         return (
-            <Container className="mt-3">
-                <h1>Edit Upload #{this.props.match.params.id}</h1>
+            <Container>
                 {this.content()}
             </Container>
         );

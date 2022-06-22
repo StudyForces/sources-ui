@@ -14,6 +14,8 @@ class OCRReviewPage extends Component {
             results: [],
             upload: null,
             selected: [],
+            image: null,
+            imgUrl: null
         };
 
         this.handleSave = this.handleSave.bind(this);
@@ -25,25 +27,43 @@ class OCRReviewPage extends Component {
         const id = parseInt(this.props.match.params.id, 10);
         Promise.all([
             API.sourceUploads.getOCRResults(id),
-            API.sourceUploads.get(id)
+            API.sourceUploads.get(id),
+            API.sourceUploads.getImage(id)
         ])
             .then(
                 (result) => {
+                    const imgUrl = URL.createObjectURL(result[2]);
+
                     this.setState({
                         isLoaded: true,
                         results: result[0].content,
                         upload: result[1],
                     });
+
+                    const image = new Image();
+                    image.src = imgUrl;
+                    image.onload = () => {
+                        this.setState({
+                            image
+                        });
+                    }
                 },
                 (error) => {
+                    URL.revokeObjectURL(this.state.imgUrl);
                     this.setState({
                         isLoaded: true,
                         error,
                         results: [],
                         upload: null,
+                        image: null,
+                        imgUrl: null
                     });
                 }
             );
+    }
+
+    componentWillUnmount() {
+        URL.revokeObjectURL(this.state.imgUrl);
     }
 
     handleSave(result, cb) {
@@ -85,7 +105,7 @@ class OCRReviewPage extends Component {
         } else {
             return results.map(result =>
                 <Col key={result.id}>
-                    <OCRResultReviewCard result={result}
+                    <OCRResultReviewCard result={result} image={this.state.image}
                                          selected={this.state.selected.findIndex(r => r === result.id) !== -1}
                                          onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
                 </Col>);
@@ -105,20 +125,21 @@ class OCRReviewPage extends Component {
             <Container>
                 <Row cols={2} md>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
-                        <div className="mt-3">
+                        <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
                             <h1>Review Upload #{this.props.match.params.id}</h1>
-                            <Row xs={1} className="g-4">
-                                {this.contentResults()}
-                            </Row>
                         </div>
+                        <Row xs={1} className="g-4">
+                            {this.contentResults()}
+                        </Row>
                     </Col>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
-                        <div className="mt-3">
-                            <ProblemSubmissionForm selected={this.state.selected.map(id =>
-                                this.state.results.find(r => r.id === id))} {...this.props}
-                                                   onSubmit={this.onSubmit}>
-                            </ProblemSubmissionForm>
+                        <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
+                            <h2>New Problem</h2>
                         </div>
+                        <ProblemSubmissionForm selected={this.state.selected.map(id =>
+                            this.state.results.find(r => r.id === id))} {...this.props}
+                                               onSubmit={this.onSubmit}>
+                        </ProblemSubmissionForm>
                     </Col>
                 </Row>
             </Container>

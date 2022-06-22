@@ -8,3 +8,8 @@
 .dropdown-item {
   @extend .rounded-2;
 }
+
+.bg-white-blurred {
+  background-color: rgba($white, 0.8);
+  backdrop-filter: blur(10px) saturate(180%);
+}

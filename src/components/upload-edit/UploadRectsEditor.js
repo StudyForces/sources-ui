@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Button, Spinner, Card, Row, Col, ButtonGroup} from 'react-bootstrap';
-import Latex from 'react-latex';
+import cropImage from '../helpers/cropImage'
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import API from "../../api";
@@ -104,32 +104,7 @@ class UploadRectsEditor extends Component {
             return;
         }
 
-        const canvas = document.createElement('canvas');
-        const sourceImage = this.state.image;
-
-        canvas.width = crop.width;
-        canvas.height = crop.height;
-        const ctx = canvas.getContext('2d');
-
-        const pixelRatio = window.devicePixelRatio;
-        canvas.width = crop.width * pixelRatio;
-        canvas.height = crop.height * pixelRatio;
-        ctx.setTransform(pixelRatio, 0, 0, pixelRatio, 0, 0);
-        ctx.imageSmoothingQuality = 'high';
-
-        ctx.drawImage(
-            sourceImage,
-            crop.x,
-            crop.y,
-            crop.width,
-            crop.height,
-            0,
-            0,
-            crop.width,
-            crop.height,
-        );
-
-        return canvas.toDataURL();
+        return cropImage(this.state.image, crop).toDataURL();
     }
 
     convertExistingRectsToImages() {
@@ -149,79 +124,77 @@ class UploadRectsEditor extends Component {
 
     render() {
         return (
-            <>
-                <Row cols={2} md style={{maxHeight: '600px'}}>
-                    <Col sm className="text-center"
-                         style={{maxHeight: 'inherit'}}>
-                        {
-                            this.state.src !== null ? <ReactCrop
+            <Row cols={2} md>
+                <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
+                    <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
+                        <h1>Edit Upload #{this.props.match.params.id}</h1>
+                    </div>
+                    {
+                        this.state.src !== null ? <ReactCrop
+                            src={this.state.src}
+                            crop={this.state.crop}
+                            onChange={this.handleCropChange}
+                            style={{maxHeight: 'inherit'}}>
+                            <img
+                                onLoad={this.handleImageChange}
                                 src={this.state.src}
-                                crop={this.state.crop}
-                                onChange={this.handleCropChange}
-                                style={{maxHeight: 'inherit'}}>
-                                <img
-                                    onLoad={this.handleImageChange}
-                                    src={this.state.src}
-                                    alt="Source image"/>
-                            </ReactCrop> : <Spinner animation="border" role="status" className="mx-3">
-                                <span className="visually-hidden">Loading...</span>
-                            </Spinner>
-                        }
-                    </Col>
-                    <Col sm className="text-center"
-                         style={{maxHeight: 'inherit'}}>
-                        <div className="overflow-scroll position-relative" style={{maxHeight: 'inherit'}}>
-                            <div className="text-center sticky-top bg-white" style={{zIndex: 100}}>
-                                <ButtonGroup size="sm"
-                                             className="mb-3 me-2">
-                                    <Button variant="primary"
-                                            onClick={this.addRectToUpload("TEXT")}
-                                            disabled={this.state.crop === null || this.state.image === null}>
-                                        Text
+                                alt="Source image"
+                                className="text-center"/>
+                        </ReactCrop> : <Spinner animation="border" role="status" className="mx-3">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                    }
+                </Col>
+                <Col sm className="overflow-scroll text-center" style={{height: 'calc(100vh - 56px)'}}>
+                    <div className="text-center sticky-top pt-3 bg-white-blurred" style={{zIndex: 100}}>
+                        <ButtonGroup size="sm"
+                                     className="mb-3 me-2">
+                            <Button variant="primary"
+                                    onClick={this.addRectToUpload("TEXT")}
+                                    disabled={this.state.crop === null || this.state.image === null}>
+                                Text
+                            </Button>
+                            <Button variant="primary"
+                                    onClick={this.addRectToUpload("FORMULA")}
+                                    disabled={this.state.crop === null || this.state.image === null}>
+                                Formula
+                            </Button>
+                        </ButtonGroup>
+                        <ButtonGroup size="sm"
+                                     className="mb-3">
+                            <Button variant="outline-primary"
+                                    onClick={this.saveAndOCR}>
+                                Save and OCR
+                            </Button>
+                            <Button variant="outline-secondary"
+                                    onClick={this.save}>
+                                Save
+                            </Button>
+                        </ButtonGroup>
+                    </div>
+                    {
+                        this.state.existingRects.map((rect, index) =>
+                            <Card
+                                key={index}
+                                className="mb-2">
+                                <Card.Body className='text-center'>
+                                    <img src={rect}
+                                         style={{width: "100%"}}
+                                         alt="Rect"/>
+                                </Card.Body>
+                                <Card.Footer className="text-muted">
+                                    <Button
+                                        variant="outline-danger"
+                                        onClick={() => this.handleDeleteResult(index)}
+                                        size="sm">
+                                        Delete rect
                                     </Button>
-                                    <Button variant="primary"
-                                            onClick={this.addRectToUpload("FORMULA")}
-                                            disabled={this.state.crop === null || this.state.image === null}>
-                                        Formula
-                                    </Button>
-                                </ButtonGroup>
-                                <ButtonGroup size="sm"
-                                             className="mb-3">
-                                    <Button variant="outline-primary"
-                                            onClick={this.saveAndOCR}>
-                                        Save and OCR
-                                    </Button>
-                                    <Button variant="outline-secondary"
-                                            onClick={this.save}>
-                                        Save
-                                    </Button>
-                                </ButtonGroup>
-                            </div>
-                            {
-                                this.state.existingRects.map((rect, index) =>
-                                    <Card
-                                        key={index}
-                                        className="mb-2">
-                                        <Card.Body className='text-center'>
-                                            <img src={rect}
-                                                 style={{width: "100%"}}
-                                                 alt="Rect"/>
-                                        </Card.Body>
-                                        <Card.Footer className="text-muted">
-                                            <Button
-                                                variant="outline-danger"
-                                                onClick={() => this.handleDeleteResult(index)}
-                                                size="sm">
-                                                Delete rect
-                                            </Button>
-                                        </Card.Footer>
-                                    </Card>
-                                )
-                            }
-                        </div>
-                    </Col>
-                </Row>
-            </>
+                                </Card.Footer>
+                            </Card>
+                        )
+                    }
+                </Col>
+            </Row>
         )
     }
 }
