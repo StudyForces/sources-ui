@@ -27,11 +27,8 @@ class ProblemSubmissionForm extends Component {
     }
 
     render() {
-        return <>
-            <h2>New Problem</h2>
-            <ProblemForm selected={this.state.selected} submitting={this.state.submitting}
-                         onSubmit={this.submit}></ProblemForm>
-        </>;
+        return <ProblemForm selected={this.state.selected} submitting={this.state.submitting}
+                            onSubmit={this.submit}></ProblemForm>;
     }
 }
 

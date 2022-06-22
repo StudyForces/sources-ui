@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import {Badge, Button, Card, Col, Form, Row} from "react-bootstrap";
+import {Badge, Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
-import Latex from "react-latex";
+import Latex from "../misc/Latex";
 import API from "../../api";
+import cropImage from "../helpers/cropImage";
 
 class OCRResultReviewCard extends Component {
 
@@ -13,7 +14,8 @@ class OCRResultReviewCard extends Component {
             result: this.props.result,
             editing: false,
             selected: false,
-            problem: null
+            problem: null,
+            image: null
         }
 
         this.enableEditing = this.enableEditing.bind(this);
@@ -31,7 +33,8 @@ class OCRResultReviewCard extends Component {
 
     static getDerivedStateFromProps(props, state) {
         return {
-            selected: props.selected
+            selected: props.selected,
+            image: props.image !== null ? cropImage(props.image, props.result.rect).toDataURL() : null
         };
     }
 
@@ -115,6 +118,14 @@ class OCRResultReviewCard extends Component {
                 </Row>
             </Card.Header>
             <Card.Body>
+                {
+                    this.state.image !== null ? <img src={this.state.image}
+                                                     style={{width: "100%", maxHeight: "300px", objectFit: 'contain'}}
+                                                     alt="Rect"></img> :
+                        <Spinner animation="border" role="status" size="sm">
+                            <span className="visually-hidden">Loading...</span>
+                        </Spinner>
+                }
                 {
                     this.content()
                 }

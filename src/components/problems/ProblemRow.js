@@ -1,7 +1,7 @@
 import React from 'react';
 import {Badge, Button, ButtonGroup, Dropdown, Spinner} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
-import Latex from "react-latex";
+import Latex from "../misc/Latex";
 import API from "../../api";
 
 class ProblemRow extends React.Component {
@@ -50,6 +50,9 @@ class ProblemRow extends React.Component {
             <tr>
                 <td className="text-truncate align-middle">{problem.id}</td>
                 <td className="align-middle">
+                    <Badge pill bg={problem.solution === null ? 'warning' : 'success'} className="me-1 align-middle">
+                        {problem.solution === null ? 'NO SOL' : 'SOL'}
+                    </Badge>
                     <Latex children={problem.problem}></Latex>
                 </td>
                 {
