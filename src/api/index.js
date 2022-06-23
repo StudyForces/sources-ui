@@ -1,11 +1,13 @@
 import sourceUploads from './sourceUploads';
 import ocr from './ocr';
 import problems from './problems';
+import uploads from './uploads';
 
 const API = {
     sourceUploads,
     ocr,
-    problems
+    problems,
+    uploads
 }
 
 if (process.env.NODE_ENV === 'development') {

@@ -27,18 +27,36 @@ class OCRReviewPage extends Component {
         const id = parseInt(this.props.match.params.id, 10);
         Promise.all([
             API.sourceUploads.getOCRResults(id),
-            API.sourceUploads.get(id),
-            API.sourceUploads.getImage(id)
+            API.sourceUploads.get(id)
         ])
             .then(
                 (result) => {
-                    const imgUrl = URL.createObjectURL(result[2]);
-
                     this.setState({
                         isLoaded: true,
                         results: result[0].content,
                         upload: result[1],
                     });
+                    this.loadImage(result[1].sourceFile);
+                },
+                (error) => {
+                    URL.revokeObjectURL(this.state.imgUrl);
+                    this.setState({
+                        isLoaded: true,
+                        error,
+                        results: [],
+                        upload: null,
+                        image: null,
+                        imgUrl: null
+                    });
+                }
+            );
+    }
+
+    loadImage(sourceFile) {
+        API.uploads.view(sourceFile)
+            .then(
+                (result) => {
+                    const imgUrl = URL.createObjectURL(result);
 
                     const image = new Image();
                     image.src = imgUrl;

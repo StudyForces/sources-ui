@@ -30,7 +30,7 @@ class UploadRectsEditor extends Component {
     }
 
     componentDidMount() {
-        Promise.all([API.sourceUploads.getImage(this.state.upload.id),
+        Promise.all([API.uploads.view(this.state.upload.sourceFile),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
                 this.setState({
