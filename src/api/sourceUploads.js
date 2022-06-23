@@ -1,6 +1,7 @@
 import {config} from "../Constants";
 import keycloak from '../keycloak';
 import ocr from "./ocr";
+import uploads from "./uploads";
 
 function list(page = 0, size = 20) {
     return fetch(`${config.url.API_BASE_URL}/sourceUploads?page=${page}&sort=id,desc&size=${size}`, {
@@ -38,21 +39,6 @@ function get(id) {
             return res;
         })
         .then(res => res.json());
-}
-
-function getImage(id) {
-    return fetch(`${config.url.API_BASE_URL}/upload/view/${id}`, {
-        headers: {
-            'Authorization': `Bearer ${keycloak.token}`
-        }
-    })
-        .then(res => {
-            if (!res.ok) {
-                throw Error(`${res.status} ${res.statusText}`);
-            }
-            return res;
-        })
-        .then(res => res.blob());
 }
 
 function getOCRResults(id) {
@@ -97,30 +83,9 @@ function update(id, obj) {
 }
 
 async function create(file) {
-    let res = await fetch(`${config.url.API_BASE_URL}/upload/request`, {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${keycloak.token}`,
-            'Content-Type': file.type
-        }
-    });
-    if (!res.ok) {
-        throw Error(`${res.status} ${res.statusText} - failed request for PUT signed URL`);
-    }
-    const uploadData = await res.json();
+    const uploadData = await uploads.upload(file, uploads.UploadType.SOURCE);
 
-    res = await fetch(uploadData.url, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': file.type
-        },
-        body: file
-    })
-    if (!res.ok) {
-        throw Error(`${res.status} ${res.statusText} - failed uploading file`);
-    }
-
-    res = await fetch(`${config.url.API_BASE_URL}/upload/save`, {
+    const res = await fetch(`${config.url.API_BASE_URL}/upload/save`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
@@ -191,7 +156,6 @@ function getFileInfo(id) {
 const sourceUploads = {
     list,
     get,
-    getImage,
     getOCRResults,
     update,
     create,

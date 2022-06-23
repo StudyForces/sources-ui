@@ -1,6 +1,7 @@
-import React, { Component } from 'react';
+import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
 import Latex from "../misc/Latex";
+import ProblemAttachmentsForm from "./ProblemAttachmentsForm";
 
 class ProblemForm extends Component {
     constructor(props) {
@@ -9,7 +10,9 @@ class ProblemForm extends Component {
         this.state = {
             problem: null,
             solution: null,
+            attachments: null,
             addSolution: null,
+            addAttachments: null,
             submitting: false
         }
 
@@ -17,7 +20,7 @@ class ProblemForm extends Component {
     }
 
     static getDerivedStateFromProps(props, state) {
-        const { problem } = props;
+        const {problem} = props;
 
         let obj = {
             selected: props.selected,
@@ -27,14 +30,21 @@ class ProblemForm extends Component {
         if (problem !== undefined) {
             obj.problem = state.problem || problem.problem;
             obj.solution = state.solution || problem.solution || '';
+            obj.attachments = state.attachments || problem.attachments || [];
             if ((obj.solution !== '' && obj.solution !== null) && state.addSolution === null) {
                 obj.addSolution = true;
             } else if (state.addSolution === null) {
                 obj.addSolution = false;
             }
+            if (obj.attachments.length > 0 && state.addAttachments === null) {
+                obj.addAttachments = true;
+            } else if (state.addAttachments === null) {
+                obj.addAttachments = false;
+            }
         } else {
             obj.problem = state.problem || '';
             obj.solution = state.solution || '';
+            obj.attachments = state.attachments || [];
         }
 
         if (obj.selected.length === 1 && state.problem === '' && obj.selected[0].type === 'TEXT') {
@@ -48,15 +58,15 @@ class ProblemForm extends Component {
         this.props.onSubmit({
             type: 'STATIC',
             problem: this.state.problem,
-            solution: this.state.addSolution ? this.state.solution : null
+            solution: this.state.addSolution ? this.state.solution : null,
+            attachments: this.state.addAttachments ? this.state.attachments : []
         }, () => {
             const s = {
-                problem: '',
-                solution: '',
                 submitting: false
             };
             if (this.props.problem !== undefined) {
                 s.addSolution = this.props.problem.solution !== '' && this.props.problem.solution !== null;
+                s.addAttachments = this.props.problem.attachments.length > 0;
             }
             this.setState(s);
         });
@@ -88,7 +98,7 @@ class ProblemForm extends Component {
                             <Form.Control as="textarea" rows={3} value={this.state.problem}
                                           onChange={(event) => {
                                               this.setState({problem: event.target.value});
-                                          }} />
+                                          }}/>
                         </Form.Group>
                     </Card.Body>
                 </Card>
@@ -102,7 +112,7 @@ class ProblemForm extends Component {
                             </Col>
                             <Col md="auto" className="m-0 p-0">
                                 <Form.Check type="checkbox" checked={this.state.addSolution}
-                                            onChange={(e) => this.setState({addSolution: e.target.checked})} />
+                                            onChange={(e) => this.setState({addSolution: e.target.checked})}/>
                             </Col>
                         </Row>
                     </Card.Header>
@@ -117,8 +127,29 @@ class ProblemForm extends Component {
                                 <Form.Control as="textarea" rows={3} defaultValue={this.state.solution}
                                               onChange={(event) => {
                                                   this.setState({solution: event.target.value});
-                                              }} />
+                                              }}/>
                             </Form.Group>
+                        </Card.Body> : null
+                    }
+                </Card>
+            </Col>
+            <Col>
+                <Card>
+                    <Card.Header>
+                        <Row className="m-0 p-0">
+                            <Col className="m-0 p-0">
+                                Attachments
+                            </Col>
+                            <Col md="auto" className="m-0 p-0">
+                                <Form.Check type="checkbox" checked={this.state.addAttachments}
+                                            onChange={(e) => this.setState({addAttachments: e.target.checked})}/>
+                            </Col>
+                        </Row>
+                    </Card.Header>
+                    {
+                        this.state.addAttachments ? <Card.Body>
+                            <ProblemAttachmentsForm attachments={this.state.attachments}
+                                                    onChange={(attachments) => this.setState({attachments})}></ProblemAttachmentsForm>
                         </Card.Body> : null
                     }
                 </Card>
@@ -126,10 +157,10 @@ class ProblemForm extends Component {
             <Col>
                 <Button variant="primary" disabled={this.state.submitting}
                         onClick={!this.state.submitting ? this.submit : null}>
-                    { !this.state.submitting ? 'Save' : <>
+                    {!this.state.submitting ? 'Save' : <>
                         <Spinner animation="border" role="status" size="sm" className="me-2"></Spinner>
                         Loading...
-                    </> }
+                    </>}
                 </Button>
             </Col>
         </Row>;
