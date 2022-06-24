@@ -55,33 +55,16 @@ class ProblemRow extends React.Component {
                     </Badge>
                     {
                         problem.attachments.length > 0 ? <Badge pill bg="primary" className="me-1 align-middle">
-                            {problem.attachments.length} attachment{ problem.attachments.length > 1 ? 's' : null }
+                            {problem.attachments.length} attachment{ problem.attachments.length > 1 ? '-s' : null }
+                        </Badge> : null
+                    }
+                    {
+                        ocrResults.length > 0 ? <Badge pill bg="secondary" className="me-1 align-middle">
+                            {ocrResults.length} OCR{ ocrResults.length > 1 ? 's' : null }
                         </Badge> : null
                     }
                     <Latex spanned={true} children={problem.problem}></Latex>
                 </td>
-                {
-                    error === null && isLoaded ? (
-                        <td className="text-truncate align-middle">
-                            {
-                                ocrResults.map(value => <>
-                                    <Badge key={value.id} pill bg="primary" className="me-1 align-middle">
-                                        #{value.id}
-                                    </Badge>
-                                    <br />
-                                </>)
-                            }
-                        </td>
-                    ) : (
-                        <td className="text-truncate align-middle">
-                            {
-                                error !== null ? error : <Spinner animation="border" role="status" size="sm">
-                                    <span className="visually-hidden">Loading...</span>
-                                </Spinner>
-                            }
-                        </td>
-                    )
-                }
                 <td className="align-middle">
                     <Dropdown as={ButtonGroup} size="sm" className="align-middle">
                         <Button size="sm" variant="outline-secondary" as={NavLink}

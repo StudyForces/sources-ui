@@ -10,7 +10,6 @@ function ProblemsTable(props) {
             <tr>
                 <th>#</th>
                 <th>Problem</th>
-                <th className="text-truncate">Related OCRs</th>
                 <th>Actions</th>
             </tr>
             </thead>
