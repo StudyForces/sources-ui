@@ -18,9 +18,10 @@ const latexify = (string, options) => {
         let renderedString;
         try {
             // returns HTML markup
+            console.log(t);
             renderedString = katex.renderToString(
                 s,
-                t === "block" ? Object.assign({ displayMode: true }, options) : options
+                t === "block" ? Object.assign(options, { displayMode: true }) : options
             );
         } catch (err) {
             console.error("couldn`t convert string", s);
