@@ -17,12 +17,11 @@ const latexify = (string, options) => {
     const renderLatexString = (s, t) => {
         let renderedString;
         try {
-            // returns HTML markup
-            console.log(t);
-            renderedString = katex.renderToString(
-                s,
-                t === "block" ? Object.assign(options, { displayMode: true }) : options
-            );
+            const opts = Object.create(options);
+            if (t === "block") {
+                opts.displayMode = true;
+            }
+            renderedString = katex.renderToString(s, opts);
         } catch (err) {
             console.error("couldn`t convert string", s);
             return s;
