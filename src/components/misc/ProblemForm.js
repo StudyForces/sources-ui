@@ -126,7 +126,7 @@ class ProblemForm extends Component {
                         this.state.addSolution ? <Card.Body>
                             <h6>Preview</h6>
                             <div className="my-2">
-                                <Latex children={this.state.solution}></Latex>
+                                <Latex displayMode={true} children={this.state.solution}></Latex>
                             </div>
                             <Form.Group controlId="taskSubmission.solutionLatex">
                                 <Form.Label as={"h6"}>LaTeX</Form.Label>
