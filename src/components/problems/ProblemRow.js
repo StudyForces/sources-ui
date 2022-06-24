@@ -51,8 +51,13 @@ class ProblemRow extends React.Component {
                 <td className="text-truncate align-middle">{problem.id}</td>
                 <td className="align-middle">
                     <Badge pill bg={problem.solution === null ? 'danger' : 'success'} className="me-1 align-middle">
-                        {problem.solution === null ? 'NO SOL' : 'SOL'}
+                        {problem.solution === null ? 'no sol' : 'sol'}
                     </Badge>
+                    {
+                        problem.attachments.length > 0 ? <Badge pill bg="primary" className="me-1 align-middle">
+                            {problem.attachments.length} attachment{ problem.attachments.length > 1 ? 's' : null }
+                        </Badge> : null
+                    }
                     <Latex spanned={true} children={problem.problem}></Latex>
                 </td>
                 {
