@@ -67,6 +67,12 @@ class ProblemForm extends Component {
             if (this.props.problem !== undefined) {
                 s.addSolution = this.props.problem.solution !== '' && this.props.problem.solution !== null;
                 s.addAttachments = this.props.problem.attachments.length > 0;
+            } else {
+                s.problem = '';
+                s.solution = '';
+                s.attachments = [];
+                s.addSolution = false;
+                s.addAttachments = false;
             }
             this.setState(s);
         });
