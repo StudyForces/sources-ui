@@ -53,7 +53,7 @@ class ProblemRow extends React.Component {
                     <Badge pill bg={problem.solution === null ? 'danger' : 'success'} className="me-1 align-middle">
                         {problem.solution === null ? 'NO SOL' : 'SOL'}
                     </Badge>
-                    <Latex children={problem.problem}></Latex>
+                    <Latex spanned={true} children={problem.problem}></Latex>
                 </td>
                 {
                     error === null && isLoaded ? (
