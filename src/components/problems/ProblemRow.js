@@ -59,9 +59,12 @@ class ProblemRow extends React.Component {
                     error === null && isLoaded ? (
                         <td className="text-truncate align-middle">
                             {
-                                ocrResults.map(value => <Badge key={value.id} pill bg="primary" className="me-1 align-middle">
-                                    #{value.id}
-                                </Badge>)
+                                ocrResults.map(value => <>
+                                    <Badge key={value.id} pill bg="primary" className="me-1 align-middle">
+                                        #{value.id}
+                                    </Badge>
+                                    <br />
+                                </>)
                             }
                         </td>
                     ) : (
