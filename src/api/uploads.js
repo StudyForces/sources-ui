@@ -39,21 +39,24 @@ async function upload(file, type) {
     return uploadData;
 }
 
-function view(sourceFile) {
-    return fetch(`${config.url.API_BASE_URL}/upload/view?` + new URLSearchParams({
+async function view(sourceFile) {
+    const res = await fetch(`${config.url.API_BASE_URL}/upload/view?` + new URLSearchParams({
         file: sourceFile
     }).toString(), {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
-    })
-        .then(res => {
-            if (!res.ok) {
-                throw Error(`${res.status} ${res.statusText}`);
-            }
-            return res;
-        })
-        .then(res => res.blob());
+    });
+
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText}`);
+    }
+
+    const upload = await res.json();
+
+    const file = await fetch(upload.url);
+
+    return await file.blob();
 }
 
 const uploads = {
