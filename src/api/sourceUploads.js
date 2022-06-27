@@ -138,6 +138,21 @@ async function saveOCRResults(sourceUpload, results) {
     return true;
 }
 
+function convert(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/convert/${id}`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        },
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        });
+}
+
 function getFileInfo(id) {
     return fetch(`${config.url.API_BASE_URL}/upload/info/${id}`, {
         headers: {
@@ -161,6 +176,7 @@ const sourceUploads = {
     create,
     remove,
     saveOCRResults,
+    convert,
     getFileInfo
 };
 

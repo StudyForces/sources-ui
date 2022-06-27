@@ -21,6 +21,7 @@ class UploadRow extends React.Component {
         };
 
         this.runOCR = this.runOCR.bind(this);
+        this.convert = this.convert.bind(this);
         this.remove = this.remove.bind(this);
     }
 
@@ -55,6 +56,12 @@ class UploadRow extends React.Component {
             .then(_ => alert(`OCR for ${upload.id} was scheduled!`));
     }
 
+    convert() {
+        const {upload} = this.props;
+        API.sourceUploads.convert(upload.id)
+            .then(_ => alert(`Conversion for ${upload.id} was scheduled!`));
+    }
+
     status(statusCounts) {
         return statusCounts.map(value => (
             <Badge key={value.key} pill bg={UploadRowStatusColors[value.key]} className="me-1 align-middle">
@@ -83,6 +90,9 @@ class UploadRow extends React.Component {
                     </> : null
                 }
                 <Dropdown.Item onClick={this.runOCR}>Run OCR</Dropdown.Item>
+                {
+                    upload.metadata != null ? <Dropdown.Item onClick={this.convert}>Convert</Dropdown.Item> : null
+                }
                 <Dropdown.Divider/>
                 <Dropdown.Item className="text-danger" onClick={this.remove}>Delete</Dropdown.Item>
             </Dropdown.Menu>
