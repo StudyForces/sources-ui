@@ -10,13 +10,29 @@ class ProblemReviewPage extends Component {
             error: null,
             isLoaded: false,
             problem: null,
-            submitting: false
+            submitting: false,
+            newProblem: false
         };
 
         this.submit = this.submit.bind(this);
     }
 
     componentDidMount() {
+        if (this.props.match.params.id === 'new') {
+            this.setState({
+                isLoaded: true,
+                newProblem: true,
+                problem: {
+                    attachments: [],
+                    problem: '',
+                    solution: '',
+                    solverMetadata: null,
+                    type: 'STATIC'
+                }
+            });
+            return;
+        }
+
         API.problems.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
@@ -37,9 +53,18 @@ class ProblemReviewPage extends Component {
 
     submit(problem, cb) {
         this.setState({submitting: true});
-        API.problems.update(this.state.problem.id, problem).then(p => {
-            this.setState({submitting: false, problem: p}, cb);
-        });
+        if (this.state.newProblem) {
+            API.problems.create(problem, []).then(p => {
+                this.setState({submitting: false, problem: p}, () => {
+                    this.props.history.push(`/problems/${p.id}`);
+                    cb();
+                });
+            });
+        } else {
+            API.problems.update(this.state.problem.id, problem).then(p => {
+                this.setState({submitting: false, problem: p}, cb);
+            });
+        }
     }
 
     content() {
@@ -61,7 +86,11 @@ class ProblemReviewPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <h1>Problem #{this.props.match.params.id}</h1>
+                <h1>
+                    {
+                        this.props.match.params.id === 'new' ? 'New Problem' : `Problem #${this.props.match.params.id}`
+                    }
+                </h1>
                 {this.content()}
             </Container>
         );

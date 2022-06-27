@@ -1,6 +1,7 @@
 import React from 'react';
-import {Table} from "react-bootstrap";
+import {Button, Table} from "react-bootstrap";
 import ProblemRow from "./ProblemRow";
+import {NavLink} from "react-router-dom";
 
 function ProblemsTable(props) {
     const {items, onRemove} = props;
@@ -14,6 +15,12 @@ function ProblemsTable(props) {
             </tr>
             </thead>
             <tbody>
+                <tr>
+                    <td colSpan={2}></td>
+                    <td>
+                        <Button as={NavLink} to="/problems/new" size="sm" variant="outline-primary">New</Button>
+                    </td>
+                </tr>
                 {
                     items.map((problem) => <ProblemRow key={problem.id} problem={problem} onRemove={onRemove}></ProblemRow>)
                 }
