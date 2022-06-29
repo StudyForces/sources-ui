@@ -75,10 +75,10 @@ class UploadRectsEditor extends Component {
     }
 
     loadPage() {
+        console.log(this.state.upload);
         Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
-                console.log(res);
                 this.setState({
                     src: URL.createObjectURL(res[0]),
                     results: res[1].content
@@ -132,7 +132,7 @@ class UploadRectsEditor extends Component {
                 width: this.state.crop.width * scaleX,
                 height: this.state.crop.height * scaleY,
             }
-
+            
             const results = this.state.results;
             results.push({
                 rect,
@@ -151,7 +151,9 @@ class UploadRectsEditor extends Component {
             return;
         }
 
-        return cropImage(this.state.image, crop).toDataURL();
+        const sourceImage = this.state.pagesBlobs[crop.page];
+
+        return cropImage(sourceImage, crop).toDataURL();
     }
 
     convertExistingRectsToImages() {
@@ -159,6 +161,8 @@ class UploadRectsEditor extends Component {
     }
 
     save() {
+        //console.log(this.state.upload);
+        console.log(this.state.results);
         API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
             .then(r => this.props.history.push(`/uploads`));
     }
