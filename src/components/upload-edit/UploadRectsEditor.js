@@ -31,18 +31,13 @@ class UploadRectsEditor extends Component {
         this.save = this.save.bind(this);
         this.saveAndOCR = this.saveAndOCR.bind(this);
 
+        this.loadPageBlobs = this.loadPageBlobs.bind(this);
         this.loadPage = this.loadPage.bind(this);
         this.setPage = this.setPage.bind(this);
     }
 
     componentDidMount() {
-        Promise.all(this.state.upload.convertedFiles.map(file => API.uploads.view(file.file)))
-            .then(pagesBlobs => {
-                this.setState({
-                    pagesBlobs
-                })
-            });
-
+        this.loadPageBlobs();
         this.loadPage();
     }
 
@@ -50,10 +45,40 @@ class UploadRectsEditor extends Component {
         URL.revokeObjectURL(this.state.src)
     }
 
+    loadPageBlobs() {
+        const upload = this.state.upload;
+
+        let counter = 0;
+        let pagesBlobs = Array.from({length: upload.convertedFiles.length});
+
+        const updState = (id, blob) => {
+            pagesBlobs[id] = blob;
+            counter++;
+            if (counter === upload.convertedFiles.length) {
+                this.setState({pagesBlobs});
+            }
+        };
+
+        Promise.all(upload.convertedFiles.map(file => API.uploads.view(file.file)))
+            .then(
+                (results) => {
+                    results.forEach((result, id) => {
+                        const blobUrl = URL.createObjectURL(result);
+                        const blob = new Image();
+                        blob.src = blobUrl;
+                        blob.onload = () => {
+                            updState(id, blob);
+                        }
+                    })
+                }
+            );
+    }
+
     loadPage() {
         Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
+                console.log(res);
                 this.setState({
                     src: URL.createObjectURL(res[0]),
                     results: res[1].content
