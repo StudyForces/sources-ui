@@ -24,7 +24,7 @@ class UploadEditPage extends Component {
             .then(
                 (result) => {
                     if (result.convertedFiles.length === 0) {
-                        this.load();
+                        setTimeout(this.load, 500);
                         return;
                     }
 
