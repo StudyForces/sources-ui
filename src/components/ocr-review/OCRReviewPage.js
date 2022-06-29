@@ -14,8 +14,7 @@ class OCRReviewPage extends Component {
             results: [],
             upload: null,
             selected: [],
-            image: null,
-            imgUrl: null
+            images: []
         };
 
         this.handleSave = this.handleSave.bind(this);
@@ -36,52 +35,65 @@ class OCRReviewPage extends Component {
                         results: result[0].content,
                         upload: result[1],
                     });
-                    this.loadImage(result[1].sourceFile);
+                    this.loadImage(result[1]);
                 },
                 (error) => {
-                    URL.revokeObjectURL(this.state.imgUrl);
+                    this.state.images.forEach(image => {
+                        URL.revokeObjectURL(image.src);
+                    });
                     this.setState({
                         isLoaded: true,
                         error,
                         results: [],
                         upload: null,
-                        image: null,
-                        imgUrl: null
+                        images: [],
                     });
                 }
             );
     }
 
-    loadImage(sourceFile) {
-        API.uploads.view(sourceFile)
-            .then(
-                (result) => {
-                    const imgUrl = URL.createObjectURL(result);
+    loadImage(upload) {
+        let counter = 0;
+        let images = Array.from({length: upload.convertedFiles.length});
+        const updState = (idx, image) => {
+            images[idx] = image;
+            counter++;
+            if (counter === upload.convertedFiles.length) {
+                this.setState({images});
+            }
+        };
 
-                    const image = new Image();
-                    image.src = imgUrl;
-                    image.onload = () => {
-                        this.setState({
-                            image
-                        });
-                    }
+        Promise.all(upload.convertedFiles.map(file => API.uploads.view(file.file)))
+            .then(
+                (results) => {
+                    results.forEach((result, idx) => {
+                        const imgUrl = URL.createObjectURL(result);
+                        const image = new Image();
+                        image.src = imgUrl;
+                        image.onload = () => {
+                            updState(idx, image);
+                        }
+                    })
                 },
                 (error) => {
-                    URL.revokeObjectURL(this.state.imgUrl);
+                    this.state.images.forEach(image => {
+                        URL.revokeObjectURL(image.src);
+                    });
                     this.setState({
                         isLoaded: true,
                         error,
                         results: [],
                         upload: null,
-                        image: null,
-                        imgUrl: null
+                        images: null
                     });
                 }
             );
     }
 
     componentWillUnmount() {
-        URL.revokeObjectURL(this.state.imgUrl);
+        this.state.images.forEach(image => {
+            URL.revokeObjectURL(image.src);
+        });
     }
 
     handleSave(result, cb) {
@@ -99,7 +111,7 @@ class OCRReviewPage extends Component {
     }
 
     handleSelect(result, selection) {
-        const { selected } = this.state;
+        const {selected} = this.state;
 
         const idx = selected.findIndex(id => id === result.id);
 
@@ -109,7 +121,7 @@ class OCRReviewPage extends Component {
             selected.splice(idx, 1);
         }
 
-        this.setState({ selected });
+        this.setState({selected});
     }
 
     contentResults() {
@@ -121,9 +133,10 @@ class OCRReviewPage extends Component {
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
+            const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
             return results.map(result =>
                 <Col key={result.id}>
-                    <OCRResultReviewCard result={result} image={this.state.image}
+                    <OCRResultReviewCard result={result} image={doneImages ? this.state.images[result.rect.page] : null}
                                          selected={this.state.selected.findIndex(r => r === result.id) !== -1}
                                          onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
                 </Col>);
