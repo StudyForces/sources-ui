@@ -4,6 +4,7 @@ import cropImage from '../helpers/cropImage'
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import API from "../../api";
+import PaginationComponent from '../misc/PaginationComponent';
 
 class UploadRectsEditor extends Component {
     constructor(props) {
@@ -29,6 +30,9 @@ class UploadRectsEditor extends Component {
 
         this.save = this.save.bind(this);
         this.saveAndOCR = this.saveAndOCR.bind(this);
+
+        this.loadPage = this.loadPage.bind(this);
+        this.setPage = this.setPage.bind(this);
     }
 
     componentDidMount() {
@@ -39,6 +43,14 @@ class UploadRectsEditor extends Component {
                 })
             });
 
+        this.loadPage();
+    }
+
+    componentWillUnmount() {
+        URL.revokeObjectURL(this.state.src)
+    }
+
+    loadPage() {
         Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
@@ -49,8 +61,8 @@ class UploadRectsEditor extends Component {
             });
     }
 
-    componentWillUnmount() {
-        URL.revokeObjectURL(this.state.src)
+    setPage(page) {
+        this.setState({ currentPage: page - 1 }, () => { this.loadPage() });
     }
 
     handleCropChange(event) {
@@ -140,17 +152,27 @@ class UploadRectsEditor extends Component {
                         <h1>Edit Upload #{this.props.match.params.id}</h1>
                     </div>
                     {
-                        this.state.src !== null ? <ReactCrop
-                            src={this.state.src}
-                            crop={this.state.crop}
-                            onChange={this.handleCropChange}
-                            style={{maxHeight: 'inherit'}}>
-                            <img
-                                onLoad={this.handleImageChange}
+                        this.state.src !== null ? 
+                        <>
+                            <PaginationComponent 
+                                currentPage={this.state.currentPage+1}
+                                itemsCount={this.state.upload.convertedFiles.length}
+                                itemsPerPage={1}
+                                setCurrentPage={this.setPage} />
+                            <ReactCrop
                                 src={this.state.src}
-                                alt="Source image"
-                                className="text-center"/>
-                        </ReactCrop> : <Spinner animation="border" role="status" className="mx-3">
+                                crop={this.state.crop}
+                                onChange={this.handleCropChange}
+                                style={{maxHeight: 'inherit'}}>
+                                <img
+                                    onLoad={this.handleImageChange}
+                                    src={this.state.src}
+                                    alt="Source image"
+                                    className="text-center" />
+                            </ReactCrop>
+                            
+                        </>
+                        : <Spinner animation="border" role="status" className="mx-3">
                             <span className="visually-hidden">Loading...</span>
                         </Spinner>
                     }
