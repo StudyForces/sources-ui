@@ -106,12 +106,17 @@ class UploadRectsEditor extends Component {
 
     handleDeleteResult(index) {
         const results = this.state.results;
+        const result = results[index];
         results.splice(index, 1);
 
         const existingRects = this.state.existingRects;
         existingRects.splice(index, 1);
 
-        this.setState({results, existingRects});
+        this.setState({results, existingRects}, () => {
+            if (result.id !== undefined) {
+                API.ocr.remove(result.id).then();
+            }
+        });
     }
 
     addRectToUpload(type) {
