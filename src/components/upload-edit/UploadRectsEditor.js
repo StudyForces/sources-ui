@@ -14,7 +14,9 @@ class UploadRectsEditor extends Component {
             image: null,
             crop: null,
             results: [],
-            existingRects: []
+            existingRects: [],
+            currentPage: 0,
+            pagesBlobs: [],
         }
 
         this.handleCropChange = this.handleCropChange.bind(this);
@@ -30,7 +32,14 @@ class UploadRectsEditor extends Component {
     }
 
     componentDidMount() {
-        Promise.all([API.uploads.view(this.state.upload.sourceFile),
+        Promise.all(this.state.upload.convertedFiles.map(file => API.uploads.view(file.file)))
+            .then(pagesBlobs => {
+                this.setState({
+                    pagesBlobs
+                })
+            });
+
+        Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
                 this.setState({
@@ -80,6 +89,7 @@ class UploadRectsEditor extends Component {
             const scaleY = sourceImage.naturalHeight / sourceImage.height;
 
             const rect = {
+                page: this.state.currentPage,
                 x: this.state.crop.x * scaleX,
                 y: this.state.crop.y * scaleY,
                 width: this.state.crop.width * scaleX,

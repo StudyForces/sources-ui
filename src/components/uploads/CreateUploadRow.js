@@ -14,7 +14,8 @@ function CreateUploadRow() {
         <tr>
             <td className="text-truncate align-middle">new</td>
             <td className="text-truncate align-middle">
-                <input type="file" accept="image/*" onChange={(event) => setFile(event.target.files[0])} />
+                <input type="file" accept="image/png,image/jpeg,image/gif,application/pdf"
+                       onChange={(event) => setFile(event.target.files[0])} />
             </td>
             <td className="text-truncate align-middle">{ error ? error.message : ''}</td>
             <td>

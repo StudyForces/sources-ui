@@ -11,12 +11,23 @@ class UploadEditPage extends Component {
             isLoaded: false,
             upload: null
         };
+
+        this.load = this.load.bind(this);
     }
 
     componentDidMount() {
+        this.load();
+    }
+
+    load() {
         API.sourceUploads.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
+                    if (result.convertedFiles.length === 0) {
+                        this.load();
+                        return;
+                    }
+
                     this.setState({
                         isLoaded: true,
                         upload: result,
