@@ -102,13 +102,29 @@ function update(id, obj) {
         .then(res => res.json());
 }
 
+function remove(id) {
+    return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        });
+}
+
 const ocr = {
     request,
     saveOCRResult,
     list,
     get,
     getProblem,
-    update
+    update,
+    remove
 };
 
 export default ocr;
