@@ -16,7 +16,7 @@ function request(id) {
         });
 }
 
-async function saveOCRResult(sourceUploadID, obj) {
+async function create(obj) {
     let res = await fetch(`${config.url.API_BASE_URL}/ocrResults`, {
         method: 'POST',
         headers: {
@@ -119,7 +119,7 @@ function remove(id) {
 
 const ocr = {
     request,
-    saveOCRResult,
+    create,
     list,
     get,
     getProblem,

@@ -21,7 +21,7 @@ function CreateAttachmentRow(props) {
                     </Spinner> : <Button variant="outline-secondary" size="sm" onClick={() => {
                         setError(null);
                         setLoading(true);
-                        API.uploads.upload(file, API.uploads.UploadType.ATTACHMENT)
+                        API.files.upload(file, API.files.UploadType.ATTACHMENT)
                             .then(
                                 (result) => {
                                     props.onDone({
@@ -67,7 +67,7 @@ class ProblemAttachmentsForm extends Component {
     }
 
     preview(attachment) {
-        API.uploads.view(attachment.fileName)
+        API.files.view(attachment.fileName)
             .then(
                 (result) => {
                     const url = URL.createObjectURL(result);

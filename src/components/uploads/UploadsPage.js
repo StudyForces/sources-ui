@@ -24,13 +24,18 @@ class UploadsPage extends Component {
     }
 
     loadPage(page) {
-        API.sourceUploads.list(page ?? this.state.currentPage, this.state.page.size)
+        API.uploads.list(page ?? this.state.currentPage, this.state.page.size)
             .then(
                 (result) => {
                     this.setState({
                         isLoaded: true,
                         items: result.content,
-                        page: result.page
+                        page: {
+                            size: result.size,
+                            totalElements: result.totalElements,
+                            totalPages: result.totalPages,
+                            number: result.number
+                        }
                     });
                 },
                 (error) => {

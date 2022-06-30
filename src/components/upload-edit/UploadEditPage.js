@@ -20,7 +20,7 @@ class UploadEditPage extends Component {
     }
 
     load() {
-        API.sourceUploads.get(parseInt(this.props.match.params.id, 10))
+        API.uploads.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
                     if (result.convertedFiles.length === 0) {

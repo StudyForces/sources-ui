@@ -25,14 +25,14 @@ class OCRReviewPage extends Component {
     componentDidMount() {
         const id = parseInt(this.props.match.params.id, 10);
         Promise.all([
-            API.sourceUploads.getOCRResults(id),
-            API.sourceUploads.get(id)
+            API.uploads.getOCRResults(id),
+            API.uploads.get(id)
         ])
             .then(
                 (result) => {
                     this.setState({
                         isLoaded: true,
-                        results: result[0].content,
+                        results: result[0],
                         upload: result[1],
                     });
                     this.loadImage(result[1]);
@@ -63,7 +63,7 @@ class OCRReviewPage extends Component {
             }
         };
 
-        Promise.all(upload.convertedFiles.map(file => API.uploads.view(file.file)))
+        Promise.all(upload.convertedFiles.map(file => API.files.view(file.file)))
             .then(
                 (results) => {
                     results.forEach((result, idx) => {

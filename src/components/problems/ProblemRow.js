@@ -23,7 +23,7 @@ class ProblemRow extends React.Component {
                 (result) => {
                     this.setState({
                         isLoaded: true,
-                        ocrResults: result.content,
+                        ocrResults: result,
                     });
                 },
                 (error) => {
