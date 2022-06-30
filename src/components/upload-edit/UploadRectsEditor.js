@@ -16,6 +16,8 @@ class UploadRectsEditor extends Component {
             crop: null,
             results: [],
             existingRects: [],
+            rectsShow: [],
+            rectsShowMethod: "all",
             currentPage: 0,
             pagesBlobs: [],
         }
@@ -35,6 +37,9 @@ class UploadRectsEditor extends Component {
         this.loadPagesBlobs = this.loadPagesBlobs.bind(this);
         this.loadPage = this.loadPage.bind(this);
         this.setPage = this.setPage.bind(this);
+
+        this.showAllRects = this.showAllRects.bind(this);
+        this.showCurrentPageRects = this.showCurrentPageRects.bind(this);
     }
 
     componentDidMount() {
@@ -96,7 +101,6 @@ class UploadRectsEditor extends Component {
     }
 
     loadPage() {
-        console.log(this.state.pagesBlobs);
         Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
@@ -125,18 +129,21 @@ class UploadRectsEditor extends Component {
     }
 
     handleDeleteResult(index) {
+        const rectId = this.state.rectsShow[index].id;
+
         const results = this.state.results;
-        const result = results[index];
-        results.splice(index, 1);
+        const result = results[rectId];
+        results.splice(rectId, 1);
 
         const existingRects = this.state.existingRects;
-        existingRects.splice(index, 1);
+        existingRects.splice(rectId, 1);
 
         this.setState({results, existingRects}, () => {
             if (result.id !== undefined) {
                 API.ocr.remove(result.id).then();
             }
         });
+        this.showAllRects();
     }
 
     addRectToUpload(type) {
@@ -182,12 +189,60 @@ class UploadRectsEditor extends Component {
     }
 
     convertExistingRectsToImages() {
-        this.setState({existingRects: this.state.results.map((result) => this.cropImage(result.rect))});
+        const existingRects = [];
+        this.state.results.map((result) => { 
+            const rectSrc = this.cropImage(result.rect);
+            const rect = {
+                page: result.rect.page,
+                src: rectSrc
+            }
+
+            existingRects.push(rect);
+        })
+
+        this.setState({existingRects}, () => {
+            switch(this.state.rectsShowMethod){
+                case "all": this.showAllRects(); break;
+                case "current_page": this.showCurrentPageRects(); break;
+                default: this.showAllRects(); break;
+            }
+        });
+    }
+
+    showAllRects() {
+        this.setState({rectsShowMethod: "all"});
+        this.setState({rectsShow: []}, () => {
+            const rectsShow = [];
+
+            this.state.existingRects.map((rect, index) => rectsShow.push({
+                id: index,
+                src: rect.src
+            }));
+
+            this.setState({rectsShow});
+        });
+        
+    }
+
+    showCurrentPageRects() {
+        this.setState({rectsShowMethod: "current_page"});
+        this.setState({rectsShow: []}, () => {
+            const rectsShow = [];
+
+            this.state.existingRects.map((rect, index) => { 
+                if(rect.page === this.state.currentPage) {
+                    rectsShow.push({
+                        id: index,
+                        src: rect.src
+                    });
+                }
+            });
+
+            this.setState({rectsShow});
+        });
     }
 
     save() {
-        //console.log(this.state.upload);
-        console.log(this.state.results);
         API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
             .then(r => this.props.history.push(`/uploads`));
     }
@@ -263,22 +318,24 @@ class UploadRectsEditor extends Component {
                         <ButtonGroup size="sm"
                                      className="mb-3">
                             <Button variant="outline-secondary"
-                                    onClick={this.saveAndOCR}>
+                                    onClick={this.showAllRects}
+                                    disabled={this.state.rectsShowMethod === "all"}>
                                 All
                             </Button>
                             <Button variant="outline-secondary"
-                                    onClick={this.save}>
+                                    onClick={this.showCurrentPageRects}
+                                    disabled={this.state.rectsShowMethod === "current_page"}>
                                 This page
                             </Button>
                         </ButtonGroup>
                     </div>
                     {
-                        this.state.existingRects.map((rect, index) =>
+                        this.state.rectsShow.map((rect, index) =>
                             <Card
                                 key={index}
                                 className="mb-2">
                                 <Card.Body className='text-center'>
-                                    <img src={rect}
+                                    <img src={rect.src}
                                          style={{width: "100%"}}
                                          alt="Rect"/>
                                 </Card.Body>
