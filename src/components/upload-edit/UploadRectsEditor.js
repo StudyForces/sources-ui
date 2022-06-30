@@ -31,28 +31,41 @@ class UploadRectsEditor extends Component {
         this.save = this.save.bind(this);
         this.saveAndOCR = this.saveAndOCR.bind(this);
 
-        this.loadPageBlobs = this.loadPageBlobs.bind(this);
+        this.loadResults = this.loadResults.bind(this);
+        this.loadPagesBlobs = this.loadPagesBlobs.bind(this);
         this.loadPage = this.loadPage.bind(this);
         this.setPage = this.setPage.bind(this);
     }
 
     componentDidMount() {
-        this.loadPageBlobs();
+        this.loadPagesBlobs();
+        this.loadResults();
         this.loadPage();
     }
 
     componentWillUnmount() {
-        URL.revokeObjectURL(this.state.src)
+        URL.revokeObjectURL(this.state.src);
     }
 
-    loadPageBlobs() {
+    //Method for getting results only one time
+    loadResults() {
+        Promise.all([API.uploads.view(this.state.upload.convertedFiles[0].file),
+            API.sourceUploads.getOCRResults(this.state.upload.id)])
+            .then(res => {
+                this.setState({
+                    results: res[1].content
+                });
+            });
+    }
+
+    loadPagesBlobs() {
         const upload = this.state.upload;
 
         let counter = 0;
         let pagesBlobs = Array.from({length: upload.convertedFiles.length});
 
-        const updState = (id, blob) => {
-            pagesBlobs[id] = blob;
+        const updState = (id, image) => {
+            pagesBlobs[id] = image;
             counter++;
             if (counter === upload.convertedFiles.length) {
                 this.setState({pagesBlobs});
@@ -63,25 +76,32 @@ class UploadRectsEditor extends Component {
             .then(
                 (results) => {
                     results.forEach((result, id) => {
-                        const blobUrl = URL.createObjectURL(result);
-                        const blob = new Image();
-                        blob.src = blobUrl;
-                        blob.onload = () => {
-                            updState(id, blob);
+                        const imageUrl = URL.createObjectURL(result);
+                        const image = new Image();
+                        image.src = imageUrl;
+                        image.onload = () => {
+                            updState(id, image);
                         }
                     })
+                },
+                (error) => {
+                    this.state.pagesBlobs.forEach(image => {
+                        URL.revokeObjectURL(image.src);
+                    });
+                    this.setState({
+                        pagesBlobs: [],
+                    });
                 }
             );
     }
 
     loadPage() {
-        console.log(this.state.upload);
+        console.log(this.state.pagesBlobs);
         Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
             API.sourceUploads.getOCRResults(this.state.upload.id)])
             .then(res => {
                 this.setState({
-                    src: URL.createObjectURL(res[0]),
-                    results: res[1].content
+                    src: URL.createObjectURL(res[0])
                 });
             });
     }
@@ -188,11 +208,7 @@ class UploadRectsEditor extends Component {
                     {
                         this.state.src !== null ? 
                         <>
-                            <PaginationComponent 
-                                currentPage={this.state.currentPage+1}
-                                itemsCount={this.state.upload.convertedFiles.length}
-                                itemsPerPage={1}
-                                setCurrentPage={this.setPage} />
+                            
                             <ReactCrop
                                 src={this.state.src}
                                 crop={this.state.crop}
@@ -210,6 +226,13 @@ class UploadRectsEditor extends Component {
                             <span className="visually-hidden">Loading...</span>
                         </Spinner>
                     }
+                    <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center" style={{zIndex: 100}}>
+                        <PaginationComponent 
+                            currentPage={this.state.currentPage+1}
+                            itemsCount={this.state.upload.convertedFiles.length}
+                            itemsPerPage={1}
+                            setCurrentPage={this.setPage} />
+                    </div>
                 </Col>
                 <Col sm className="overflow-scroll text-center" style={{height: 'calc(100vh - 56px)'}}>
                     <div className="text-center sticky-top pt-3 bg-white-blurred" style={{zIndex: 100}}>
@@ -227,7 +250,7 @@ class UploadRectsEditor extends Component {
                             </Button>
                         </ButtonGroup>
                         <ButtonGroup size="sm"
-                                     className="mb-3">
+                                     className="mb-3 me-2">
                             <Button variant="outline-primary"
                                     onClick={this.saveAndOCR}>
                                 Save and OCR
@@ -235,6 +258,17 @@ class UploadRectsEditor extends Component {
                             <Button variant="outline-secondary"
                                     onClick={this.save}>
                                 Save
+                            </Button>
+                        </ButtonGroup>
+                        <ButtonGroup size="sm"
+                                     className="mb-3">
+                            <Button variant="outline-secondary"
+                                    onClick={this.saveAndOCR}>
+                                All
+                            </Button>
+                            <Button variant="outline-secondary"
+                                    onClick={this.save}>
+                                This page
                             </Button>
                         </ButtonGroup>
                     </div>
