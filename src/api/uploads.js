@@ -1,68 +1,141 @@
 import {config} from "../Constants";
-import keycloak from "../keycloak";
+import keycloak from '../keycloak';
+import files from "./files";
 
-const UploadType = {
-    SOURCE: "SOURCE",
-    ATTACHMENT: "ATTACHMENT"
-}
-
-async function upload(file, type) {
-    if (file === null || file === undefined) {
-        throw Error('No file!');
-    }
-
-    let res = await fetch(`${config.url.API_BASE_URL}/upload/request?` + new URLSearchParams({
-        type
-    }).toString(), {
-        method: 'POST',
-        headers: {
-            'Authorization': `Bearer ${keycloak.token}`,
-            'Content-Type': file.type
-        }
-    });
-    if (!res.ok) {
-        throw Error(`${res.status} ${res.statusText} - failed request for PUT signed URL`);
-    }
-    const uploadData = await res.json();
-
-    res = await fetch(uploadData.url, {
-        method: 'PUT',
-        headers: {
-            'Content-Type': file.type
-        },
-        body: file
-    })
-    if (!res.ok) {
-        throw Error(`${res.status} ${res.statusText} - failed uploading file`);
-    }
-
-    return uploadData;
-}
-
-async function view(sourceFile) {
-    const res = await fetch(`${config.url.API_BASE_URL}/upload/view?` + new URLSearchParams({
-        file: sourceFile
-    }).toString(), {
+async function list(page = 0, size = 20) {
+    const res = await fetch(`${config.url.API_BASE_URL}/upload?page=${page}&sort=id,desc&size=${size}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
-    });
-
+    })
     if (!res.ok) {
         throw Error(`${res.status} ${res.statusText}`);
     }
+    return await res.json();
+}
 
-    const upload = await res.json();
+function get(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/${id}`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
+}
 
-    const file = await fetch(upload.url);
+function getOCRResults(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/${id}/ocrResults`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
+}
 
-    return await file.blob();
+async function create(file) {
+    const uploadData = await files.upload(file, files.UploadType.SOURCE);
+
+    const res = await fetch(`${config.url.API_BASE_URL}/upload`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fileName: uploadData.fileName
+        })
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed saving upload`);
+    }
+
+    return await res.json();
+}
+
+function remove(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/${id}`, {
+        method: 'DELETE',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        });
+}
+
+async function saveOCRResults(sourceUpload, results) {
+    const res = await fetch(`${config.url.API_BASE_URL}/upload/${sourceUpload.id}/ocrResults`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            ocrResults: results
+        })
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed saving OCRs`);
+    }
+
+    return await res.json();
+}
+
+function convert(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/${id}/convert`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        },
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        });
+}
+
+function getFileInfo(id) {
+    return fetch(`${config.url.API_BASE_URL}/upload/${id}/info`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json());
 }
 
 const uploads = {
-    UploadType,
-    upload,
-    view
+    list,
+    get,
+    getOCRResults,
+    create,
+    remove,
+    saveOCRResults,
+    convert,
+    getFileInfo
 };
 
 export default uploads;

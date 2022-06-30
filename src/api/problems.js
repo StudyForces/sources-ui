@@ -2,7 +2,7 @@ import {config} from "../Constants";
 import keycloak from "../keycloak";
 
 function list(page = 0, size = 20) {
-    return fetch(`${config.url.API_BASE_URL}/problems?page=${page}&sort=id,desc&size=${size}`, {
+    return fetch(`${config.url.API_BASE_URL}/problem?page=${page}&sort=id,desc&size=${size}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -25,7 +25,7 @@ function list(page = 0, size = 20) {
 }
 
 function get(id) {
-    return fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
+    return fetch(`${config.url.API_BASE_URL}/problem/${id}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -40,40 +40,36 @@ function get(id) {
 }
 
 async function create(obj, ocrs) {
-    let res = await fetch(`${config.url.API_BASE_URL}/problems`, {
+    let res = await fetch(`${config.url.API_BASE_URL}/problem`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(obj)
+        body: JSON.stringify({
+            ...obj,
+            ocrResults: ocrs.map(r => r.id)
+        })
     })
     if (!res.ok) {
         throw Error(`${res.status} ${res.statusText} - failed saving OCRResult`);
     }
 
-    const problem = await res.json();
-
-    await Promise.all(ocrs.map(async result => await fetch(`${config.url.API_BASE_URL}/ocrResults/${result.id}/problem`, {
-        method: 'PUT',
-        headers: {
-            'Authorization': `Bearer ${keycloak.token}`,
-            'Content-Type': 'text/uri-list'
-        },
-        body: `${config.url.API_BASE_URL}/problems/${problem.id}`
-    })));
-
-    return problem;
+    return await res.json();
 }
 
 async function update(id, obj) {
-    let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
+    const ocrs = await getOCRResults(id);
+    let res = await fetch(`${config.url.API_BASE_URL}/problem/${id}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
             'Content-Type': 'application/json'
         },
-        body: JSON.stringify(obj)
+        body: JSON.stringify({
+            ...obj,
+            ocrResults: ocrs.map(r => r.id)
+        })
     })
     if (!res.ok) {
         throw Error(`${res.status} ${res.statusText} - failed saving OCRResult`);
@@ -83,7 +79,7 @@ async function update(id, obj) {
 }
 
 function getOCRResults(id) {
-    return fetch(`${config.url.API_BASE_URL}/problems/${id}/ocrResults`, {
+    return fetch(`${config.url.API_BASE_URL}/problem/${id}/ocrResults`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -94,28 +90,11 @@ function getOCRResults(id) {
             }
             return res;
         })
-        .then(res => res.json())
-        .then(res => {
-            if (res.content.length === 1) {
-                if (res.content[0].value !== undefined) {
-                    res.content = [];
-                }
-            }
-            return res;
-        });
+        .then(res => res.json());
 }
 
 async function remove(id) {
-    const ocrs = (await getOCRResults(id)).content;
-
-    await Promise.all(ocrs.map(async result => await fetch(`${config.url.API_BASE_URL}/ocrResults/${result.id}/problem`, {
-        method: 'DELETE',
-        headers: {
-            'Authorization': `Bearer ${keycloak.token}`
-        }
-    })));
-
-    const res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
+    const res = await fetch(`${config.url.API_BASE_URL}/problem/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`

@@ -25,7 +25,7 @@ function CreateUploadRow() {
                     </Spinner> : <Button variant="outline-secondary" size="sm" onClick={() => {
                         setError(null);
                         setLoading(true);
-                        API.sourceUploads.create(file)
+                        API.uploads.create(file)
                             .then(
                                 (result) => {
                                     history.push(`/uploads/${result.id}`);

@@ -7,4 +7,9 @@ const keycloak = new Keycloak({
     clientId: "sources-ui"
 })
 
+
+if (process.env.NODE_ENV === 'development') {
+    window.keycloak = keycloak;
+}
+
 export default keycloak

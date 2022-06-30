@@ -1,6 +1,5 @@
 import React from 'react';
 import {Badge, Button, ButtonGroup, Dropdown, Spinner} from "react-bootstrap";
-import {config} from "../../Constants";
 import {NavLink} from "react-router-dom";
 import API from "../../api";
 
@@ -26,12 +25,12 @@ class UploadRow extends React.Component {
     }
 
     componentDidMount() {
-        API.sourceUploads.getOCRResults(this.props.upload.id)
+        API.uploads.getOCRResults(this.props.upload.id)
             .then(
                 (result) => {
                     this.setState({
                         isLoaded: true,
-                        ocrResults: result.content,
+                        ocrResults: result,
                     });
                 },
                 (error) => {
@@ -46,7 +45,7 @@ class UploadRow extends React.Component {
 
     remove() {
         const {upload, onRemove} = this.props;
-        API.sourceUploads.remove(upload.id)
+        API.uploads.remove(upload.id)
             .then(r => onRemove());
     }
 
@@ -58,7 +57,7 @@ class UploadRow extends React.Component {
 
     convert() {
         const {upload} = this.props;
-        API.sourceUploads.convert(upload.id)
+        API.uploads.convert(upload.id)
             .then(_ => alert(`Conversion for ${upload.id} was scheduled!`));
     }
 

@@ -30,7 +30,12 @@ class ProblemsPage extends Component {
                     this.setState({
                         isLoaded: true,
                         items: result.content,
-                        page: result.page
+                        page: {
+                            size: result.size,
+                            totalElements: result.totalElements,
+                            totalPages: result.totalPages,
+                            number: result.number
+                        }
                     });
                 },
                 (error) => {

@@ -51,10 +51,10 @@ class UploadRectsEditor extends Component {
 
     // Method for getting results only one time
     loadResults() {
-        API.sourceUploads.getOCRResults(this.state.upload.id)
-            .then(res => {
+        API.uploads.getOCRResults(this.state.upload.id)
+            .then(results => {
                 this.setState({
-                    results: res.content
+                    results
                 });
             });
     }
@@ -73,7 +73,7 @@ class UploadRectsEditor extends Component {
             }
         };
 
-        Promise.all(upload.convertedFiles.map(file => API.uploads.view(file.file)))
+        Promise.all(upload.convertedFiles.map(file => API.files.view(file.file)))
             .then(
                 (results) => {
                     results.forEach((result, id) => {
@@ -230,12 +230,12 @@ class UploadRectsEditor extends Component {
     }
 
     save() {
-        API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
+        API.uploads.saveOCRResults(this.state.upload, this.state.results)
             .then(r => this.props.history.push(`/uploads`));
     }
 
     saveAndOCR() {
-        API.sourceUploads.saveOCRResults(this.state.upload, this.state.results)
+        API.uploads.saveOCRResults(this.state.upload, this.state.results)
             .then(r => API.ocr.request(this.state.upload.id))
             .then(_ => this.props.history.push(`/uploads`));
     }
