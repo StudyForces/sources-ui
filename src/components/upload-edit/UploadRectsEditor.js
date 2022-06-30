@@ -289,6 +289,11 @@ class UploadRectsEditor extends Component {
                                     disabled={this.state.crop === null || this.state.image === null}>
                                 Formula
                             </Button>
+                            <Button variant="primary"
+                                    onClick={this.addRectToUpload("PICTURE")}
+                                    disabled={this.state.crop === null || this.state.image === null}>
+                                Picture
+                            </Button>
                         </ButtonGroup>
                         <ButtonGroup size="sm"
                                      className="mb-3 me-2">
