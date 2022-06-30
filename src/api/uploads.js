@@ -3,7 +3,7 @@ import keycloak from '../keycloak';
 import files from "./files";
 
 async function list(page = 0, size = 20) {
-    const res = await fetch(`${config.url.API_BASE_URL}/upload?page=${page}&sort=id,desc&size=${size}`, {
+    const res = await fetch(`${config.url.API_BASE_URL}/uploads?page=${page}&sort=id,desc&size=${size}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -15,7 +15,7 @@ async function list(page = 0, size = 20) {
 }
 
 function get(id) {
-    return fetch(`${config.url.API_BASE_URL}/upload/${id}`, {
+    return fetch(`${config.url.API_BASE_URL}/uploads/${id}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -30,7 +30,7 @@ function get(id) {
 }
 
 function getOCRResults(id) {
-    return fetch(`${config.url.API_BASE_URL}/upload/${id}/ocrResults`, {
+    return fetch(`${config.url.API_BASE_URL}/uploads/${id}/ocrResults`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -47,7 +47,7 @@ function getOCRResults(id) {
 async function create(file) {
     const uploadData = await files.upload(file, files.UploadType.SOURCE);
 
-    const res = await fetch(`${config.url.API_BASE_URL}/upload`, {
+    const res = await fetch(`${config.url.API_BASE_URL}/uploads`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
@@ -65,7 +65,7 @@ async function create(file) {
 }
 
 function remove(id) {
-    return fetch(`${config.url.API_BASE_URL}/upload/${id}`, {
+    return fetch(`${config.url.API_BASE_URL}/uploads/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
@@ -80,7 +80,7 @@ function remove(id) {
 }
 
 async function saveOCRResults(sourceUpload, results) {
-    const res = await fetch(`${config.url.API_BASE_URL}/upload/${sourceUpload.id}/ocrResults`, {
+    const res = await fetch(`${config.url.API_BASE_URL}/uploads/${sourceUpload.id}/ocrResults`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
@@ -98,7 +98,7 @@ async function saveOCRResults(sourceUpload, results) {
 }
 
 function convert(id) {
-    return fetch(`${config.url.API_BASE_URL}/upload/${id}/convert`, {
+    return fetch(`${config.url.API_BASE_URL}/uploads/${id}/convert`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
@@ -113,7 +113,7 @@ function convert(id) {
 }
 
 function getFileInfo(id) {
-    return fetch(`${config.url.API_BASE_URL}/upload/${id}/info`, {
+    return fetch(`${config.url.API_BASE_URL}/uploads/${id}/info`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }

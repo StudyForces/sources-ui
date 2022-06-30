@@ -2,7 +2,7 @@ import {config} from "../Constants";
 import keycloak from "../keycloak";
 
 function list(page = 0, size = 20) {
-    return fetch(`${config.url.API_BASE_URL}/problem?page=${page}&sort=id,desc&size=${size}`, {
+    return fetch(`${config.url.API_BASE_URL}/problems?page=${page}&sort=id,desc&size=${size}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -25,7 +25,7 @@ function list(page = 0, size = 20) {
 }
 
 function get(id) {
-    return fetch(`${config.url.API_BASE_URL}/problem/${id}`, {
+    return fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -40,7 +40,7 @@ function get(id) {
 }
 
 async function create(obj, ocrs) {
-    let res = await fetch(`${config.url.API_BASE_URL}/problem`, {
+    let res = await fetch(`${config.url.API_BASE_URL}/problems`, {
         method: 'POST',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
@@ -60,7 +60,7 @@ async function create(obj, ocrs) {
 
 async function update(id, obj) {
     const ocrs = await getOCRResults(id);
-    let res = await fetch(`${config.url.API_BASE_URL}/problem/${id}`, {
+    let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         method: 'PUT',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`,
@@ -79,7 +79,7 @@ async function update(id, obj) {
 }
 
 function getOCRResults(id) {
-    return fetch(`${config.url.API_BASE_URL}/problem/${id}/ocrResults`, {
+    return fetch(`${config.url.API_BASE_URL}/problems/${id}/ocrResults`, {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -94,7 +94,7 @@ function getOCRResults(id) {
 }
 
 async function remove(id) {
-    const res = await fetch(`${config.url.API_BASE_URL}/problem/${id}`, {
+    const res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         method: 'DELETE',
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
