@@ -11,7 +11,6 @@ class UploadRectsEditor extends Component {
         super(props);
         this.state = {
             upload: this.props.upload,
-            src: null,
             image: null,
             crop: null,
             results: [],
@@ -35,7 +34,6 @@ class UploadRectsEditor extends Component {
 
         this.loadResults = this.loadResults.bind(this);
         this.loadPagesBlobs = this.loadPagesBlobs.bind(this);
-        this.loadPage = this.loadPage.bind(this);
         this.setPage = this.setPage.bind(this);
 
         this.showAllRects = this.showAllRects.bind(this);
@@ -43,22 +41,20 @@ class UploadRectsEditor extends Component {
     }
 
     componentDidMount() {
-        this.loadPagesBlobs();
         this.loadResults();
-        this.loadPage();
+        this.loadPagesBlobs();
     }
 
     componentWillUnmount() {
-        URL.revokeObjectURL(this.state.src);
+        this.state.pagesBlobs.forEach(url => URL.revokeObjectURL(url));
     }
 
-    //Method for getting results only one time
+    // Method for getting results only one time
     loadResults() {
-        Promise.all([API.uploads.view(this.state.upload.convertedFiles[0].file),
-            API.sourceUploads.getOCRResults(this.state.upload.id)])
+        API.sourceUploads.getOCRResults(this.state.upload.id)
             .then(res => {
                 this.setState({
-                    results: res[1].content
+                    results: res.content
                 });
             });
     }
@@ -100,18 +96,8 @@ class UploadRectsEditor extends Component {
             );
     }
 
-    loadPage() {
-        Promise.all([API.uploads.view(this.state.upload.convertedFiles[this.state.currentPage].file),
-            API.sourceUploads.getOCRResults(this.state.upload.id)])
-            .then(res => {
-                this.setState({
-                    src: URL.createObjectURL(res[0])
-                });
-            });
-    }
-
     setPage(page) {
-        this.setState({ currentPage: page - 1 }, () => { this.loadPage() });
+        this.setState({image: null, currentPage: page - 1});
     }
 
     handleCropChange(event) {
@@ -164,7 +150,7 @@ class UploadRectsEditor extends Component {
                 width: this.state.crop.width * scaleX,
                 height: this.state.crop.height * scaleY,
             }
-            
+
             const results = this.state.results;
             results.push({
                 rect,
@@ -179,18 +165,13 @@ class UploadRectsEditor extends Component {
     }
 
     cropImage(crop) {
-        if (this.state.image === null) {
-            return;
-        }
-
         const sourceImage = this.state.pagesBlobs[crop.page];
-
         return cropImage(sourceImage, crop).toDataURL();
     }
 
     convertExistingRectsToImages() {
         const existingRects = [];
-        this.state.results.map((result) => { 
+        this.state.results.forEach((result) => {
             const rectSrc = this.cropImage(result.rect);
             const rect = {
                 page: result.rect.page,
@@ -201,10 +182,16 @@ class UploadRectsEditor extends Component {
         })
 
         this.setState({existingRects}, () => {
-            switch(this.state.rectsShowMethod){
-                case "all": this.showAllRects(); break;
-                case "current_page": this.showCurrentPageRects(); break;
-                default: this.showAllRects(); break;
+            switch (this.state.rectsShowMethod) {
+                case "all":
+                    this.showAllRects();
+                    break;
+                case "current_page":
+                    this.showCurrentPageRects();
+                    break;
+                default:
+                    this.showAllRects();
+                    break;
             }
         });
     }
@@ -221,7 +208,7 @@ class UploadRectsEditor extends Component {
 
             this.setState({rectsShow});
         });
-        
+
     }
 
     showCurrentPageRects() {
@@ -229,8 +216,8 @@ class UploadRectsEditor extends Component {
         this.setState({rectsShow: []}, () => {
             const rectsShow = [];
 
-            this.state.existingRects.map((rect, index) => { 
-                if(rect.page === this.state.currentPage) {
+            this.state.existingRects.map((rect, index) => {
+                if (rect.page === this.state.currentPage) {
                     rectsShow.push({
                         id: index,
                         src: rect.src
@@ -261,32 +248,31 @@ class UploadRectsEditor extends Component {
                         <h1>Edit Upload #{this.props.match.params.id}</h1>
                     </div>
                     {
-                        this.state.src !== null ? 
-                        <>
-                            
-                            <ReactCrop
-                                src={this.state.src}
-                                crop={this.state.crop}
-                                onChange={this.handleCropChange}
-                                style={{maxHeight: 'inherit'}}>
-                                <img
-                                    onLoad={this.handleImageChange}
-                                    src={this.state.src}
-                                    alt="Source image"
-                                    className="text-center" />
-                            </ReactCrop>
-                            
-                        </>
-                        : <Spinner animation="border" role="status" className="mx-3">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
+                        this.state.pagesBlobs[this.state.currentPage] !== undefined ?
+                            <>
+                                <ReactCrop
+                                    crop={this.state.crop}
+                                    onChange={this.handleCropChange}
+                                    style={{maxHeight: 'inherit'}}>
+                                    <img
+                                        onLoad={this.handleImageChange}
+                                        src={this.state.pagesBlobs[this.state.currentPage].src}
+                                        alt="Source image"
+                                        className="text-center"/>
+                                </ReactCrop>
+
+                            </>
+                            : <Spinner animation="border" role="status" className="mx-3">
+                                <span className="visually-hidden">Loading...</span>
+                            </Spinner>
                     }
-                    <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center" style={{zIndex: 100}}>
-                        <PaginationComponent 
-                            currentPage={this.state.currentPage+1}
+                    <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center"
+                         style={{zIndex: 100}}>
+                        <PaginationComponent
+                            currentPage={this.state.currentPage + 1}
                             itemsCount={this.state.upload.convertedFiles.length}
                             itemsPerPage={1}
-                            setCurrentPage={this.setPage} />
+                            setCurrentPage={this.setPage}/>
                     </div>
                 </Col>
                 <Col sm className="overflow-scroll text-center" style={{height: 'calc(100vh - 56px)'}}>
