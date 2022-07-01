@@ -17,11 +17,12 @@ class OCRResultReviewCard extends Component {
             problem: null,
             image: null
         }
-
+        console.log(this.state.result.data);
         this.enableEditing = this.enableEditing.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
         this.handleSelection = this.handleSelection.bind(this);
+        this.copyOCRText = this.copyOCRText.bind(this);
     }
 
     componentDidMount() {
@@ -57,6 +58,10 @@ class OCRResultReviewCard extends Component {
             .then(result => {
                 this.setState({result, editing: false});
             });
+    }
+
+    copyOCRText() {
+        navigator.clipboard.writeText(this.state.result.data.text).then(() => {}, (err) => {});
     }
 
     content() {
@@ -139,6 +144,7 @@ class OCRResultReviewCard extends Component {
                                 </>
                             )
                     }
+                    <Button onClick={this.copyOCRText} variant="outline-success" size="sm" className="ms-1">Copy</Button>
                 </div>
             </Card.Body>
         </Card>;
