@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
 import Latex from "../misc/Latex";
+import EquationInserter from './EquationInserter';
 import ProblemAttachmentsForm from "./ProblemAttachmentsForm";
 
 class ProblemForm extends Component {
@@ -101,6 +102,7 @@ class ProblemForm extends Component {
                         </div>
                         <Form.Group controlId="taskSubmission.problemLatex">
                             <Form.Label as={"h6"}>LaTeX</Form.Label>
+                            <EquationInserter />
                             <Form.Control as="textarea" rows={3} value={this.state.problem}
                                           onChange={(event) => {
                                               this.setState({problem: event.target.value});
@@ -130,6 +132,7 @@ class ProblemForm extends Component {
                             </div>
                             <Form.Group controlId="taskSubmission.solutionLatex">
                                 <Form.Label as={"h6"}>LaTeX</Form.Label>
+                                <EquationInserter />
                                 <Form.Control as="textarea" rows={3} defaultValue={this.state.solution}
                                               onChange={(event) => {
                                                   this.setState({solution: event.target.value});
