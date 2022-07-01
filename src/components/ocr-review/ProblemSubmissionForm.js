@@ -13,7 +13,7 @@ class ProblemSubmissionForm extends Component {
         this.submit = this.submit.bind(this);
     }
 
-    static getDerivedStateFromProps(props, state) {
+    static getDerivedStateFromProps(props, _) {
         return {
             selected: props.selected
         };
@@ -21,14 +21,14 @@ class ProblemSubmissionForm extends Component {
 
     submit(problem, cb) {
         this.setState({submitting: true});
-        API.problems.create(problem, this.props.selected).then(p => {
+        API.problems.create(problem, this.props.selected).then(_ => {
             this.setState({submitting: false}, () => this.props.onSubmit(cb));
         });
     }
 
     render() {
         return <ProblemForm selected={this.state.selected} submitting={this.state.submitting}
-                            onSubmit={this.submit}></ProblemForm>;
+                            onSubmit={this.submit} upload={this.props.upload}></ProblemForm>;
     }
 }
 

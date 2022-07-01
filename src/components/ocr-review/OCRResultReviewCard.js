@@ -4,6 +4,7 @@ import {NavLink} from "react-router-dom";
 import Latex from "../misc/Latex";
 import API from "../../api";
 import cropImage from "../helpers/cropImage";
+import EquationInserter from "../misc/EquationInserter";
 
 class OCRResultReviewCard extends Component {
 
@@ -15,7 +16,8 @@ class OCRResultReviewCard extends Component {
             editing: false,
             selected: false,
             problem: null,
-            image: null
+            image: null,
+            copied: false
         }
 
         this.enableEditing = this.enableEditing.bind(this);
@@ -33,7 +35,7 @@ class OCRResultReviewCard extends Component {
             })
     }
 
-    static getDerivedStateFromProps(props, state) {
+    static getDerivedStateFromProps(props, _) {
         return {
             selected: props.selected,
             image: props.image !== null ? cropImage(props.image, props.result.rect).toDataURL() : null
@@ -73,11 +75,14 @@ class OCRResultReviewCard extends Component {
                 return <>
                     <Latex children={result.data.text}></Latex>
                     {
-                        editing ? <Form.Control as="textarea" rows={3} value={result.data.text}
-                            onChange={(event) => {
-                                const newResult = Object.assign(result, {data: {text: event.target.value}});
-                                this.setState({result: newResult});
-                            }} /> : null
+                        editing ? <>
+                            <EquationInserter />
+                            <Form.Control as="textarea" rows={3} value={result.data.text}
+                                          onChange={(event) => {
+                                              const newResult = Object.assign(result, {data: {text: event.target.value}});
+                                              this.setState({result: newResult});
+                                          }} />
+                        </> : null
                     }
                 </>;
 
@@ -85,11 +90,14 @@ class OCRResultReviewCard extends Component {
                 return <>
                     <Latex displayMode={true} children={`$${result.data.latex}$`}></Latex>
                     {
-                        editing ? <Form.Control as="textarea" rows={3} value={result.data.latex}
-                            onChange={(event) => {
-                                const newResult = Object.assign(result, {data: {latex: event.target.value}});
-                                this.setState({result: newResult});
-                            }} /> : null
+                        editing ? <>
+                            <EquationInserter />
+                            <Form.Control as="textarea" rows={3} value={result.data.latex}
+                                          onChange={(event) => {
+                                              const newResult = Object.assign(result, {data: {latex: event.target.value}});
+                                              this.setState({result: newResult});
+                                          }} />
+                        </> : null
                     }
                 </>
             default:
