@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Button, Dropdown, Form, ButtonGroup } from 'react-bootstrap';
+import { Dropdown, Form } from 'react-bootstrap';
 import {equations} from './equations';
 import Latex from './Latex';
 
@@ -9,10 +9,12 @@ class EquationInserter extends Component {
         
         this.state = {
             search: "",
+            caseSensitive: false,
             equationsShow: []
         }
 
         this.handleSearchChange = this.handleSearchChange.bind(this);
+        this.handleCaseSensitiveChange = this.handleCaseSensitiveChange.bind(this);
         this.onCopyEquationClick = this.onCopyEquationClick.bind(this);
         this.showEquations = this.showEquations.bind(this);
     }
@@ -25,6 +27,11 @@ class EquationInserter extends Component {
         this.setState({search: e.target.value}, () => this.showEquations());
     }
 
+    handleCaseSensitiveChange(e) {
+        this.setState({caseSensitive: e.target.checked},
+            () => this.showEquations());
+    }
+
     onCopyEquationClick(text) {
         navigator.clipboard.writeText(text).then(() => {}, (err) => {});
     }
@@ -33,7 +40,10 @@ class EquationInserter extends Component {
         this.setState({equationsShow: []}, () => {
             const equationsShow = [];
             equations.map((equation) => {
-                if(equation.includes(this.state.search)) {
+                
+                const subEquation = this.state.caseSensitive ? 
+                    equation.toLowerCase() : equation;
+                if(subEquation.includes(this.state.search)) {
                     equationsShow.push(equation);
                 }
             });
@@ -53,14 +63,18 @@ class EquationInserter extends Component {
                         Equations
                     </Dropdown.Toggle>
 
-                    <Dropdown.Menu>
+                    <Dropdown.Menu className="bg-white-blurred">
                         <div className="mb-1">
                             <Form className="mb-1">
                                 <Form.Control 
                                     onChange={this.handleSearchChange} 
                                     placeholder="Enter equation" />
+                                <Form.Check type="checkbox" checked={this.state.caseSensitive}
+                                            onChange={this.handleCaseSensitiveChange}
+                                            label="Case sensitive" />
                             </Form>
                         </div>
+                        <Dropdown.Divider />
                         <div className="overflow-scroll"  style={{height: "250px"}}>
                             {this.state.equationsShow.length !== 0 ? 
                             this.state.equationsShow.map((equation, index) => 

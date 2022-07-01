@@ -17,7 +17,7 @@ class OCRResultReviewCard extends Component {
             problem: null,
             image: null
         }
-        console.log(this.state.result.data);
+
         this.enableEditing = this.enableEditing.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
