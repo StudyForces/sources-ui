@@ -200,7 +200,7 @@ class OCRReviewPage extends Component {
                         </div>
                         <ProblemSubmissionForm selected={this.state.selected.map(id =>
                             this.state.results.find(r => r.id === id))} {...this.props}
-                                               onSubmit={this.onSubmit}>
+                                               onSubmit={this.onSubmit} upload={this.state.upload}>
                         </ProblemSubmissionForm>
                     </Col>
                 </Row>

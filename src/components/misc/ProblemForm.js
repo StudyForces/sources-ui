@@ -12,6 +12,7 @@ class ProblemForm extends Component {
             problem: null,
             solution: null,
             attachments: null,
+            ocrAttachments: [],
             addSolution: null,
             addAttachments: null,
             submitting: false
@@ -50,6 +51,12 @@ class ProblemForm extends Component {
 
         if (obj.selected.length === 1 && state.problem === '' && obj.selected[0].type === 'TEXT') {
             obj.problem = obj.selected[0].data.text;
+        }
+
+        obj.ocrAttachments = obj.selected.filter(r => r.type === 'PICTURE');
+
+        if (obj.ocrAttachments.length > 0) {
+            obj.addAttachments = state.addAttachments || true;
         }
 
         return obj;
@@ -157,7 +164,7 @@ class ProblemForm extends Component {
                     </Card.Header>
                     {
                         this.state.addAttachments ? <Card.Body>
-                            <ProblemAttachmentsForm attachments={this.state.attachments}
+                            <ProblemAttachmentsForm attachments={this.state.attachments} ocrAttachments={this.state.ocrAttachments} upload={this.props.upload}
                                                     onChange={(attachments) => this.setState({attachments})}></ProblemAttachmentsForm>
                         </Card.Body> : null
                     }

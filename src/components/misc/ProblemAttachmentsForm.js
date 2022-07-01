@@ -1,6 +1,7 @@
 import React, {Component, useState} from 'react';
 import {Button, ButtonGroup, Dropdown, Spinner, Table} from "react-bootstrap";
 import API from "../../api";
+import cropImage from "../helpers/cropImage";
 
 function CreateAttachmentRow(props) {
     const [file, setFile] = useState();
@@ -42,12 +43,67 @@ function CreateAttachmentRow(props) {
     );
 }
 
+function SyncOCRAttachmentsRow(props) {
+    let {ocrAttachments, upload} = props;
+
+    const [error, setError] = useState();
+    const [loading, setLoading] = useState(false);
+
+    const sync = () => {
+        setError(null);
+        setLoading(true);
+        ocrAttachments.forEach(async ocr => {
+            const file = await API.files.view(upload.convertedFiles[ocr.rect.page].file);
+            const img = new Image();
+            img.src = URL.createObjectURL(file);
+            img.onload = () => {
+                cropImage(img, ocr.rect).toBlob((blob) => {
+                    URL.revokeObjectURL(img.src);
+                    API.files.upload(blob, API.files.UploadType.ATTACHMENT)
+                        .then(
+                            (result) => {
+                                props.onDone({
+                                    fileName: result.fileName,
+                                    ocrID: ocr.id
+                                });
+                                setLoading(false);
+                            },
+                            (error) => {
+                                setError(error);
+                                setLoading(false);
+                            }
+                        );
+                }, 'image/png');
+            }
+        });
+    }
+
+    return (
+        <tr>
+            <td className="text-truncate align-middle">sync</td>
+            <td className="text-truncate align-middle">
+                {ocrAttachments.length} OCR Attachment(s)
+            </td>
+            <td className="text-truncate align-middle">{error ? error.message : ''}</td>
+            <td>
+                {
+                    loading ? <Spinner animation="border" role="status" size="sm">
+                        <span className="visually-hidden">Loading...</span>
+                    </Spinner> : <Button variant="outline-secondary" size="sm" onClick={sync}>Sync</Button>
+                }
+
+            </td>
+        </tr>
+    );
+}
+
 class ProblemAttachmentsForm extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
             attachments: null,
+            ocrAttachments: [],
             blobURLs: []
         }
 
@@ -58,7 +114,8 @@ class ProblemAttachmentsForm extends Component {
 
     static getDerivedStateFromProps(props, state) {
         return {
-            attachments: state.attachments || props.attachments || []
+            attachments: state.attachments || props.attachments || [],
+            ocrAttachments: props.ocrAttachments || []
         }
     }
 
@@ -96,6 +153,10 @@ class ProblemAttachmentsForm extends Component {
     }
 
     render() {
+        let {ocrAttachments, attachments} = this.state;
+
+        ocrAttachments = ocrAttachments.filter(r => !attachments.map(a => a.ocrID).includes(r.id));
+
         return <Table responsive striped hover size="sm">
             <thead>
             <tr>
@@ -105,9 +166,14 @@ class ProblemAttachmentsForm extends Component {
             </tr>
             </thead>
             <tbody>
+            {
+                ocrAttachments.length > 0 ? <SyncOCRAttachmentsRow ocrAttachments={ocrAttachments}
+                                                                   upload={this.props.upload}
+                                                                   onDone={this.handleCreate}></SyncOCRAttachmentsRow> : null
+            }
             <CreateAttachmentRow onDone={this.handleCreate}></CreateAttachmentRow>
             {
-                this.state.attachments.map((attachment, index) => <tr key={attachment.fileName}>
+                attachments.map((attachment, index) => <tr key={attachment.fileName}>
                     <td className="align-middle">{index + 1}</td>
                     <td className="align-middle" colSpan={2}>{attachment.fileName}</td>
                     <td className="align-middle">
