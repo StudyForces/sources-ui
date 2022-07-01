@@ -22,7 +22,8 @@ class OCRResultReviewCard extends Component {
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
         this.handleSelection = this.handleSelection.bind(this);
-        this.copyOCRText = this.copyOCRText.bind(this);
+        this.actions = this.actions.bind(this);
+        this.copyAction = this.copyAction.bind(this);
     }
 
     componentDidMount() {
@@ -58,10 +59,6 @@ class OCRResultReviewCard extends Component {
             .then(result => {
                 this.setState({result, editing: false});
             });
-    }
-
-    copyOCRText() {
-        navigator.clipboard.writeText(this.state.result.data.text);
     }
 
     content() {
@@ -100,6 +97,38 @@ class OCRResultReviewCard extends Component {
         }
     }
 
+    copyAction() {
+        switch (this.state.result.type) {
+            case "TEXT":
+                return <Button onClick={() => {
+                    navigator.clipboard.writeText(this.state.result.data.text);
+                }} variant="outline-success" size="sm" className="ms-1">Copy</Button>;
+            case "FORMULA":
+                return <Button onClick={() => {
+                    navigator.clipboard.writeText(`$$${this.state.result.data.latex}$$`);
+                }} variant="outline-success" size="sm" className="ms-1">Copy</Button>
+            default:
+                return null;
+        }
+    }
+
+    actions() {
+        if (this.state.editing) {
+            return <>
+                <Button onClick={this.saveEdit} variant="primary" size="sm" className="me-1">Save</Button>
+                <Button onClick={this.cancelEdit} variant="danger" size="sm">Cancel</Button>
+            </>;
+        }
+
+        return <>
+            {
+                this.state.result.type !== 'PICTURE' ?
+                    <Button onClick={this.enableEditing} variant="secondary" size="sm">Edit</Button> : null
+            }
+            {this.copyAction()}
+        </>;
+    }
+
     render() {
         const {result} = this.props;
 
@@ -136,15 +165,8 @@ class OCRResultReviewCard extends Component {
                 }
                 <div className="mt-3">
                     {
-                        !this.state.editing ? <Button onClick={this.enableEditing} variant="secondary" size="sm">Edit</Button>
-                            : (
-                                <>
-                                    <Button onClick={this.saveEdit} variant="primary" size="sm" className="me-1">Save</Button>
-                                    <Button onClick={this.cancelEdit} variant="danger" size="sm">Cancel</Button>
-                                </>
-                            )
+                        this.actions()
                     }
-                    <Button onClick={this.copyOCRText} variant="outline-success" size="sm" className="ms-1">Copy</Button>
                 </div>
             </Card.Body>
         </Card>;
