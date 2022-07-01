@@ -61,7 +61,7 @@ class OCRResultReviewCard extends Component {
     }
 
     copyOCRText() {
-        navigator.clipboard.writeText(this.state.result.data.text).then(() => {}, (err) => {});
+        navigator.clipboard.writeText(this.state.result.data.text);
     }
 
     content() {

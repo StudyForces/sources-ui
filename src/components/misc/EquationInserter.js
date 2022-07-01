@@ -33,7 +33,7 @@ class EquationInserter extends Component {
     }
 
     onCopyEquationClick(text) {
-        navigator.clipboard.writeText(text).then(() => {}, (err) => {});
+        navigator.clipboard.writeText(text);
     }
 
     showEquations() {
