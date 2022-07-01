@@ -5,6 +5,7 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import API from "../../api";
 import PaginationComponent from '../misc/PaginationComponent';
+import UploadFileModal from './UploadFileModal';
 
 class UploadRectsEditor extends Component {
     constructor(props) {
@@ -19,6 +20,7 @@ class UploadRectsEditor extends Component {
             rectsShowMethod: "all",
             currentPage: 0,
             pagesBlobs: [],
+            showUploadFileModal: false
         }
 
         this.handleCropChange = this.handleCropChange.bind(this);
@@ -38,6 +40,9 @@ class UploadRectsEditor extends Component {
 
         this.showAllRects = this.showAllRects.bind(this);
         this.showCurrentPageRects = this.showCurrentPageRects.bind(this);
+
+        this.onOpenUploadFileClick = this.onOpenUploadFileClick.bind(this);
+        this.onCloseUploadFileClick = this.onCloseUploadFileClick.bind(this);
     }
 
     componentDidMount() {
@@ -49,7 +54,6 @@ class UploadRectsEditor extends Component {
         this.state.pagesBlobs.forEach(url => URL.revokeObjectURL(url));
     }
 
-    // Method for getting results only one time
     loadResults() {
         API.uploads.getOCRResults(this.state.upload.id)
             .then(results => {
@@ -240,109 +244,124 @@ class UploadRectsEditor extends Component {
             .then(_ => this.props.history.push(`/uploads`));
     }
 
+    onOpenUploadFileClick = () => this.setState({showUploadFileModal:true});
+    onCloseUploadFileClick = () => this.setState({showUploadFileModal:false});
+
     render() {
         return (
-            <Row cols={2} md>
-                <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
-                    <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
-                        <h1>Edit Upload #{this.props.match.params.id}</h1>
-                    </div>
-                    {
-                        this.state.pagesBlobs[this.state.currentPage] !== undefined ?
-                            <>
-                                <ReactCrop
-                                    crop={this.state.crop}
-                                    onChange={this.handleCropChange}
-                                    style={{maxHeight: 'inherit'}}>
-                                    <img
-                                        onLoad={this.handleImageChange}
-                                        src={this.state.pagesBlobs[this.state.currentPage].src}
-                                        alt="Source image"
-                                        className="text-center"/>
-                                </ReactCrop>
+            <>
+                <UploadFileModal 
+                    showModal={this.state.showUploadFileModal} 
+                    closeModal={this.onCloseUploadFileClick} />
+                
+                <Row cols={2} md>
+                    <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
+                        <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
+                            <h1>Edit Upload #{this.props.match.params.id}</h1>
+                        </div>
+                        {
+                            this.state.pagesBlobs[this.state.currentPage] !== undefined ?
+                                <>
+                                    <ReactCrop
+                                        crop={this.state.crop}
+                                        onChange={this.handleCropChange}
+                                        style={{maxHeight: 'inherit'}}>
+                                        <img
+                                            onLoad={this.handleImageChange}
+                                            src={this.state.pagesBlobs[this.state.currentPage].src}
+                                            alt="Source image"
+                                            className="text-center"/>
+                                    </ReactCrop>
 
-                            </>
-                            : <Spinner animation="border" role="status" className="mx-3">
-                                <span className="visually-hidden">Loading...</span>
-                            </Spinner>
-                    }
-                    <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center"
-                         style={{zIndex: 100}}>
-                        <PaginationComponent
-                            currentPage={this.state.currentPage + 1}
-                            itemsCount={this.state.upload.convertedFiles.length}
-                            itemsPerPage={1}
-                            setCurrentPage={this.setPage}/>
-                    </div>
-                </Col>
-                <Col sm className="overflow-scroll text-center" style={{height: 'calc(100vh - 56px)'}}>
-                    <div className="text-center sticky-top pt-3 bg-white-blurred" style={{zIndex: 100}}>
-                        <ButtonGroup size="sm"
-                                     className="mb-3 me-2">
-                            <Button variant="primary"
-                                    onClick={this.addRectToUpload("TEXT")}
-                                    disabled={this.state.crop === null || this.state.image === null}>
-                                Text
+                                </>
+                                : <Spinner animation="border" role="status" className="mx-3">
+                                    <span className="visually-hidden">Loading...</span>
+                                </Spinner>
+                        }
+                        <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center"
+                            style={{zIndex: 100}}>
+                            <PaginationComponent
+                                currentPage={this.state.currentPage + 1}
+                                itemsCount={this.state.upload.convertedFiles.length}
+                                itemsPerPage={1}
+                                setCurrentPage={this.setPage}/>
+                        </div>
+                    </Col>
+                    <Col sm className="overflow-scroll text-center" style={{height: 'calc(100vh - 56px)'}}>
+                        <div className="text-center sticky-top pt-3 bg-white-blurred" style={{zIndex: 100}}>
+                            <ButtonGroup size="sm"
+                                        className="mb-3 me-2">
+                                <Button variant="primary"
+                                        onClick={this.addRectToUpload("TEXT")}
+                                        disabled={this.state.crop === null || this.state.image === null}>
+                                    Text
+                                </Button>
+                                <Button variant="primary"
+                                        onClick={this.addRectToUpload("FORMULA")}
+                                        disabled={this.state.crop === null || this.state.image === null}>
+                                    Formula
+                                </Button>
+                                <Button variant="primary"
+                                        onClick={this.addRectToUpload("PICTURE")}
+                                        disabled={this.state.crop === null || this.state.image === null}>
+                                    Picture
+                                </Button>
+                            </ButtonGroup>
+                            <ButtonGroup size="sm"
+                                        className="mb-3 me-2">
+                                <Button variant="outline-primary"
+                                        onClick={this.saveAndOCR}>
+                                    Save and OCR
+                                </Button>
+                                <Button variant="outline-secondary"
+                                        onClick={this.save}>
+                                    Save
+                                </Button>
+                            </ButtonGroup>
+                            <ButtonGroup size="sm"
+                                        className="mb-3 me-2">
+                                <Button variant="outline-secondary"
+                                        onClick={this.showAllRects}
+                                        disabled={this.state.rectsShowMethod === "all"}>
+                                    All
+                                </Button>
+                                <Button variant="outline-secondary"
+                                        onClick={this.showCurrentPageRects}
+                                        disabled={this.state.rectsShowMethod === "current_page"}>
+                                    This page
+                                </Button>
+                            </ButtonGroup>
+                            <Button size="sm"
+                                    className="mb-3" 
+                                    variant="outline-success"
+                                    onClick={this.onOpenUploadFileClick} >
+                                Add file
                             </Button>
-                            <Button variant="primary"
-                                    onClick={this.addRectToUpload("FORMULA")}
-                                    disabled={this.state.crop === null || this.state.image === null}>
-                                Formula
-                            </Button>
-                            <Button variant="primary"
-                                    onClick={this.addRectToUpload("PICTURE")}
-                                    disabled={this.state.crop === null || this.state.image === null}>
-                                Picture
-                            </Button>
-                        </ButtonGroup>
-                        <ButtonGroup size="sm"
-                                     className="mb-3 me-2">
-                            <Button variant="outline-primary"
-                                    onClick={this.saveAndOCR}>
-                                Save and OCR
-                            </Button>
-                            <Button variant="outline-secondary"
-                                    onClick={this.save}>
-                                Save
-                            </Button>
-                        </ButtonGroup>
-                        <ButtonGroup size="sm"
-                                     className="mb-3">
-                            <Button variant="outline-secondary"
-                                    onClick={this.showAllRects}
-                                    disabled={this.state.rectsShowMethod === "all"}>
-                                All
-                            </Button>
-                            <Button variant="outline-secondary"
-                                    onClick={this.showCurrentPageRects}
-                                    disabled={this.state.rectsShowMethod === "current_page"}>
-                                This page
-                            </Button>
-                        </ButtonGroup>
-                    </div>
-                    {
-                        this.state.rectsShow.map((rect, index) =>
-                            <Card
-                                key={index}
-                                className="mb-2">
-                                <Card.Body className='text-center'>
-                                    <img src={rect.src}
-                                         style={{width: "100%"}}
-                                         alt="Rect"/>
-                                </Card.Body>
-                                <Card.Footer className="text-muted">
-                                    <Button
-                                        variant="outline-danger"
-                                        onClick={() => this.handleDeleteResult(index)}
-                                        size="sm">
-                                        Delete rect
-                                    </Button>
-                                </Card.Footer>
-                            </Card>
-                        )
-                    }
-                </Col>
-            </Row>
+                        </div>
+                        {
+                            this.state.rectsShow.map((rect, index) =>
+                                <Card
+                                    key={index}
+                                    className="mb-2">
+                                    <Card.Body className='text-center'>
+                                        <img src={rect.src}
+                                            style={{width: "100%"}}
+                                            alt="Rect"/>
+                                    </Card.Body>
+                                    <Card.Footer className="text-muted">
+                                        <Button
+                                            variant="outline-danger"
+                                            onClick={() => this.handleDeleteResult(index)}
+                                            size="sm">
+                                            Delete rect
+                                        </Button>
+                                    </Card.Footer>
+                                </Card>
+                            )
+                        }
+                    </Col>
+                </Row>
+            </>
         )
     }
 }
