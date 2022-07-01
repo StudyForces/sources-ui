@@ -1,8 +1,9 @@
 import React, {Component} from 'react';
-import {Container, Alert, Spinner, Col, Row} from "react-bootstrap";
+import {Container, Alert, Spinner, Col, Row, Form} from "react-bootstrap";
 import API from "../../api";
 import OCRResultReviewCard from "./OCRResultReviewCard";
 import ProblemSubmissionForm from "./ProblemSubmissionForm";
+import PaginationComponent from "../misc/PaginationComponent";
 
 class OCRReviewPage extends Component {
 
@@ -14,12 +15,16 @@ class OCRReviewPage extends Component {
             results: [],
             upload: null,
             selected: [],
-            images: []
+            images: [],
+            filteringPage: false,
+            currentPage: 0,
         };
 
         this.handleSave = this.handleSave.bind(this);
         this.handleSelect = this.handleSelect.bind(this);
         this.onSubmit = this.onSubmit.bind(this);
+        this.setPage = this.setPage.bind(this);
+        this.handleFilteringPage = this.handleFilteringPage.bind(this);
     }
 
     componentDidMount() {
@@ -125,7 +130,12 @@ class OCRReviewPage extends Component {
     }
 
     contentResults() {
-        const {error, isLoaded, results} = this.state;
+        let {error, isLoaded, results, filteringPage, currentPage} = this.state;
+
+        if (filteringPage) {
+            results = results.filter(result => result.rect.page === currentPage);
+        }
+
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {
@@ -151,6 +161,14 @@ class OCRReviewPage extends Component {
         });
     }
 
+    setPage(page) {
+        this.setState({currentPage: page - 1});
+    }
+
+    handleFilteringPage(e) {
+        this.setState({filteringPage: e.target.checked});
+    }
+
     render() {
         return (
             <Container>
@@ -162,6 +180,19 @@ class OCRReviewPage extends Component {
                         <Row xs={1} className="g-4">
                             {this.contentResults()}
                         </Row>
+                        <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center"
+                             style={{zIndex: 100}}>
+                            <Form.Check type="checkbox"
+                                        checked={this.state.filteringPage}
+                                        onChange={this.handleFilteringPage} className="py-1 me-2" />
+                            {
+                                this.state.images.length > 1 ? <PaginationComponent
+                                    currentPage={this.state.currentPage + 1}
+                                    itemsCount={this.state.images.length}
+                                    itemsPerPage={1}
+                                    setCurrentPage={this.setPage}/> : null
+                            }
+                        </div>
                     </Col>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
                         <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
