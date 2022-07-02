@@ -1,8 +1,6 @@
 import API from "../../api";
 
-export const getOCRCardsInfo = (setNewState, props) => {
-    const id = parseInt(props.match.params.id, 10);
-
+export const getOCRCardsInfo = (setNewState, id) => {
     Promise.all([
         API.uploads.getOCRResults(id),
         API.uploads.get(id)

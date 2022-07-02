@@ -1,16 +1,30 @@
 import React, {Component} from 'react';
-import { Button, Offcanvas } from 'react-bootstrap';
+import { Button, Offcanvas, Alert, Spinner, Col } from 'react-bootstrap';
+import OCRResultReviewCard from '../ocr-review/OCRResultReviewCard';
+import { getOCRCardsInfo } from '../helpers/getOCRCardsInfo';
+import API from "../../api";
 
 class PinnedOCRCards extends Component {
     constructor(props) {
         super(props);
 
         this.state = {
-            showPinnedOCR: false
+            showPinnedOCR: false,
+            error: null,
+            isLoaded: false,
+            results: [],
+            upload: null,
+            images: []
         }
 
+        this.content = this.content.bind(this);
         this.onOpenPinnedOCRClick = this.onOpenPinnedOCRClick.bind(this);
         this.onClosePinnedOCRClick = this.onClosePinnedOCRClick.bind(this);
+    }
+
+    componentDidMount() {
+        const id = 24007;
+        getOCRCardsInfo((newState) => this.setState(newState), id)
     }
 
     onOpenPinnedOCRClick() {
@@ -19,6 +33,39 @@ class PinnedOCRCards extends Component {
 
     onClosePinnedOCRClick() {
         this.setState({showPinnedOCR: false});
+    }
+
+    handleSave(result, cb) {
+        API.ocr.update(result.id, result)
+            .then(r => {
+                const {results} = this.state;
+
+                const idx = results.findIndex(res => res.id === r.id);
+
+                if (idx !== -1) {
+                    results[idx] = r;
+                    this.setState({results}, cb);
+                }
+            });
+    }
+
+    content() {
+        let {error, isLoaded, results} = this.state;
+
+        if (error) {
+            return <Alert variant="danger">Error: {error.message}</Alert>;
+        } else if (!isLoaded) {
+            return <Spinner animation="border" role="status">
+                <span className="visually-hidden">Loading...</span>
+            </Spinner>;
+        } else {
+            const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
+            return results.map(result =>
+                <Col key={result.id}>
+                    <OCRResultReviewCard result={result} image={doneImages ? this.state.images[result.rect.page] : null}
+                                         onSave={this.handleSave} onSelect={()=>{}}></OCRResultReviewCard>
+                </Col>);
+        }
     }
 
     render() {
@@ -37,8 +84,7 @@ class PinnedOCRCards extends Component {
                     </Offcanvas.Header>
 
                     <Offcanvas.Body>
-                        Some text as placeholder. In real life you can have the elements you
-                        have chosen. Like, text, images, lists, etc.
+                        {this.content()}
                     </Offcanvas.Body>
                 </Offcanvas>
             </>
