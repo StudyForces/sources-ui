@@ -83,12 +83,12 @@ class ProblemsPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <Row>
+                <Row className="align-items-center mb-3" sm={2}>
                     <Col>
-                        <h1>Problems</h1>
+                        <h1 className="m-0">Problems</h1>
                     </Col>
-                    <Col md="auto">
-                        <Button as={NavLink} to="/problems/new" size="sm" variant="outline-primary">New</Button>
+                    <Col className="text-end">
+                        <Button as={NavLink} to="/problems/new" variant="outline-primary">New</Button>
                     </Col>
                 </Row>
                 { this.table() }
