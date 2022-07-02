@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Container, Alert, Spinner} from "react-bootstrap";
-import UploadRectsEditor from './UploadRectsEditor';
+import UploadEditor from './UploadEditor';
 import API from "../../api";
 
 class UploadEditPage extends Component {
@@ -13,6 +13,7 @@ class UploadEditPage extends Component {
         };
 
         this.load = this.load.bind(this);
+        this.reload = this.reload.bind(this);
     }
 
     interval;
@@ -25,11 +26,20 @@ class UploadEditPage extends Component {
         clearInterval(this.interval);
     }
 
+    reload() {
+        this.setState({
+            error: null,
+            isLoaded: false,
+            upload: null
+        }, () => this.interval = setInterval(this.load, 1000));
+    }
+
     load() {
         API.uploads.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
-                    if (result.convertedFiles.length > 0) {
+                    if (result.convertedFiles.length > 0 && result.metadata !== null &&
+                        result.convertedFiles.length === result.metadata.pages) {
                         clearInterval(this.interval);
                     } else {
                         return;
@@ -61,7 +71,7 @@ class UploadEditPage extends Component {
         } else {
             return (
                 <>
-                    <UploadRectsEditor upload={upload} {...this.props}/>
+                    <UploadEditor upload={upload} {...this.props} reload={this.reload}/>
                 </>
             );
         }

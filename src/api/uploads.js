@@ -64,6 +64,24 @@ async function create(list) {
     return await res.json();
 }
 
+async function setSourceFiles(id, fileNames) {
+    const res = await fetch(`${config.url.API_BASE_URL}/uploads/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fileNames
+        })
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed saving upload`);
+    }
+
+    return await res.json();
+}
+
 function remove(id) {
     return fetch(`${config.url.API_BASE_URL}/uploads/${id}`, {
         method: 'DELETE',
@@ -132,6 +150,7 @@ const uploads = {
     get,
     getOCRResults,
     create,
+    setSourceFiles,
     remove,
     saveOCRResults,
     convert,
