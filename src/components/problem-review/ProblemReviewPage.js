@@ -1,7 +1,8 @@
 import React, { Component } from 'react';
-import {Container, Alert, Spinner} from "react-bootstrap";
+import {Container, Alert, Spinner} from 'react-bootstrap';
 import API from "../../api";
 import ProblemForm from "../misc/ProblemForm";
+import PinnedOCRCards from './PinnedOCRCards';
 
 class ProblemReviewPage extends Component {
     constructor(props) {
@@ -86,11 +87,14 @@ class ProblemReviewPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <h1>
-                    {
-                        this.props.match.params.id === 'new' ? 'New Problem' : `Problem #${this.props.match.params.id}`
-                    }
-                </h1>
+                {
+                    this.props.match.params.id === 'new' ? 
+                        <h1>New Problem</h1> : 
+                        <>
+                            <h1>Problem #{this.props.match.params.id}</h1>
+                            <PinnedOCRCards />
+                        </>
+                }
                 {this.content()}
             </Container>
         );
