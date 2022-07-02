@@ -1,7 +1,6 @@
 import React from 'react';
 import {Table} from "react-bootstrap";
 import UploadRow from "./UploadRow";
-import CreateUploadRow from "./CreateUploadRow";
 
 function UploadsTable(props) {
     const {items, onRemove} = props;
@@ -16,7 +15,6 @@ function UploadsTable(props) {
             </tr>
             </thead>
             <tbody>
-                <CreateUploadRow></CreateUploadRow>
                 {
                     items.map((upload) => <UploadRow key={upload.id} upload={upload} onRemove={onRemove}></UploadRow>)
                 }

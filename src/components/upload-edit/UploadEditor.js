@@ -266,6 +266,7 @@ class UploadEditor extends Component {
         return (
             <>
                 <UploadFilesModal
+                    title="Add files"
                     existingFiles={this.state.upload.sourceFiles.map(f => f.file)}
                     onSave={this.onSetSourceFiles}
                     showModal={this.state.showUploadFileModal}

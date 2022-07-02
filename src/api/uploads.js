@@ -44,9 +44,7 @@ function getOCRResults(id) {
         .then(res => res.json());
 }
 
-async function create(list) {
-    const uploadData = await Promise.all(list.map(async file => await files.upload(file, files.UploadType.SOURCE)));
-
+async function create(fileNames) {
     const res = await fetch(`${config.url.API_BASE_URL}/uploads`, {
         method: 'POST',
         headers: {
@@ -54,7 +52,7 @@ async function create(list) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            fileNames: uploadData.map(u => u.fileName)
+            fileNames
         })
     })
     if (!res.ok) {

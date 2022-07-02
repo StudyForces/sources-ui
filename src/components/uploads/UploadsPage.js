@@ -1,8 +1,9 @@
 import React, { Component } from 'react';
-import {Container, Alert, Spinner} from "react-bootstrap";
+import {Container, Alert, Spinner, Row, Col} from "react-bootstrap";
 import UploadsTable from "./UploadsTable";
 import PaginationComponent from "../misc/PaginationComponent";
 import API from "../../api";
+import CreateUploadButton from "./CreateUploadButton";
 
 class UploadsPage extends Component {
     constructor(props) {
@@ -81,7 +82,14 @@ class UploadsPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <h1>Uploads</h1>
+                <Row>
+                    <Col>
+                        <h1>Uploads</h1>
+                    </Col>
+                    <Col md="auto">
+                        <CreateUploadButton {...this.props}></CreateUploadButton>
+                    </Col>
+                </Row>
                 { this.table() }
             </Container>
         );

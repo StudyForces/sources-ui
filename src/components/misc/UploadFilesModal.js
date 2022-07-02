@@ -83,7 +83,7 @@ class UploadFilesModal extends Component {
         return (
             <Modal show={this.props.showModal} onHide={this.props.closeModal}>
                 <Modal.Header closeButton>
-                    <Modal.Title>Add files to upload</Modal.Title>
+                    <Modal.Title>{this.props.title}</Modal.Title>
                 </Modal.Header>
 
                 <Modal.Body>
@@ -130,7 +130,10 @@ class UploadFilesModal extends Component {
 
                 <Modal.Footer>
                     <Button variant="outline-success" onClick={() => {
-                        this.props.onSave([...this.props.existingFiles, ...this.state.newFiles], this.props.closeModal)
+                        this.props.onSave([...(this.props.existingFiles || []), ...this.state.newFiles],
+                            this.props.closeModal, (e) => {
+                                alert(e);
+                            })
                     }}>
                         Save
                     </Button>
