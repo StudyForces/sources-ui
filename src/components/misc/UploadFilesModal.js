@@ -30,7 +30,7 @@ class UploadFilesModal extends Component {
 
                 <Modal.Footer>
                     <Button variant="outline-success" onClick={this.uploadFiles}>
-                        Upload
+                        Save
                     </Button>
                     <Button variant="outline-secondary" onClick={this.props.closeModal}>
                         Cancel
