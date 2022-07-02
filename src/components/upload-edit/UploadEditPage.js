@@ -15,16 +15,23 @@ class UploadEditPage extends Component {
         this.load = this.load.bind(this);
     }
 
+    interval;
+
     componentDidMount() {
-        this.load();
+        this.interval = setInterval(this.load, 500);
+    }
+
+    componentWillUnmount() {
+        clearInterval(this.interval);
     }
 
     load() {
         API.uploads.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
-                    if (result.convertedFiles.length === 0) {
-                        setTimeout(this.load, 500);
+                    if (result.convertedFiles.length > 0) {
+                        clearInterval(this.interval);
+                    } else {
                         return;
                     }
 

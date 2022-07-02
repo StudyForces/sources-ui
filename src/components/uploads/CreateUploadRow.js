@@ -6,7 +6,7 @@ import {useHistory} from "react-router-dom";
 function CreateUploadRow() {
     const history = useHistory();
 
-    const [file, setFile] = useState();
+    const [files, setFiles] = useState();
     const [error, setError] = useState();
     const [loading, setLoading] = useState(false);
 
@@ -15,7 +15,8 @@ function CreateUploadRow() {
             <td className="text-truncate align-middle">new</td>
             <td className="text-truncate align-middle">
                 <input type="file" accept="image/png,image/jpeg,image/gif,application/pdf"
-                       onChange={(event) => setFile(event.target.files[0])} />
+                       multiple={true}
+                       onChange={(event) => setFiles(Array.from(event.target.files))} />
             </td>
             <td className="text-truncate align-middle">{ error ? error.message : ''}</td>
             <td>
@@ -25,7 +26,8 @@ function CreateUploadRow() {
                     </Spinner> : <Button variant="outline-secondary" size="sm" onClick={() => {
                         setError(null);
                         setLoading(true);
-                        API.uploads.create(file)
+                        console.log(files);
+                        API.uploads.create(files)
                             .then(
                                 (result) => {
                                     history.push(`/uploads/${result.id}`);

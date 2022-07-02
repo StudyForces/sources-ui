@@ -88,9 +88,11 @@ class UploadRow extends React.Component {
                         <Dropdown.Divider/>
                     </> : null
                 }
-                <Dropdown.Item onClick={this.runOCR}>Run OCR</Dropdown.Item>
                 {
-                    upload.metadata != null ? <Dropdown.Item onClick={this.convert}>Convert</Dropdown.Item> : null
+                    upload.convertedFiles.length > 0 ? <Dropdown.Item onClick={this.runOCR}>Run OCR</Dropdown.Item> : null
+                }
+                {
+                    upload.metadata === null ? <Dropdown.Item onClick={this.convert}>Convert</Dropdown.Item> : null
                 }
                 <Dropdown.Divider/>
                 <Dropdown.Item className="text-danger" onClick={this.remove}>Delete</Dropdown.Item>

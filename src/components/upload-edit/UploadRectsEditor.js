@@ -5,7 +5,7 @@ import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
 import API from "../../api";
 import PaginationComponent from '../misc/PaginationComponent';
-import UploadFileModal from './UploadFileModal';
+import UploadFilesModal from '../misc/UploadFilesModal';
 
 class UploadRectsEditor extends Component {
     constructor(props) {
@@ -250,10 +250,10 @@ class UploadRectsEditor extends Component {
     render() {
         return (
             <>
-                <UploadFileModal 
-                    showModal={this.state.showUploadFileModal} 
+                <UploadFilesModal
+                    showModal={this.state.showUploadFileModal}
                     closeModal={this.onCloseUploadFileClick} />
-                
+
                 <Row cols={2} md>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
                         <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>
@@ -332,7 +332,7 @@ class UploadRectsEditor extends Component {
                                 </Button>
                             </ButtonGroup>
                             <Button size="sm"
-                                    className="mb-3" 
+                                    className="mb-3"
                                     variant="outline-success"
                                     onClick={this.onOpenUploadFileClick} >
                                 Add file
