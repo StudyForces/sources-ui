@@ -70,6 +70,20 @@ function get(id) {
         .then(res => res.json());
 }
 
+function getUpload(id) {
+    return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}/upload`, {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                return null
+            }
+            return res.json();
+        });
+}
+
 function getProblem(id) {
     return fetch(`${config.url.API_BASE_URL}/ocrResults/${id}/problem`, {
         headers: {
@@ -122,6 +136,7 @@ const ocr = {
     create,
     list,
     get,
+    getUpload,
     getProblem,
     update,
     remove

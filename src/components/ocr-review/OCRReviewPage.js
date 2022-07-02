@@ -100,7 +100,7 @@ class OCRReviewPage extends Component {
     }
 
     setPage(page) {
-        this.setState({currentPage: page - 1});
+        this.setState({currentPage: page - 1, filteringPage: true});
     }
 
     handleFilteringPage(e) {
@@ -118,19 +118,23 @@ class OCRReviewPage extends Component {
                         <Row xs={1} className="g-4">
                             {this.contentResults()}
                         </Row>
-                        <div className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center"
-                             style={{zIndex: 100}}>
-                            <Form.Check type="checkbox"
-                                        checked={this.state.filteringPage}
-                                        onChange={this.handleFilteringPage} className="py-1 me-2" />
-                            {
-                                this.state.images.length > 1 ? <PaginationComponent
-                                    currentPage={this.state.currentPage + 1}
-                                    itemsCount={this.state.images.length}
-                                    itemsPerPage={1}
-                                    setCurrentPage={this.setPage}/> : null
-                            }
-                        </div>
+                        <Row className="sticky-bottom py-2 mx-auto bg-white-blurred align-items-center justify-content-center"
+                             style={{zIndex: 100}} sm={2}>
+                            <Col sm="auto">
+                                <Form.Check type="checkbox"
+                                            checked={this.state.filteringPage}
+                                            onChange={this.handleFilteringPage} />
+                            </Col>
+                            <Col sm="auto">
+                                {
+                                    this.state.images.length > 1 ? <PaginationComponent
+                                        currentPage={this.state.currentPage + 1}
+                                        itemsCount={this.state.images.length}
+                                        itemsPerPage={1}
+                                        setCurrentPage={this.setPage}/> : null
+                                }
+                            </Col>
+                        </Row>
                     </Col>
                     <Col sm className="overflow-scroll" style={{height: 'calc(100vh - 56px)'}}>
                         <div className="sticky-top py-3 bg-white-blurred" style={{zIndex: 100}}>

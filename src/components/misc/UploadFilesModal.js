@@ -129,12 +129,13 @@ class UploadFilesModal extends Component {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="outline-primary" onClick={() => {
+                    <Button variant="outline-primary" onClick={(this.props.existingFiles || []).length + this.state.newFiles.length > 0 ?
+                        () => {
                         this.props.onSave([...(this.props.existingFiles || []), ...this.state.newFiles],
                             this.props.closeModal, (e) => {
                                 alert(e);
                             })
-                    }}>
+                    } : null} disabled={!((this.props.existingFiles || []).length + this.state.newFiles.length > 0)}>
                         Save
                     </Button>
                     <Button variant="outline-secondary" onClick={this.props.closeModal}>
