@@ -1,19 +1,25 @@
 import API from "../../api";
 
 export const getOCRCardsInfo = (type ,setNewState, imageState, uploadId, problemId) => {
+    
     const requestResult = requestChoose(type, uploadId, problemId);
-    Promise.all([
-        requestResult(),
-        API.uploads.get(uploadId)
-    ])
+    
+    Promise.all([requestResult()])
         .then(
             (result) => {
-                setNewState({
-                    isLoaded: true,
-                    results: result[0],
-                    upload: result[1],
-                });
-                loadImage(setNewState, imageState, result[1]);
+                const results = result[0];
+                
+                Promise.all([API.ocr.getUpload(results[0].id)])
+                .then(
+                    (r) => {
+                        setNewState({
+                            isLoaded: true,
+                            results,
+                            upload: r[0],
+                        });
+                        loadImage(setNewState, imageState, r[0]);
+                    }, (error) => setErrorState(setNewState, imageState, error)
+                )
             },
             (error) => setErrorState(setNewState, imageState, error)
         );
