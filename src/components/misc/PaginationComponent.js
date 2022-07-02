@@ -1,7 +1,8 @@
-import React, { useEffect } from "react";
+import React, {useEffect, useState} from "react";
 import Pagination from "react-bootstrap/Pagination";
 import { scrollToTop } from "../helpers/scroll";
 import PropTypes from "prop-types";
+import {Button, Col, FormControl, InputGroup, Row} from "react-bootstrap";
 
 const PaginationComponent = ({
                                  itemsCount,
@@ -75,21 +76,44 @@ const PaginationComponent = ({
 
     useEffect(setLastPageAsCurrent, [pagesCount]);
 
-    return (
+    const [searchPage, setSearchPage] = useState();
+    const isGoActive = searchPage >= 1 && searchPage <= pagesCount && !isNaN(searchPage);
+
+    return isPaginationShown && (
         <>
-            {isPaginationShown && (
-                <Pagination>
-                    <Pagination.Prev
-                        onClick={onPreviousPageClick}
-                        disabled={isCurrentPageFirst}
-                    />
-                    {pageNumbers}
-                    <Pagination.Next
-                        onClick={onNextPageClick}
-                        disabled={isCurrentPageLast}
-                    />
-                </Pagination>
-            )}
+            <Row sm={2} className="align-items-center">
+                <Col sm="auto">
+                    <Pagination className="m-0">
+                        <Pagination.Prev
+                            onClick={onPreviousPageClick}
+                            disabled={isCurrentPageFirst}
+                        />
+                        {pageNumbers}
+                        <Pagination.Next
+                            onClick={onNextPageClick}
+                            disabled={isCurrentPageLast}
+                        />
+                    </Pagination>
+                </Col>
+                <Col sm="auto">
+                    <form onSubmit={(e) => {
+                        e.preventDefault();
+                        if (isGoActive) {
+                            onPageNumberClick(searchPage);
+                        }
+                    }}>
+                        <InputGroup>
+                            <FormControl type="number" size="sm" style={{width: '100px'}} onChange={(e) => {
+                                setSearchPage(parseInt(e.target.value, 10));
+                            }} />
+                            <Button size="sm" variant="outline-secondary" disabled={!isGoActive}
+                                    onClick={isGoActive ? () => onPageNumberClick(searchPage) : null}>
+                                Go
+                            </Button>
+                        </InputGroup>
+                    </form>
+                </Col>
+            </Row>
         </>
     );
 };
