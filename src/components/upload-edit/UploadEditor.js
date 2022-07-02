@@ -297,7 +297,7 @@ class UploadEditor extends Component {
                                 </Spinner>
                         }
                         <div
-                            className="sticky-bottom py-1 center mx-auto bg-white-blurred d-flex justify-content-center"
+                            className="sticky-bottom py-2 center mx-auto bg-white-blurred d-flex justify-content-center"
                             style={{zIndex: 100}}>
                             <PaginationComponent
                                 currentPage={this.state.currentPage + 1}
