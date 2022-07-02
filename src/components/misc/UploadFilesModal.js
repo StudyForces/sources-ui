@@ -129,7 +129,7 @@ class UploadFilesModal extends Component {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="outline-success" onClick={() => {
+                    <Button variant="outline-primary" onClick={() => {
                         this.props.onSave([...(this.props.existingFiles || []), ...this.state.newFiles],
                             this.props.closeModal, (e) => {
                                 alert(e);
