@@ -44,9 +44,7 @@ function getOCRResults(id) {
         .then(res => res.json());
 }
 
-async function create(file) {
-    const uploadData = await files.upload(file, files.UploadType.SOURCE);
-
+async function create(fileNames) {
     const res = await fetch(`${config.url.API_BASE_URL}/uploads`, {
         method: 'POST',
         headers: {
@@ -54,7 +52,25 @@ async function create(file) {
             'Content-Type': 'application/json'
         },
         body: JSON.stringify({
-            fileName: uploadData.fileName
+            fileNames
+        })
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed saving upload`);
+    }
+
+    return await res.json();
+}
+
+async function setSourceFiles(id, fileNames) {
+    const res = await fetch(`${config.url.API_BASE_URL}/uploads/${id}`, {
+        method: 'PUT',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`,
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            fileNames
         })
     })
     if (!res.ok) {
@@ -132,6 +148,7 @@ const uploads = {
     get,
     getOCRResults,
     create,
+    setSourceFiles,
     remove,
     saveOCRResults,
     convert,

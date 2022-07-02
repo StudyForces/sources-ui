@@ -1,8 +1,10 @@
 import React, { Component } from 'react';
-import {Container, Alert, Spinner} from "react-bootstrap";
+import {Container, Alert, Spinner, Button, Col, Row} from "react-bootstrap";
 import API from "../../api";
 import PaginationComponent from "../misc/PaginationComponent";
 import ProblemsTable from "./ProblemsTable";
+import {NavLink} from "react-router-dom";
+import CreateUploadButton from "../uploads/CreateUploadButton";
 
 class ProblemsPage extends Component {
     constructor(props) {
@@ -81,7 +83,14 @@ class ProblemsPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <h1>Problems</h1>
+                <Row>
+                    <Col>
+                        <h1>Problems</h1>
+                    </Col>
+                    <Col md="auto">
+                        <Button as={NavLink} to="/problems/new" size="sm" variant="outline-primary">New</Button>
+                    </Col>
+                </Row>
                 { this.table() }
             </Container>
         );
