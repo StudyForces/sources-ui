@@ -82,11 +82,11 @@ class UploadsPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <Row>
+                <Row className="align-items-center mb-3" sm={2}>
                     <Col>
-                        <h1>Uploads</h1>
+                        <h1 className="m-0">Uploads</h1>
                     </Col>
-                    <Col md="auto">
+                    <Col className="text-end">
                         <CreateUploadButton {...this.props}></CreateUploadButton>
                     </Col>
                 </Row>

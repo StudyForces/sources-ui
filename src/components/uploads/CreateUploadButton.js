@@ -48,7 +48,7 @@ class CreateUploadButton extends Component {
                     onSave={this.send}
                     showModal={this.state.showUploadFileModal}
                     closeModal={this.onCloseUploadFileClick}/>
-                <Button variant="outline-primary" size="sm" onClick={this.onOpenUploadFileClick}>
+                <Button variant="outline-primary" onClick={this.onOpenUploadFileClick}>
                     New
                 </Button>
             </>
