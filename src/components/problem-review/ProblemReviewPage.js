@@ -92,7 +92,7 @@ class ProblemReviewPage extends Component {
                         <h1>New Problem</h1> : 
                         <>
                             <h1>Problem #{this.props.match.params.id}</h1>
-                            <PinnedOCRCards />
+                            <PinnedOCRCards problemId={this.props.match.params.id} />
                         </>
                 }
                 {this.content()}

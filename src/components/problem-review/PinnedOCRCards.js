@@ -24,7 +24,11 @@ class PinnedOCRCards extends Component {
 
     componentDidMount() {
         const id = 24007;
-        getOCRCardsInfo((newState) => this.setState(newState), id)
+        getOCRCardsInfo(
+            "problem_review",
+            (newState) => this.setState(newState), 
+            () => this.state.images,
+            id, this.props.problemId)
     }
 
     onOpenPinnedOCRClick() {
@@ -38,7 +42,8 @@ class PinnedOCRCards extends Component {
     handleSave(result, cb) {
         API.ocr.update(result.id, result)
             .then(r => {
-                const {results} = this.state;
+                console.log(this.state.results);
+                const results = this.state.results;
 
                 const idx = results.findIndex(res => res.id === r.id);
 
@@ -60,11 +65,10 @@ class PinnedOCRCards extends Component {
             </Spinner>;
         } else {
             const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
-            return results.map(result =>
-                <Col key={result.id}>
-                    <OCRResultReviewCard result={result} image={doneImages ? this.state.images[result.rect.page] : null}
-                                         onSave={this.handleSave} onSelect={()=>{}}></OCRResultReviewCard>
-                </Col>);
+            return results.map(result => 
+                <OCRResultReviewCard result={result} 
+                    image={doneImages ? this.state.images[result.rect.page] : null}
+                    onSave={this.handleSave} onSelect={()=>{}} className="mb-2" />);
         }
     }
 

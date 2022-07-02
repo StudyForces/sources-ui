@@ -30,7 +30,11 @@ class OCRReviewPage extends Component {
 
     componentDidMount() {
         const id = parseInt(this.props.match.params.id, 10);
-        getOCRCardsInfo((newState) => this.setState(newState), id);
+        getOCRCardsInfo(
+            "upload_review",
+            (newState) => this.setState(newState), 
+            () => this.state.images,
+            id);
     }
 
     componentWillUnmount() {
