@@ -1,16 +1,16 @@
 import API from "../../api";
 
 export default class OCRCardsInfo {
-    constructor(setNewState, getCurrentState, 
-        uploadId, problemId, type){
-        this.state={
+    constructor(setNewState, getCurrentState,
+                uploadId, problemId, type) {
+        this.state = {
             setNewState,
             getCurrentState,
             uploadId,
             problemId,
             type
         }
-        
+
         this.getOCRCardsInfo = this.getOCRCardsInfo.bind(this);
         this.loadImage = this.loadImage.bind(this);
         this.requestChoose = this.requestChoose.bind(this);
@@ -18,32 +18,32 @@ export default class OCRCardsInfo {
     }
 
     getOCRCardsInfo() {
-        const { setNewState } = this.state;
+        const {setNewState} = this.state;
         const requestResult = this.requestChoose();
-        
+
         Promise.all([requestResult()])
             .then(
                 (result) => {
                     const results = result[0];
-                    
+
                     Promise.all([API.ocr.getUpload(results[0].id)])
-                    .then(
-                        (r) => {
-                            setNewState({
-                                isLoaded: true,
-                                results,
-                                upload: r[0],
-                            });
-                            this.loadImage(r[0]);
-                        }, (error) => this.setErrorState(error)
-                    )
+                        .then(
+                            (r) => {
+                                setNewState({
+                                    isLoaded: true,
+                                    results,
+                                    upload: r[0],
+                                });
+                                this.loadImage(r[0]);
+                            }, (error) => this.setErrorState(error)
+                        )
                 },
                 (error) => this.setErrorState(error)
             );
     }
 
     loadImage(upload) {
-        const { setNewState } = this.state;
+        const {setNewState} = this.state;
 
         let counter = 0;
         let images = Array.from({length: upload.convertedFiles.length});
@@ -54,7 +54,7 @@ export default class OCRCardsInfo {
                 setNewState({images});
             }
         };
-    
+
         Promise.all(upload.convertedFiles.map(file => API.files.view(file.file)))
             .then(
                 (results) => {
@@ -72,12 +72,12 @@ export default class OCRCardsInfo {
     }
 
     requestChoose() {
-        const { uploadId, problemId, type } = this.state;
+        const {uploadId, problemId, type} = this.state;
 
-        switch(type){
-            case "upload_review": 
-                return () => API.uploads.getOCRResults(uploadId); 
-            case "problem_review": 
+        switch (type) {
+            case "upload_review":
+                return () => API.uploads.getOCRResults(uploadId);
+            case "problem_review":
                 return () => API.problems.getOCRResults(problemId);
             default:
                 return () => API.uploads.getOCRResults(uploadId);
@@ -85,7 +85,7 @@ export default class OCRCardsInfo {
     }
 
     setErrorState(error) {
-        const { setNewState, getCurrentState } = this.state;
+        const {setNewState, getCurrentState} = this.state;
 
         getCurrentState().images.forEach(image => {
             URL.revokeObjectURL(image.src);

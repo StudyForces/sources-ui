@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import { Button, Offcanvas, Alert, Spinner, Col } from 'react-bootstrap';
+import {Button, Offcanvas, Alert, Spinner, Col, Row} from 'react-bootstrap';
 import OCRResultReviewCard from '../ocr-review/OCRResultReviewCard';
 import OCRCardsInfo from '../helpers/OCRCardsInfo';
 import API from "../../api";
@@ -25,9 +25,9 @@ class PinnedOCRCards extends Component {
 
     componentDidMount() {
         const _OCRCardsInfo = new OCRCardsInfo(
-            (newState) => this.setState(newState), 
+            (newState) => this.setState(newState),
             () => this.state,
-            undefined, 
+            undefined,
             this.props.problemId,
             "problem_review",);
         _OCRCardsInfo.getOCRCardsInfo()
@@ -44,7 +44,7 @@ class PinnedOCRCards extends Component {
     handleSave(result, cb) {
         API.ocr.update(result.id, result)
             .then(r => {
-                const { results } = this.state;
+                const {results} = this.state;
 
                 const idx = results.findIndex(res => res.id === r.id);
 
@@ -66,25 +66,30 @@ class PinnedOCRCards extends Component {
             </Spinner>;
         } else {
             const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
-            return results.map(result => 
-                <OCRResultReviewCard key={result.id} result={result}
-                    image={doneImages ? this.state.images[result.rect.page] : null}
-                    onSave={this.handleSave} onSelect={()=>{}} />);
+            return <Row xs={1} className="g-4">
+                {
+                    results.map(result => <Col key={result.id}>
+                        <OCRResultReviewCard result={result}
+                                             image={doneImages ? this.state.images[result.rect.page] : null}
+                                             onSave={this.handleSave} onSelect={() => {
+                        }}/>
+                    </Col>)
+                }
+            </Row>;
         }
     }
 
     render() {
         return (
             <>
-                <Button size="sm" 
-                    variant="outline-primary" 
-                    className="mb-2"
-                    onClick={this.onOpenPinnedOCRClick}>Pinned OCRs</Button>
+                <Button size="sm"
+                        variant="outline-primary"
+                        onClick={this.onOpenPinnedOCRClick}>Pinned OCRs</Button>
 
                 <Offcanvas placement="end"
-                    style={{width: "45%"}}
-                    show={this.state.showPinnedOCR} 
-                    onHide={this.onClosePinnedOCRClick}>
+                           style={{width: "45%"}}
+                           show={this.state.showPinnedOCR}
+                           onHide={this.onClosePinnedOCRClick}>
                     <Offcanvas.Header closeButton>
                         <Offcanvas.Title>Pinned OCRs</Offcanvas.Title>
                     </Offcanvas.Header>

@@ -1,6 +1,6 @@
 import React, {useEffect, useState} from "react";
 import Pagination from "react-bootstrap/Pagination";
-import { scrollToTop } from "../helpers/scroll";
+import {scrollToTop} from "../helpers/scroll";
 import PropTypes from "prop-types";
 import {Button, Col, FormControl, InputGroup, Row} from "react-bootstrap";
 
@@ -68,7 +68,7 @@ const PaginationComponent = ({
 
         if (!isPageNumberOutOfRange) {
             isPageNumberOutOfRange = true;
-            return <Pagination.Ellipsis key={pageNumber} className="muted" />;
+            return <Pagination.Ellipsis key={pageNumber} className="muted"/>;
         }
 
         return null;
@@ -105,7 +105,7 @@ const PaginationComponent = ({
                         <InputGroup>
                             <FormControl type="number" size="sm" style={{width: '100px'}} onChange={(e) => {
                                 setSearchPage(parseInt(e.target.value, 10));
-                            }} />
+                            }}/>
                             <Button size="sm" variant="outline-secondary" disabled={!isGoActive}
                                     onClick={isGoActive ? () => onPageNumberClick(searchPage) : null}>
                                 Go

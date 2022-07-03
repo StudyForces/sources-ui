@@ -30,7 +30,7 @@ class OCRReviewPage extends Component {
     componentDidMount() {
         const id = parseInt(this.props.match.params.id, 10);
         const _OCRCardsInfo = new OCRCardsInfo(
-            (newState) => this.setState(newState), 
+            (newState) => this.setState(newState),
             () => this.state,
             id, undefined, "upload_review",);
         _OCRCardsInfo.getOCRCardsInfo()
@@ -121,12 +121,13 @@ class OCRReviewPage extends Component {
                         <Row xs={1} className="g-4">
                             {this.contentResults()}
                         </Row>
-                        <Row className="sticky-bottom py-2 mx-auto bg-white-blurred align-items-center justify-content-center"
-                             style={{zIndex: 100}} sm={2}>
+                        <Row
+                            className="sticky-bottom py-2 mx-auto bg-white-blurred align-items-center justify-content-center"
+                            style={{zIndex: 100}} sm={2}>
                             <Col sm="auto">
                                 <Form.Check type="checkbox"
                                             checked={this.state.filteringPage}
-                                            onChange={this.handleFilteringPage} />
+                                            onChange={this.handleFilteringPage}/>
                             </Col>
                             <Col sm="auto">
                                 {
