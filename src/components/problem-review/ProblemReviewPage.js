@@ -1,7 +1,9 @@
-import React, { Component } from 'react';
-import {Container, Alert, Spinner} from "react-bootstrap";
+import React, {Component} from 'react';
+import {Container, Alert, Spinner, Col, Row} from 'react-bootstrap';
 import API from "../../api";
 import ProblemForm from "../misc/ProblemForm";
+import PinnedOCRCards from './PinnedOCRCards';
+import CreateUploadButton from "../uploads/CreateUploadButton";
 
 class ProblemReviewPage extends Component {
     constructor(props) {
@@ -86,11 +88,18 @@ class ProblemReviewPage extends Component {
     render() {
         return (
             <Container className="mt-3">
-                <h1>
-                    {
-                        this.props.match.params.id === 'new' ? 'New Problem' : `Problem #${this.props.match.params.id}`
-                    }
-                </h1>
+                {
+                    this.props.match.params.id === 'new' ?
+                        <h1>New Problem</h1> :
+                        <Row className="align-items-center mb-3" sm={2}>
+                            <Col>
+                                <h1 className="m-0">Problem #{this.props.match.params.id}</h1>
+                            </Col>
+                            <Col className="text-end">
+                                <PinnedOCRCards problemId={this.props.match.params.id}/>
+                            </Col>
+                        </Row>
+                }
                 {this.content()}
             </Container>
         );

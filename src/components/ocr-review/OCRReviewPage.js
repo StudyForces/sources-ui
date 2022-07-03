@@ -4,9 +4,9 @@ import API from "../../api";
 import OCRResultReviewCard from "./OCRResultReviewCard";
 import ProblemSubmissionForm from "./ProblemSubmissionForm";
 import PaginationComponent from "../misc/PaginationComponent";
+import OCRCardsInfo from '../helpers/OCRCardsInfo';
 
 class OCRReviewPage extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -29,70 +29,11 @@ class OCRReviewPage extends Component {
 
     componentDidMount() {
         const id = parseInt(this.props.match.params.id, 10);
-        Promise.all([
-            API.uploads.getOCRResults(id),
-            API.uploads.get(id)
-        ])
-            .then(
-                (result) => {
-                    this.setState({
-                        isLoaded: true,
-                        results: result[0],
-                        upload: result[1],
-                    });
-                    this.loadImage(result[1]);
-                },
-                (error) => {
-                    this.state.images.forEach(image => {
-                        URL.revokeObjectURL(image.src);
-                    });
-                    this.setState({
-                        isLoaded: true,
-                        error,
-                        results: [],
-                        upload: null,
-                        images: [],
-                    });
-                }
-            );
-    }
-
-    loadImage(upload) {
-        let counter = 0;
-        let images = Array.from({length: upload.convertedFiles.length});
-        const updState = (idx, image) => {
-            images[idx] = image;
-            counter++;
-            if (counter === upload.convertedFiles.length) {
-                this.setState({images});
-            }
-        };
-
-        Promise.all(upload.convertedFiles.map(file => API.files.view(file.file)))
-            .then(
-                (results) => {
-                    results.forEach((result, idx) => {
-                        const imgUrl = URL.createObjectURL(result);
-                        const image = new Image();
-                        image.src = imgUrl;
-                        image.onload = () => {
-                            updState(idx, image);
-                        }
-                    })
-                },
-                (error) => {
-                    this.state.images.forEach(image => {
-                        URL.revokeObjectURL(image.src);
-                    });
-                    this.setState({
-                        isLoaded: true,
-                        error,
-                        results: [],
-                        upload: null,
-                        images: null
-                    });
-                }
-            );
+        const _OCRCardsInfo = new OCRCardsInfo(
+            (newState) => this.setState(newState),
+            () => this.state,
+            id, undefined, "upload_review",);
+        _OCRCardsInfo.getOCRCardsInfo()
     }
 
     componentWillUnmount() {
@@ -180,12 +121,13 @@ class OCRReviewPage extends Component {
                         <Row xs={1} className="g-4">
                             {this.contentResults()}
                         </Row>
-                        <Row className="sticky-bottom py-2 mx-auto bg-white-blurred align-items-center justify-content-center"
-                             style={{zIndex: 100}} sm={2}>
+                        <Row
+                            className="sticky-bottom py-2 mx-auto bg-white-blurred align-items-center justify-content-center"
+                            style={{zIndex: 100}} sm={2}>
                             <Col sm="auto">
                                 <Form.Check type="checkbox"
                                             checked={this.state.filteringPage}
-                                            onChange={this.handleFilteringPage} />
+                                            onChange={this.handleFilteringPage}/>
                             </Col>
                             <Col sm="auto">
                                 {

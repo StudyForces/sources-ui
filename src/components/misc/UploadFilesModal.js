@@ -9,7 +9,7 @@ function UploadFileRow(props) {
     const [fileInput, setFileInput] = useState(null);
 
     return <>
-        { error ? <Alert variant="danger">
+        {error ? <Alert variant="danger">
             {error}
         </Alert> : null}
         <Row className="m-0 p-0">
@@ -19,7 +19,7 @@ function UploadFileRow(props) {
                        onChange={(event) => {
                            setFiles(Array.from(event.target.files));
                            setFileInput(event.target);
-                       }} />
+                       }}/>
             </Col>
             <Col md="auto" className="m-0 p-0">
                 {
@@ -74,9 +74,9 @@ class UploadFilesModal extends Component {
     }
 
     handleRemove(idx) {
-        const { newFiles } = this.state;
+        const {newFiles} = this.state;
         newFiles.splice(idx, 1);
-        this.setState({ newFiles });
+        this.setState({newFiles});
     }
 
     render() {
@@ -129,13 +129,15 @@ class UploadFilesModal extends Component {
                 </Modal.Body>
 
                 <Modal.Footer>
-                    <Button variant="outline-primary" onClick={(this.props.existingFiles || []).length + this.state.newFiles.length > 0 ?
-                        () => {
-                        this.props.onSave([...(this.props.existingFiles || []), ...this.state.newFiles],
-                            this.props.closeModal, (e) => {
-                                alert(e);
-                            })
-                    } : null} disabled={!((this.props.existingFiles || []).length + this.state.newFiles.length > 0)}>
+                    <Button variant="outline-primary"
+                            onClick={(this.props.existingFiles || []).length + this.state.newFiles.length > 0 ?
+                                () => {
+                                    this.props.onSave([...(this.props.existingFiles || []), ...this.state.newFiles],
+                                        this.props.closeModal, (e) => {
+                                            alert(e);
+                                        })
+                                } : null}
+                            disabled={!((this.props.existingFiles || []).length + this.state.newFiles.length > 0)}>
                         Save
                     </Button>
                     <Button variant="outline-secondary" onClick={this.props.closeModal}>
