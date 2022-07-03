@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Button, Offcanvas, Alert, Spinner, Col } from 'react-bootstrap';
 import OCRResultReviewCard from '../ocr-review/OCRResultReviewCard';
-import { getOCRCardsInfo } from '../helpers/getOCRCardsInfo';
+import OCRCardsInfo from '../helpers/OCRCardsInfo';
 import API from "../../api";
 
 class PinnedOCRCards extends Component {
@@ -24,11 +24,13 @@ class PinnedOCRCards extends Component {
     }
 
     componentDidMount() {
-        getOCRCardsInfo(
-            "problem_review",
+        const _OCRCardsInfo = new OCRCardsInfo(
             (newState) => this.setState(newState), 
             () => this.state,
-            undefined, this.props.problemId)
+            undefined, 
+            this.props.problemId,
+            "problem_review",);
+        _OCRCardsInfo.getOCRCardsInfo()
     }
 
     onOpenPinnedOCRClick() {
@@ -42,7 +44,7 @@ class PinnedOCRCards extends Component {
     handleSave(result, cb) {
         API.ocr.update(result.id, result)
             .then(r => {
-                const results = this.state.results;
+                const { results } = this.state;
 
                 const idx = results.findIndex(res => res.id === r.id);
 
@@ -65,7 +67,7 @@ class PinnedOCRCards extends Component {
         } else {
             const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
             return results.map(result => 
-                <OCRResultReviewCard result={result} key={result.id}
+                <OCRResultReviewCard key={result.id} result={result}
                     image={doneImages ? this.state.images[result.rect.page] : null}
                     onSave={this.handleSave} onSelect={()=>{}} />);
         }
@@ -80,7 +82,7 @@ class PinnedOCRCards extends Component {
                     onClick={this.onOpenPinnedOCRClick}>Pinned OCRs</Button>
 
                 <Offcanvas placement="end"
-                    style={{width: "50%"}}
+                    style={{width: "45%"}}
                     show={this.state.showPinnedOCR} 
                     onHide={this.onClosePinnedOCRClick}>
                     <Offcanvas.Header closeButton>

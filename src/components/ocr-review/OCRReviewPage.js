@@ -4,10 +4,9 @@ import API from "../../api";
 import OCRResultReviewCard from "./OCRResultReviewCard";
 import ProblemSubmissionForm from "./ProblemSubmissionForm";
 import PaginationComponent from "../misc/PaginationComponent";
-import { getOCRCardsInfo } from '../helpers/getOCRCardsInfo';
+import OCRCardsInfo from '../helpers/OCRCardsInfo';
 
 class OCRReviewPage extends Component {
-
     constructor(props) {
         super(props);
         this.state = {
@@ -30,11 +29,11 @@ class OCRReviewPage extends Component {
 
     componentDidMount() {
         const id = parseInt(this.props.match.params.id, 10);
-        getOCRCardsInfo(
-            "upload_review",
+        const _OCRCardsInfo = new OCRCardsInfo(
             (newState) => this.setState(newState), 
             () => this.state,
-            id);
+            id, undefined, "upload_review",);
+        _OCRCardsInfo.getOCRCardsInfo()
     }
 
     componentWillUnmount() {
