@@ -18,6 +18,7 @@ class PinnedOCRCards extends Component {
         }
 
         this.content = this.content.bind(this);
+        this.handleSave = this.handleSave.bind(this);
         this.onOpenPinnedOCRClick = this.onOpenPinnedOCRClick.bind(this);
         this.onClosePinnedOCRClick = this.onClosePinnedOCRClick.bind(this);
     }
@@ -26,7 +27,7 @@ class PinnedOCRCards extends Component {
         getOCRCardsInfo(
             "problem_review",
             (newState) => this.setState(newState), 
-            () => this.state.images,
+            () => this.state,
             undefined, this.props.problemId)
     }
 
@@ -41,7 +42,6 @@ class PinnedOCRCards extends Component {
     handleSave(result, cb) {
         API.ocr.update(result.id, result)
             .then(r => {
-                console.log(this.state.results);
                 const results = this.state.results;
 
                 const idx = results.findIndex(res => res.id === r.id);
@@ -67,7 +67,7 @@ class PinnedOCRCards extends Component {
             return results.map(result => 
                 <OCRResultReviewCard result={result} key={result.id}
                     image={doneImages ? this.state.images[result.rect.page] : null}
-                    onSave={this.handleSave} onSelect={()=>{}} className="mb-2" />);
+                    onSave={this.handleSave} onSelect={()=>{}} />);
         }
     }
 

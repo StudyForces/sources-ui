@@ -1,6 +1,6 @@
 import API from "../../api";
 
-export const getOCRCardsInfo = (type ,setNewState, imageState, uploadId, problemId) => {
+export const getOCRCardsInfo = (type ,setNewState, currentState, uploadId, problemId) => {
     
     const requestResult = requestChoose(type, uploadId, problemId);
     
@@ -17,15 +17,15 @@ export const getOCRCardsInfo = (type ,setNewState, imageState, uploadId, problem
                             results,
                             upload: r[0],
                         });
-                        loadImage(setNewState, imageState, r[0]);
-                    }, (error) => setErrorState(setNewState, imageState, error)
+                        loadImage(setNewState, currentState, r[0]);
+                    }, (error) => setErrorState(setNewState, currentState, error)
                 )
             },
-            (error) => setErrorState(setNewState, imageState, error)
+            (error) => setErrorState(setNewState, currentState, error)
         );
 }
 
-const loadImage = (setNewState, imageState, upload) => {
+const loadImage = (setNewState, currentState, upload) => {
     let counter = 0;
     let images = Array.from({length: upload.convertedFiles.length});
     const updState = (idx, image) => {
@@ -48,7 +48,7 @@ const loadImage = (setNewState, imageState, upload) => {
                     }
                 })
             },
-            (error) => setErrorState(setNewState, imageState, error)
+            (error) => setErrorState(setNewState, currentState, error)
         );
 }
 
@@ -63,8 +63,8 @@ const requestChoose = (type, uploadId, problemId) => {
     }
 }
 
-const setErrorState = (setNewState, imageState, error) => {
-    imageState().forEach(image => {
+const setErrorState = (setNewState, currentState, error) => {
+    currentState().images.forEach(image => {
         URL.revokeObjectURL(image.src);
     });
     setNewState({

@@ -33,7 +33,7 @@ class OCRReviewPage extends Component {
         getOCRCardsInfo(
             "upload_review",
             (newState) => this.setState(newState), 
-            () => this.state.images,
+            () => this.state,
             id);
     }
 
