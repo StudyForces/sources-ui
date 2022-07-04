@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import {Badge, Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
+import {Badge, Button, Card, Col, Dropdown, Form, Row, Spinner} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
 import Latex from "../misc/Latex";
 import API from "../../api";
 import cropImage from "../helpers/cropImage";
 import EquationInserter from "../misc/EquationInserter";
+import ProblemPinner from './ProblemPinner';
 
 class OCRResultReviewCard extends Component {
 
@@ -145,6 +146,14 @@ class OCRResultReviewCard extends Component {
                 <Row className="m-0 p-0">
                     <Col className="m-0 p-0">
                         <Badge bg="primary" className="me-2">{result.type}</Badge>
+                    </Col>
+                    <Col md="auto" className="me-3 p-0">
+                        {
+                            this.state.problem ? <span/> : 
+                            <ProblemPinner 
+                                problems={this.props.problems} 
+                                problemError={this.props.problemError} />
+                        }
                     </Col>
                     <Col md="auto" className="m-0 p-0">
                         {

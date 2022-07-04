@@ -18,6 +18,8 @@ class OCRReviewPage extends Component {
             images: [],
             filteringPage: false,
             currentPage: 0,
+            problems: [],
+            problemError: null
         };
 
         this.handleSave = this.handleSave.bind(this);
@@ -29,11 +31,13 @@ class OCRReviewPage extends Component {
 
     componentDidMount() {
         const id = parseInt(this.props.match.params.id, 10);
+
         const _OCRCardsInfo = new OCRCardsInfo(
             (newState) => this.setState(newState),
             () => this.state,
             id, undefined, "upload_review",);
-        _OCRCardsInfo.getOCRCardsInfo()
+        _OCRCardsInfo.getOCRCardsInfo();
+        _OCRCardsInfo.getProblems();
     }
 
     componentWillUnmount() {
@@ -71,7 +75,7 @@ class OCRReviewPage extends Component {
     }
 
     contentResults() {
-        let {error, isLoaded, results, filteringPage, currentPage} = this.state;
+        let {error, isLoaded, results, problems, problemError, filteringPage, currentPage} = this.state;
 
         if (filteringPage) {
             results = results.filter(result => result.rect.page === currentPage);
@@ -88,6 +92,7 @@ class OCRReviewPage extends Component {
             return results.map(result =>
                 <Col key={result.id}>
                     <OCRResultReviewCard result={result} image={doneImages ? this.state.images[result.rect.page] : null}
+                                         problems={problems} problemError={problemError}
                                          selected={this.state.selected.findIndex(r => r === result.id) !== -1}
                                          onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
                 </Col>);
