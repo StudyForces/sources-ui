@@ -101,7 +101,6 @@ class ProblemReviewPage extends Component {
     }
 
     syncToCore() {
-        console.log();
         const {problem} = this.state;
         this.setState({syncing: true});
         API.problems.syncToCore(problem.id)

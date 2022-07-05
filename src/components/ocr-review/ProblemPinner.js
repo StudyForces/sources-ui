@@ -46,7 +46,7 @@ class ProblemPinner extends Component {
     }
 
     onCloseProblemClick() {
-        this.setState({offcanvasProblem: {}, showProblem: false});
+        this.setState({showProblem: false});
     }
 
     getShowProblems() {
@@ -68,9 +68,11 @@ class ProblemPinner extends Component {
         const {offcanvasProblem, ocr} = this.state;
 
         let problem = offcanvasProblem;
-        problem.ocrResults = [ocr];
-        console.log(problem);
-        API.problems.update(problem.id, problem);
+        problem = {...problem, ocrResults: [ocr]};
+        API.problems.update(problem.id, problem)
+            .then((result) => {
+                this.onCloseProblemClick();
+            });
     }
 
     offcanvas() {

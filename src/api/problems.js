@@ -84,7 +84,33 @@ async function syncToCore(id) {
     return await res.json();
 }
 
+function getNewAttachments(newAttachments) {
+    let attachments = [];
+
+    newAttachments.forEach(attachment => {
+        let result = {};
+        if(attachment.ocrID){
+            result = {
+                fileName: attachment.fileName,
+                metadata: {type: "ocr", ocrId: attachment.ocrID}
+            }
+        } else {
+            result = {
+                fileName: attachment.fileName,
+                metadata: {type: "upload"}
+            }
+        }
+
+        attachments.push(result);
+    });
+
+    return attachments;
+}
+
 async function create(obj, ocrs) {
+    const newAttachments = obj.attachments;
+    let attachments = getNewAttachments(newAttachments);
+    
     let res = await fetch(`${config.url.API_BASE_URL}/problems`, {
         method: 'POST',
         headers: {
@@ -93,7 +119,8 @@ async function create(obj, ocrs) {
         },
         body: JSON.stringify({
             ...obj,
-            ocrResults: ocrs.map(r => r.id)
+            ocrResults: ocrs.map(r => r.id),
+            attachments
         })
     })
     if (!res.ok) {
@@ -109,6 +136,14 @@ async function update(id, obj) {
     }
     const existingOCRs = await getOCRResults(id);
     const ocrs = existingOCRs.concat(obj.ocrResults);
+
+    const problemAttachments = obj.attachments;
+    const newAttachments = problemAttachments.filter(r => !r.metadata);
+    const existingAttachments = problemAttachments.filter(r => r.metadata);
+    let _newAttachments = getNewAttachments(newAttachments);
+    const attachments = existingAttachments.concat(_newAttachments);
+
+
     let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         method: 'PUT',
         headers: {
@@ -117,7 +152,8 @@ async function update(id, obj) {
         },
         body: JSON.stringify({
             ...obj,
-            ocrResults: ocrs.map(r => r.id)
+            ocrResults: ocrs.map(r => r.id),
+            attachments
         })
     })
     if (!res.ok) {
