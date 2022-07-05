@@ -1,9 +1,8 @@
 import React, {Component} from 'react';
-import {Container, Alert, Spinner, Col, Row} from 'react-bootstrap';
+import {Container, Alert, Spinner, Col, Row, Button} from 'react-bootstrap';
 import API from "../../api";
 import ProblemForm from "../misc/ProblemForm";
 import PinnedOCRCards from './PinnedOCRCards';
-import CreateUploadButton from "../uploads/CreateUploadButton";
 
 class ProblemReviewPage extends Component {
     constructor(props) {
@@ -17,6 +16,7 @@ class ProblemReviewPage extends Component {
         };
 
         this.submit = this.submit.bind(this);
+        this.syncToCore = this.syncToCore.bind(this);
     }
 
     componentDidMount() {
@@ -24,6 +24,7 @@ class ProblemReviewPage extends Component {
             this.setState({
                 isLoaded: true,
                 newProblem: true,
+                syncing: false,
                 problem: {
                     attachments: [],
                     problem: '',
@@ -69,6 +70,17 @@ class ProblemReviewPage extends Component {
         }
     }
 
+    syncToCore() {
+        console.log();
+        const {problem} = this.state;
+        this.setState({syncing: true});
+        API.problems.syncToCore(problem.id)
+            .then(r => {
+                alert(`Problem ${problem.id} is scheduled to be synced with Core API`);
+                this.setState({syncing: false});
+            });
+    }
+
     content() {
         const {error, isLoaded, problem} = this.state;
         if (error) {
@@ -78,9 +90,21 @@ class ProblemReviewPage extends Component {
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
+            const isSynced = !(problem.coreId === null || problem.coreId === undefined) && this.props.match.params.id !== 'new';
             return (
                 <ProblemForm problem={problem} selected={[]} submitting={this.state.submitting}
-                             onSubmit={this.submit}></ProblemForm>
+                             onSubmit={this.submit}>
+                    {
+                        !isSynced ? <Button variant={'secondary'}
+                                           onClick={!this.state.syncing ? this.syncToCore : null}
+                                           disabled={this.state.syncing}>
+                            Sync to Core
+                        </Button> : <Button variant={'secondary'} as={'a'}
+                                            href={`https://coreui-sf.pkasila.net/problems/${problem.coreId}`}>
+                            Synced as #{problem.coreId}
+                        </Button>
+                    }
+                </ProblemForm>
             );
         }
     }

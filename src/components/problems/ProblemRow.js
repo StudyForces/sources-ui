@@ -1,5 +1,5 @@
 import React from 'react';
-import {Badge, Button, ButtonGroup, Dropdown, Spinner} from "react-bootstrap";
+import {Badge, Button, ButtonGroup, Dropdown} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
 import Latex from "../misc/Latex";
 import API from "../../api";
@@ -14,6 +14,7 @@ class ProblemRow extends React.Component {
             ocrResults: []
         };
 
+        this.syncToCore = this.syncToCore.bind(this);
         this.remove = this.remove.bind(this);
     }
 
@@ -34,6 +35,12 @@ class ProblemRow extends React.Component {
                     });
                 }
             );
+    }
+
+    syncToCore() {
+        const {problem} = this.props;
+        API.problems.syncToCore(problem.id)
+            .then(r => alert(`Problem ${problem.id} is scheduled to be synced with Core API`));
     }
 
     remove() {
@@ -73,6 +80,11 @@ class ProblemRow extends React.Component {
                         <Dropdown.Toggle split variant="outline-secondary"/>
 
                         <Dropdown.Menu>
+                            {
+                                problem.coreId === null || problem.coreId === undefined ? <Dropdown.Item onClick={this.syncToCore}>Sync to Core</Dropdown.Item> :
+                                    <Dropdown.Item as={'a'} href={`https://coreui-sf.pkasila.net/problems/${problem.coreId}`}>Synced as #{problem.coreId}</Dropdown.Item>
+                            }
+                            <Dropdown.Divider></Dropdown.Divider>
                             <Dropdown.Item className="text-danger" onClick={this.remove}>Delete</Dropdown.Item>
                         </Dropdown.Menu>
                     </Dropdown>

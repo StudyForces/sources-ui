@@ -2,7 +2,38 @@ import {config} from "../Constants";
 import keycloak from "../keycloak";
 
 function list(page = 0, size = 20) {
-    return fetch(`${config.url.API_BASE_URL}/problems?page=${page}&sort=id,desc&size=${size}`, {
+    return fetch(`${config.url.API_BASE_URL}/problems?` + new URLSearchParams({
+        page,
+        size,
+        sort: 'id,desc'
+    }).toString(), {
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+        .then(res => {
+            if (!res.ok) {
+                throw Error(`${res.status} ${res.statusText}`);
+            }
+            return res;
+        })
+        .then(res => res.json())
+        .then(res => {
+            if (res.content.length === 1) {
+                if (res.content[0].value !== undefined) {
+                    res.content = [];
+                }
+            }
+            return res;
+        });
+}
+
+function search(id, page = 0, size = 20) {
+    return fetch(`${config.url.API_BASE_URL}/problems/search?` + new URLSearchParams({
+        id,
+        page,
+        size
+    }).toString(), {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
         }
@@ -37,6 +68,20 @@ function get(id) {
             return res;
         })
         .then(res => res.json());
+}
+
+async function syncToCore(id) {
+    let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}/syncToCore`, {
+        method: 'POST',
+        headers: {
+            'Authorization': `Bearer ${keycloak.token}`
+        }
+    })
+    if (!res.ok) {
+        throw Error(`${res.status} ${res.statusText} - failed requesting sync to core API`);
+    }
+
+    return await res.json();
 }
 
 async function create(obj, ocrs) {
@@ -110,8 +155,10 @@ async function remove(id) {
 
 const problems = {
     list,
+    search,
     get,
     getOCRResults,
+    syncToCore,
     create,
     update,
     remove
