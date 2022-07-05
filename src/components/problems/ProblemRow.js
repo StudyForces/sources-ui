@@ -1,8 +1,8 @@
 import React from 'react';
 import {Badge, Button, ButtonGroup, Dropdown} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
-import Latex from "../misc/Latex";
 import API from "../../api";
+import ReactKatex from "@pkasila/react-katex";
 
 class ProblemRow extends React.Component {
     constructor(props) {
@@ -70,7 +70,7 @@ class ProblemRow extends React.Component {
                             {ocrResults.length} OCR{ ocrResults.length > 1 ? 's' : null }
                         </Badge> : null
                     }
-                    <Latex spanned={true} children={problem.problem}></Latex>
+                    <ReactKatex output={'mathml'} children={problem.problem}></ReactKatex>
                 </td>
                 <td className="align-middle">
                     <Dropdown as={ButtonGroup} size="sm" className="align-middle">
