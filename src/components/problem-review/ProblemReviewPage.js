@@ -97,9 +97,8 @@ class ProblemReviewPage extends Component {
         const {ocrs} = this.state;
         const picures = ocrs.filter(r => r.type === "PICTURE");
         const attachments = this.state.problem.attachments;
-        console.log(attachments);
     }
-    
+
     syncToCore() {
         console.log();
         const {problem} = this.state;
