@@ -104,7 +104,11 @@ async function create(obj, ocrs) {
 }
 
 async function update(id, obj) {
-    const ocrs = await getOCRResults(id);
+    if(!obj.ocrResults){
+        obj.ocrResults = [];
+    }
+    const existingOCRs = await getOCRResults(id);
+    const ocrs = existingOCRs.concat(obj.ocrResults);
     let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         method: 'PUT',
         headers: {

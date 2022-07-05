@@ -77,6 +77,7 @@ class ProblemReviewPage extends Component {
     }
 
     getOCRs() {
+        console.log(this.state.problem);
         API.problems.getOCRResults(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
