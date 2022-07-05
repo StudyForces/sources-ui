@@ -69,7 +69,9 @@ class ProblemPinner extends Component {
 
         let problem = offcanvasProblem;
         problem.ocrResults = [ocr.id];
-        console.log(problem);
+        
+        // problem.ocrResults = [ocr.id];
+        // API.problems.update
     }
 
     offcanvas() {

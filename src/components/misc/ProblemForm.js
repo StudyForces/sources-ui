@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
+import {Button, Card, Col, Form, Row, Spinner, Stack} from "react-bootstrap";
 import Latex from "../misc/Latex";
 import EquationInserter from './EquationInserter';
 import ProblemAttachmentsForm from "./ProblemAttachmentsForm";
@@ -171,13 +171,18 @@ class ProblemForm extends Component {
                 </Card>
             </Col>
             <Col>
-                <Button variant="primary" disabled={this.state.submitting}
-                        onClick={!this.state.submitting ? this.submit : null}>
-                    {!this.state.submitting ? 'Save' : <>
-                        <Spinner animation="border" role="status" size="sm" className="me-2"></Spinner>
-                        Loading...
-                    </>}
-                </Button>
+                <Stack direction="horizontal" gap={2}>
+                    <Button variant="primary" disabled={this.state.submitting}
+                            onClick={!this.state.submitting ? this.submit : null}>
+                        {!this.state.submitting ? 'Save' : <>
+                            <Spinner animation="border" role="status" size="sm" className="me-2"></Spinner>
+                            Loading...
+                        </>}
+                    </Button>
+                    {
+                        this.props.children
+                    }
+                </Stack>
             </Col>
         </Row>;
     }
