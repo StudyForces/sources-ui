@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button} from "react-bootstrap";
-import {NavLink} from "react-router-dom";
 import Latex from '../misc/Latex';
+import API from "../../api";
 
 class ProblemPinner extends Component {
     constructor(props) {
@@ -27,7 +27,12 @@ class ProblemPinner extends Component {
     }
 
     componentDidMount() {
-        this.setState({problems: this.props.problems,
+        let problems = [];
+        if(this.props.problems){
+            problems = this.props.problems;
+        }
+
+        this.setState({problems,
             problemError: this.props.problemError}, 
             () => this.getShowProblems());
     }
@@ -60,7 +65,11 @@ class ProblemPinner extends Component {
     }
 
     pinOCR() {
-        console.log(this.state.ocr);
+        const {offcanvasProblem, ocr} = this.state;
+
+        let problem = offcanvasProblem;
+        problem.ocrResults = [ocr.id];
+        console.log(problem);
     }
 
     offcanvas() {

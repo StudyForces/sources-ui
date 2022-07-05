@@ -13,10 +13,14 @@ class ProblemReviewPage extends Component {
             isLoaded: false,
             problem: null,
             submitting: false,
-            newProblem: false
+            newProblem: false,
+            ocrs: [],
+            unsyncPictures: []
         };
 
         this.submit = this.submit.bind(this);
+        this.getUnsyncPictures = this.getUnsyncPictures.bind(this);
+        this.getOCRs = this.getOCRs.bind(this);
     }
 
     componentDidMount() {
@@ -41,7 +45,7 @@ class ProblemReviewPage extends Component {
                     this.setState({
                         isLoaded: true,
                         problem: result,
-                    });
+                    }, this.getOCRs());
                 },
                 (error) => {
                     this.setState({
@@ -51,6 +55,8 @@ class ProblemReviewPage extends Component {
                     });
                 }
             );
+
+        
     }
 
     submit(problem, cb) {
@@ -67,6 +73,30 @@ class ProblemReviewPage extends Component {
                 this.setState({submitting: false, problem: p}, cb);
             });
         }
+    }
+
+    getOCRs() {
+        API.problems.getOCRResults(parseInt(this.props.match.params.id, 10))
+            .then(
+                (result) => {
+                    this.setState({
+                        ocrs: result
+                    }, this.getUnsyncPictures());
+                }, 
+                (error) => {
+                    this.setState({
+                        error,
+                        ocrs: []
+                    });
+                }
+            );
+    }
+
+    getUnsyncPictures() {
+        const {ocrs} = this.state;
+        const picures = ocrs.filter(r => r.type === "PICTURE");
+        const attachments = this.state.problem.attachments;
+        console.log(attachments);
     }
 
     content() {
