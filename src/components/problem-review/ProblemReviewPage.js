@@ -14,12 +14,14 @@ class ProblemReviewPage extends Component {
             submitting: false,
             newProblem: false,
             ocrs: [],
-            unsyncPictures: []
+            unsyncPictures: [],
+            upload: null
         };
 
         this.submit = this.submit.bind(this);
         this.getUnsyncPictures = this.getUnsyncPictures.bind(this);
         this.getOCRs = this.getOCRs.bind(this);
+        this.getUpload = this.getUpload.bind(this);
         this.syncToCore = this.syncToCore.bind(this);
     }
 
@@ -77,13 +79,16 @@ class ProblemReviewPage extends Component {
     }
 
     getOCRs() {
-        console.log(this.state.problem);
         API.problems.getOCRResults(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
                     this.setState({
                         ocrs: result
-                    }, this.getUnsyncPictures());
+                    }, () => {
+                        this.getUpload();
+                        this.getUnsyncPictures();
+                        
+                    })
                 }, 
                 (error) => {
                     this.setState({
@@ -94,10 +99,33 @@ class ProblemReviewPage extends Component {
             );
     }
 
-    getUnsyncPictures() {
+    getUpload() {
         const {ocrs} = this.state;
-        const picures = ocrs.filter(r => r.type === "PICTURE");
-        const attachments = this.state.problem.attachments;
+        if(ocrs.length !== 0){
+            API.ocr.getUpload(ocrs[0].id)
+                .then(
+                    (result) => {
+                        this.setState({upload: result})
+                    }, 
+                    (error) => {
+                        this.setState({error, upload: null});
+                    }
+                );
+        }
+    }
+
+    getUnsyncPictures() {
+        const {ocrs, problem} = this.state;
+        const OCRPictures = ocrs.filter(r => r.type === "PICTURE");
+        const OCRAttachmentsID = problem.attachments
+            .filter(r => r.metadata.type === "ocr")
+            .map(r => r.metadata.ocrId);
+
+        let unsyncPictures = OCRPictures.filter(result => 
+            OCRAttachmentsID.indexOf(result.id) === -1
+        );
+        
+        this.setState({unsyncPictures});
     }
 
     syncToCore() {
@@ -112,7 +140,8 @@ class ProblemReviewPage extends Component {
     
 
     content() {
-        const {error, isLoaded, problem} = this.state;
+        const {error, isLoaded, problem, unsyncPictures, upload} = this.state;
+        console.log(problem);
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {
@@ -122,8 +151,8 @@ class ProblemReviewPage extends Component {
         } else {
             const isSynced = !(problem.coreId === null || problem.coreId === undefined) && this.props.match.params.id !== 'new';
             return (
-                <ProblemForm problem={problem} selected={[]} submitting={this.state.submitting}
-                             onSubmit={this.submit}>
+                <ProblemForm problem={problem} selected={unsyncPictures} submitting={this.state.submitting}
+                             onSubmit={this.submit} upload={upload}>
                     {
                         !isSynced ? <Button variant={'secondary'}
                                            onClick={!this.state.syncing ? this.syncToCore : null}
