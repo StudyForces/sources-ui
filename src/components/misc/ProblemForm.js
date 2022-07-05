@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row, Spinner, Stack} from "react-bootstrap";
-import Latex from "../misc/Latex";
 import EquationInserter from './EquationInserter';
 import ProblemAttachmentsForm from "./ProblemAttachmentsForm";
+import ReactKatex from "@pkasila/react-katex";
 
 class ProblemForm extends Component {
     constructor(props) {
@@ -105,7 +105,7 @@ class ProblemForm extends Component {
                         </div>
                         <h6 className="mt-2">Preview</h6>
                         <div className="my-2">
-                            <Latex children={this.state.problem}></Latex>
+                            <ReactKatex output={'mathml'} children={this.state.problem}></ReactKatex>
                         </div>
                         <Form.Group controlId="taskSubmission.problemLatex">
                             <Form.Label as={"h6"}>LaTeX</Form.Label>
@@ -135,7 +135,7 @@ class ProblemForm extends Component {
                         this.state.addSolution ? <Card.Body>
                             <h6>Preview</h6>
                             <div className="my-2">
-                                <Latex children={this.state.solution}></Latex>
+                                <ReactKatex output={'mathml'} children={this.state.solution}></ReactKatex>
                             </div>
                             <Form.Group controlId="taskSubmission.solutionLatex">
                                 <Form.Label as={"h6"}>LaTeX</Form.Label>

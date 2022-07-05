@@ -1,11 +1,11 @@
 import React, { Component } from 'react';
 import {Badge, Button, Card, Col, Dropdown, Form, Row, Spinner} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
-import Latex from "../misc/Latex";
 import API from "../../api";
 import cropImage from "../helpers/cropImage";
 import EquationInserter from "../misc/EquationInserter";
 import ProblemPinner from './ProblemPinner';
+import ReactKatex from "@pkasila/react-katex";
 
 class OCRResultReviewCard extends Component {
 
@@ -74,7 +74,7 @@ class OCRResultReviewCard extends Component {
         switch (result.type) {
             case "TEXT":
                 return <>
-                    <Latex children={result.data.text}></Latex>
+                    <ReactKatex output={'mathml'} children={result.data.text}></ReactKatex>
                     {
                         editing ? <>
                             <EquationInserter />
@@ -89,7 +89,7 @@ class OCRResultReviewCard extends Component {
 
             case "FORMULA":
                 return <>
-                    <Latex displayMode={true} children={`$${result.data.latex}$`}></Latex>
+                    <ReactKatex output={'mathml'} displayMode={true} children={`$${result.data.latex}$`}></ReactKatex>
                     {
                         editing ? <>
                             <EquationInserter />

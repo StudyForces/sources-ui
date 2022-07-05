@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button} from "react-bootstrap";
-import Latex from '../misc/Latex';
 import API from "../../api";
+import ReactKatex from "@pkasila/react-katex";
 
 class ProblemPinner extends Component {
     constructor(props) {
@@ -91,7 +91,7 @@ class ProblemPinner extends Component {
                     </Row>
                 </Offcanvas.Header>
                 <Offcanvas.Body>
-                    <Latex children={offcanvasProblem.problem} />
+                    <ReactKatex output={'mathml'} children={offcanvasProblem.problem} />
                 </Offcanvas.Body>
             </Offcanvas>
         )
