@@ -151,6 +151,7 @@ class OCRResultReviewCard extends Component {
                         {
                             this.state.problem ? <span/> : 
                             <ProblemPinner 
+                                ocr={result}
                                 problems={this.props.problems} 
                                 problemError={this.props.problemError} />
                         }

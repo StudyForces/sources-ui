@@ -8,12 +8,13 @@ class ProblemPinner extends Component {
         super(props);
 
         this.state = {
+            error: null,
             search: "",
             problems: [],
             problemsShow: [],
-            offcanvasProblem: null,
+            offcanvasProblem: {},
             showProblem: false,
-            error: null
+            ocr: props.ocr
         }
 
         this.getShowProblems = this.getShowProblems.bind(this);
@@ -22,6 +23,7 @@ class ProblemPinner extends Component {
         this.offcanvas= this.offcanvas.bind(this);
         this.onOpenProblemClick = this.onOpenProblemClick.bind(this);
         this.onCloseProblemClick = this.onCloseProblemClick.bind(this);
+        this.pinOCR = this.pinOCR.bind(this);
     }
 
     componentDidMount() {
@@ -35,12 +37,11 @@ class ProblemPinner extends Component {
     }
 
     onOpenProblemClick(problem) {
-        console.log(problem);
         this.setState({offcanvasProblem: problem, showProblem: true});
     }
 
     onCloseProblemClick() {
-        this.setState({showProblem: false});
+        this.setState({offcanvasProblem: {}, showProblem: false});
     }
 
     getShowProblems() {
@@ -58,40 +59,33 @@ class ProblemPinner extends Component {
         });
     }
 
+    pinOCR() {
+        console.log(this.state.ocr);
+    }
+
     offcanvas() {
         const {offcanvasProblem, showProblem} = this.state;
         
-        if(offcanvasProblem){
-            return(
-                <Offcanvas show={showProblem} style={{width: "45%"}} 
-                    onHide={this.onCloseProblemClick} placement="end">
-                    <Offcanvas.Header>
-                        <Row className="align-items-center mb-1" style={{width: "100%"}} sm={2}>
-                            <Col>
-                                <Offcanvas.Title>Problem #{offcanvasProblem.id}</Offcanvas.Title>
-                            </Col>
-                            <Col className="text-end">
-                                <Button variant="outline-primary">
-                                        Pin
-                                </Button>
-                            </Col>
-                        </Row>
-                    </Offcanvas.Header>
-                    <Offcanvas.Body>
-                        <Latex children={offcanvasProblem.problem} />
-                    </Offcanvas.Body>
-                </Offcanvas>
-            )
-        } else {
-            return(
-                <Offcanvas show={showProblem} onHide={this.onCloseProblemClick}>
-                    <Spinner animation="border" role="status" size="sm">
-                        <span className="visually-hidden">Loading...</span>
-                    </Spinner>
-                </Offcanvas>
-            )
-        }
-        
+        return(
+            <Offcanvas show={showProblem} style={{width: "45%"}} 
+                onHide={this.onCloseProblemClick} placement="end">
+                <Offcanvas.Header>
+                    <Row className="align-items-center mb-1" style={{width: "100%"}} sm={2}>
+                        <Col>
+                            <Offcanvas.Title>Problem #{offcanvasProblem.id}</Offcanvas.Title>
+                        </Col>
+                        <Col className="text-end">
+                            <Button variant="outline-primary" onClick={this.pinOCR}>
+                                    Pin
+                            </Button>
+                        </Col>
+                    </Row>
+                </Offcanvas.Header>
+                <Offcanvas.Body>
+                    <Latex children={offcanvasProblem.problem} />
+                </Offcanvas.Body>
+            </Offcanvas>
+        )
     }
 
     menuContent() {
@@ -118,25 +112,28 @@ class ProblemPinner extends Component {
 
     render() {
         return(
-            <Dropdown align="end">
-                <Dropdown.Toggle  as={"a"}>Pin problem</Dropdown.Toggle>
-                <Dropdown.Menu>
-                    <div className="mb-1">
-                        <Form className="mb-1">
-                            <Form.Control
-                                style={{width: "max-content"}}
-                                onChange={this.handleSearchChange}
-                                placeholder="Enter problem ID" />
-                        </Form>
-                    </div>
-                    <Dropdown.Divider />
-                    <div className="overflow-scroll"  style={{height: "250px"}}>
-                        {this.menuContent()}
-                    </div>
+            <>
+                <Dropdown align="end">
+                    <Dropdown.Toggle  as={"a"}>Pin problem</Dropdown.Toggle>
+                    <Dropdown.Menu>
+                        <div className="mb-1">
+                            <Form className="mb-1">
+                                <Form.Control
+                                    style={{width: "max-content"}}
+                                    onChange={this.handleSearchChange}
+                                    placeholder="Enter problem ID" />
+                            </Form>
+                        </div>
+                        <Dropdown.Divider />
+                        <div className="overflow-scroll"  style={{height: "250px"}}>
+                            {this.menuContent()}
+                        </div>
 
-                </Dropdown.Menu>
+                    </Dropdown.Menu>
+                </Dropdown>
+
                 {this.offcanvas()}
-            </Dropdown>
+            </>
         )
     }
 }
