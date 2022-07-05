@@ -58,8 +58,6 @@ class ProblemReviewPage extends Component {
                     });
                 }
             );
-
-        
     }
 
     submit(problem, cb) {
@@ -141,7 +139,7 @@ class ProblemReviewPage extends Component {
 
     content() {
         const {error, isLoaded, problem, unsyncPictures, upload} = this.state;
-        console.log(problem);
+
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {

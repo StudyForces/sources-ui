@@ -21,6 +21,7 @@ class OCRResultReviewCard extends Component {
             copied: false
         }
 
+        this.getProblem = this.getProblem.bind(this);
         this.enableEditing = this.enableEditing.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
@@ -30,6 +31,10 @@ class OCRResultReviewCard extends Component {
     }
 
     componentDidMount() {
+        this.getProblem();
+    }
+
+    getProblem() {
         API.ocr.getProblem(this.props.result.id)
             .then(problem => {
                 this.setState({problem})
@@ -152,6 +157,7 @@ class OCRResultReviewCard extends Component {
                             this.state.problem ? <span/> : 
                             <ProblemPinner 
                                 ocr={result}
+                                getProblem={this.getProblem}
                                 problems={this.props.problems} 
                                 problemError={this.props.problemError} />
                         }

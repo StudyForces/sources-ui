@@ -14,7 +14,8 @@ class ProblemPinner extends Component {
             problemsShow: [],
             offcanvasProblem: {},
             showProblem: false,
-            ocr: props.ocr
+            ocr: props.ocr,
+            pinning: false
         }
 
         this.getShowProblems = this.getShowProblems.bind(this);
@@ -67,11 +68,15 @@ class ProblemPinner extends Component {
     pinOCR() {
         const {offcanvasProblem, ocr} = this.state;
 
+        this.setState({pinning: true});
+
         let problem = offcanvasProblem;
         problem = {...problem, ocrResults: [ocr]};
         API.problems.update(problem.id, problem)
             .then((result) => {
                 this.onCloseProblemClick();
+                this.props.getProblem();
+                this.setState({pinning: false});
             });
     }
 
@@ -87,8 +92,13 @@ class ProblemPinner extends Component {
                             <Offcanvas.Title>Problem #{offcanvasProblem.id}</Offcanvas.Title>
                         </Col>
                         <Col className="text-end">
-                            <Button variant="outline-primary" onClick={this.pinOCR}>
-                                    Pin
+                            <Button disabled={this.state.pinning} 
+                                variant="outline-primary"
+                                onClick={!this.state.pinning ? this.pinOCR : null}>
+                                {!this.state.pinning ? 'Pin' : <>
+                                    <Spinner animation="border" role="status" size="sm" className="me-2" />
+                                    Loading...
+                                </>}
                             </Button>
                         </Col>
                     </Row>
