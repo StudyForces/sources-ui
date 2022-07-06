@@ -131,11 +131,11 @@ async function create(obj, ocrs) {
 }
 
 async function update(id, obj) {
-    if(!obj.ocrResults){
+    if(!obj.ocrResults) {
         obj.ocrResults = [];
     }
     const existingOCRs = await getOCRResults(id);
-    const ocrs = existingOCRs.concat(obj.ocrResults);
+    let ocrs = existingOCRs.concat(obj.ocrResults);
 
     const problemAttachments = obj.attachments;
     const newAttachments = problemAttachments.filter(r => !r.metadata);
@@ -143,7 +143,17 @@ async function update(id, obj) {
     let _newAttachments = getNewAttachments(newAttachments);
     const attachments = existingAttachments.concat(_newAttachments);
 
+    if(obj.deleteOCR) {
+        obj.deleteOCR.forEach((ocr) => {
+            const index = ocrs.findIndex(_ocr => _ocr.id === ocr);
+            if(index !== -1){
+                ocrs.splice(index, 1);
+            }
+        });
 
+        delete obj.deleteOCR;
+    }
+    
     let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         method: 'PUT',
         headers: {

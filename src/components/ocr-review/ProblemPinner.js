@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button} from "react-bootstrap";
+import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button, Badge} from "react-bootstrap";
 import API from "../../api";
 import ReactKatex from "@pkasila/react-katex";
 
@@ -136,7 +136,7 @@ class ProblemPinner extends Component {
         return(
             <>
                 <Dropdown align="end">
-                    <Dropdown.Toggle  as={"a"}>Pin problem</Dropdown.Toggle>
+                    <Dropdown.Toggle style={{cursor: "pointer"}} as={"a"}>Pin problem</Dropdown.Toggle>
                     <Dropdown.Menu>
                         <div className="mb-1">
                             <Form className="mb-1">
