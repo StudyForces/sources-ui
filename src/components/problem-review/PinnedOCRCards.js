@@ -80,6 +80,7 @@ class PinnedOCRCards extends Component {
                 {
                     results.map(result => <Col key={result.id}>
                         <OCRResultReviewCard result={result} updateResults={_OCRCardsInfo.getResults}
+                                             updateProblem={this.props.updateProblem}
                                              image={doneImages ? this.state.images[result.rect.page] : null}
                                              onSave={this.handleSave} onSelect={() => {
                         }}/>

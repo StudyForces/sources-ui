@@ -143,8 +143,9 @@ class OCRResultReviewCard extends Component {
 
         API.problems.update(updProblem.id, updProblem)
             .then((r) => {
-                if(this.props.updateResults){
+                if(this.props.updateResults && this.props.updateProblem){
                     this.props.updateResults();
+                    this.props.updateProblem();
                 } else {
                     this.getProblem();
                 }

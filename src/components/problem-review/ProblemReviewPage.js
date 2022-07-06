@@ -22,6 +22,7 @@ class ProblemReviewPage extends Component {
         this.getUnsyncPictures = this.getUnsyncPictures.bind(this);
         this.getOCRs = this.getOCRs.bind(this);
         this.getUpload = this.getUpload.bind(this);
+        this.getProblem = this.getProblem.bind(this);
         this.syncToCore = this.syncToCore.bind(this);
     }
 
@@ -42,13 +43,17 @@ class ProblemReviewPage extends Component {
             return;
         }
 
+        this.getProblem();
+    }
+
+    getProblem() {
         API.problems.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
                     this.setState({
                         isLoaded: true,
                         problem: result,
-                    }, this.getOCRs());
+                    }, () => this.getOCRs());
                 },
                 (error) => {
                     this.setState({
@@ -177,7 +182,8 @@ class ProblemReviewPage extends Component {
                                 <h1 className="m-0">Problem #{this.props.match.params.id}</h1>
                             </Col>
                             <Col className="text-end">
-                                <PinnedOCRCards problemId={this.props.match.params.id}/>
+                                <PinnedOCRCards problemId={this.props.match.params.id} 
+                                    updateProblem={this.getProblem} />
                             </Col>
                         </Row>
                 }

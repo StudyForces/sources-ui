@@ -138,16 +138,26 @@ async function update(id, obj) {
     let ocrs = existingOCRs.concat(obj.ocrResults);
 
     const problemAttachments = obj.attachments;
-    const newAttachments = problemAttachments.filter(r => !r.metadata);
     const existingAttachments = problemAttachments.filter(r => r.metadata);
-    let _newAttachments = getNewAttachments(newAttachments);
-    const attachments = existingAttachments.concat(_newAttachments);
+    const newAttachments = getNewAttachments(problemAttachments.filter(r => !r.metadata));
+    let attachments = existingAttachments.concat(newAttachments);
 
     if(obj.deleteOCR) {
         obj.deleteOCR.forEach((ocr) => {
-            const index = ocrs.findIndex(_ocr => _ocr.id === ocr);
-            if(index !== -1){
-                ocrs.splice(index, 1);
+            const indexOCRs = ocrs.findIndex(_ocr => _ocr.id === ocr);
+            if(indexOCRs !== -1){
+                ocrs.splice(indexOCRs, 1);
+            }
+
+            const indexAttachments = attachments.findIndex(_attachment => {
+                if(_attachment.metadata.type === "ocr"){
+                    return(_attachment.metadata.ocrId === ocr ? true : false);
+                }
+
+                return false;
+            });
+            if(indexAttachments !== -1){
+                attachments.splice(indexAttachments, 1);
             }
         });
 
