@@ -39,7 +39,6 @@ class OCRResultReviewCard extends Component {
     getProblem() {
         API.ocr.getProblem(this.props.result.id)
             .then((problem) => {
-                //console.log(problem);
                 this.setState({problem, unpinning: false});
             }, (error) => {
                 this.setState({problem: null, unpinning: false})
@@ -144,8 +143,11 @@ class OCRResultReviewCard extends Component {
 
         API.problems.update(updProblem.id, updProblem)
             .then((r) => {
-                this.getProblem();
-                
+                if(this.props.updateResults){
+                    this.props.updateResults();
+                } else {
+                    this.getProblem();
+                }
             });
     }
 

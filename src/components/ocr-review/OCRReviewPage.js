@@ -35,7 +35,7 @@ class OCRReviewPage extends Component {
         const _OCRCardsInfo = new OCRCardsInfo(
             (newState) => this.setState(newState),
             () => this.state,
-            id, undefined, "upload_review",);
+            id, undefined, "upload_review");
         _OCRCardsInfo.getOCRCardsInfo();
         _OCRCardsInfo.getProblems();
     }
