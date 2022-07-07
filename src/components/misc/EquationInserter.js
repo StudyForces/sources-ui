@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
 import { Dropdown, Form } from 'react-bootstrap';
 import {equations} from './equations';
-import Latex from './Latex';
+import ReactKatex from '@pkasila/react-katex';
 
 class EquationInserter extends Component {
     constructor(props) {
@@ -79,7 +79,7 @@ class EquationInserter extends Component {
                                 key={index}
                                 onClick={() => this.onCopyEquationClick(equation)}>
                                         <span>
-                                            <Latex children={`$${equation}$`} />
+                                            <ReactKatex strict={false} children={`$${equation}$`} />
                                             <span className="sm ms-2 text-secondary">{equation}</span>
                                         </span>
                             </Dropdown.Item>
