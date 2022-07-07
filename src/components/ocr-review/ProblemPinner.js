@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button, Badge} from "react-bootstrap";
+import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button, Modal} from "react-bootstrap";
 import API from "../../api";
 import ReactKatex from "@pkasila/react-katex";
 
@@ -15,7 +15,8 @@ class ProblemPinner extends Component {
             offcanvasProblem: {},
             showProblem: false,
             ocr: props.ocr,
-            pinning: false
+            pinning: false,
+            showErrorPinningModal: false
         }
 
         this.getShowProblems = this.getShowProblems.bind(this);
@@ -25,6 +26,10 @@ class ProblemPinner extends Component {
         this.onOpenProblemClick = this.onOpenProblemClick.bind(this);
         this.onCloseProblemClick = this.onCloseProblemClick.bind(this);
         this.pinOCR = this.pinOCR.bind(this);
+        this.checkOCRBeforePinning = this.checkOCRBeforePinning.bind(this);
+        this.onOpenErrorPinningModal = this.onOpenErrorPinningModal.bind(this);
+        this.onCloseErrorPinningModal = this.onCloseErrorPinningModal.bind(this);
+        this.errorPinningModal = this.errorPinningModal.bind(this);
     }
 
     componentDidMount() {
@@ -50,6 +55,14 @@ class ProblemPinner extends Component {
         this.setState({showProblem: false});
     }
 
+    onOpenErrorPinningModal() {
+        this.setState({showErrorPinningModal: true});
+    }
+
+    onCloseErrorPinningModal() {
+        this.setState({showErrorPinningModal: false});
+    }
+
     getShowProblems() {
         const {problems, search} = this.state;
 
@@ -65,10 +78,44 @@ class ProblemPinner extends Component {
         });
     }
 
-    pinOCR() {
-        const {offcanvasProblem, ocr} = this.state;
+    checkOCRBeforePinning() {
+        const {offcanvasProblem} = this.state;
 
         this.setState({pinning: true});
+
+        API.problems.getOCRResults(offcanvasProblem.id)
+            .then(
+                (result) => {
+                    const results = result;
+                    if(results.length === 0) {
+                        this.pinOCR();
+                    } else {
+                        API.ocr.getUpload(results[0].id)
+                            .then(
+                                (r) => {
+                                    if(r.id === this.props.upload.id) {
+                                        this.pinOCR();
+                                    } else {
+                                        this.setState({pinning: false}, 
+                                            this.onOpenErrorPinningModal());
+                                    }
+                                },
+                                (error) => {
+                                    this.setState({error, pinning: false}, 
+                                        this.onOpenErrorPinningModal());
+                                }
+                            )
+                    }
+                }, 
+                (error) => {
+                    this.setState({error, pinning: false}, 
+                        this.onOpenErrorPinningModal());
+                }
+            )
+    }
+
+    pinOCR() {
+        const {offcanvasProblem, ocr} = this.state;
 
         let problem = offcanvasProblem;
         problem = {...problem, ocrResults: [ocr]};
@@ -78,6 +125,30 @@ class ProblemPinner extends Component {
                 this.props.getProblem();
                 this.setState({pinning: false});
             });
+    }
+
+    errorPinningModal() {
+        const {showErrorPinningModal, error, offcanvasProblem} = this.state;
+
+        return(
+            <Modal show={showErrorPinningModal} 
+                onHide={this.onCloseErrorPinningModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Error with pinning</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {error ? `Error: ${error.message}` 
+                        : `If you want to pin OCR from 
+                            Upload #${this.props.upload.id}, you must unpin 
+                            all other upload\`s OCRs from Problem #${offcanvasProblem.id}`}
+                </Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-secondary" onClick={this.onCloseErrorPinningModal}>
+                        Ok
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        )
     }
 
     offcanvas() {
@@ -94,7 +165,7 @@ class ProblemPinner extends Component {
                         <Col className="text-end">
                             <Button disabled={this.state.pinning} 
                                 variant="outline-primary"
-                                onClick={!this.state.pinning ? this.pinOCR : null}>
+                                onClick={!this.state.pinning ? this.checkOCRBeforePinning : null}>
                                 {!this.state.pinning ? 'Pin' : <>
                                     <Spinner animation="border" role="status" size="sm" className="me-2" />
                                     Loading...
@@ -155,6 +226,7 @@ class ProblemPinner extends Component {
                 </Dropdown>
 
                 {this.offcanvas()}
+                {this.errorPinningModal()}
             </>
         )
     }

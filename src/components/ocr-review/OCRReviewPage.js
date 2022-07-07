@@ -75,7 +75,7 @@ class OCRReviewPage extends Component {
     }
 
     contentResults() {
-        let {error, isLoaded, results, problems, problemError, filteringPage, currentPage} = this.state;
+        let {error, isLoaded, results, problems, problemError, filteringPage, currentPage, upload} = this.state;
 
         if (filteringPage) {
             results = results.filter(result => result.rect.page === currentPage);
@@ -88,10 +88,11 @@ class OCRReviewPage extends Component {
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
-            const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
+            const doneImages = this.state.images.length === upload.convertedFiles.length;
             return results.map(result =>
                 <Col key={result.id}>
-                    <OCRResultReviewCard result={result} image={doneImages ? this.state.images[result.rect.page] : null}
+                    <OCRResultReviewCard upload={upload}
+                                         result={result} image={doneImages ? this.state.images[result.rect.page] : null}
                                          problems={problems} problemError={problemError}
                                          selected={this.state.selected.findIndex(r => r === result.id) !== -1}
                                          onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
