@@ -75,7 +75,7 @@ class PinnedOCRCards extends Component {
                 <span className="visually-hidden">Loading...</span>
             </Spinner>;
         } else {
-            const doneImages = this.state.images.length === this.state.upload.convertedFiles.length;
+            const doneImages = this.state.images.length === upload.convertedFiles.length;
             return <Row xs={1} className="g-4">
                 {
                     results.map(result => <Col key={result.id}>
@@ -90,6 +90,8 @@ class PinnedOCRCards extends Component {
     }
 
     render() {
+        const {upload} = this.state;
+
         return (
             <>
                 <Button size="sm"
@@ -101,11 +103,14 @@ class PinnedOCRCards extends Component {
                            show={this.state.showPinnedOCR}
                            onHide={this.onClosePinnedOCRClick}>
                     <Offcanvas.Header closeButton>
-                        <Offcanvas.Title>Pinned OCRs</Offcanvas.Title>
+                        <Offcanvas.Title>
+                            Pinned OCRs 
+                            {upload ? ` (Upload #${this.state.upload.id})` : ''}
+                        </Offcanvas.Title>
                     </Offcanvas.Header>
 
                     <Offcanvas.Body>
-                        {this.content()}
+                        {upload ? this.content() : 'There is no OCRs pinned to this problem'}
                     </Offcanvas.Body>
                 </Offcanvas>
             </>

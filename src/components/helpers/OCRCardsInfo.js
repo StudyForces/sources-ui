@@ -50,8 +50,8 @@ export default class OCRCardsInfo {
             .then(
                 (result) => {
                     const results = result[0];
-
-                    Promise.all([API.ocr.getUpload(results[0].id)])
+                    if(results.length !== 0){
+                        Promise.all([API.ocr.getUpload(results[0].id)])
                         .then(
                             (r) => {
                                 setNewState({
@@ -62,6 +62,13 @@ export default class OCRCardsInfo {
                                 this.loadImage(r[0]);
                             }, (error) => this.setErrorState(error)
                         )
+                    } else {
+                        setNewState({
+                            isLoaded: true,
+                            results,
+                            upload: null
+                        });
+                    }
                 },
                 (error) => this.setErrorState(error)
             );
