@@ -24,6 +24,7 @@ function list(page = 0, size = 20) {
                     res.content = [];
                 }
             }
+
             return res;
         });
 }
@@ -32,7 +33,8 @@ function search(id, page = 0, size = 20) {
     return fetch(`${config.url.API_BASE_URL}/problems/search?` + new URLSearchParams({
         id,
         page,
-        size
+        size,
+        sort: 'id,desc'
     }).toString(), {
         headers: {
             'Authorization': `Bearer ${keycloak.token}`
@@ -51,6 +53,8 @@ function search(id, page = 0, size = 20) {
                     res.content = [];
                 }
             }
+            //res.content.sort((a, b) => b.id - a.id);
+
             return res;
         });
 }
