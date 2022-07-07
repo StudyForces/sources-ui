@@ -84,7 +84,33 @@ async function syncToCore(id) {
     return await res.json();
 }
 
+function getNewAttachments(newAttachments) {
+    let attachments = [];
+
+    newAttachments.forEach(attachment => {
+        let result = {};
+        if(attachment.ocrID){
+            result = {
+                fileName: attachment.fileName,
+                metadata: {type: "ocr", ocrId: attachment.ocrID}
+            }
+        } else {
+            result = {
+                fileName: attachment.fileName,
+                metadata: {type: "upload"}
+            }
+        }
+
+        attachments.push(result);
+    });
+
+    return attachments;
+}
+
 async function create(obj, ocrs) {
+    const newAttachments = obj.attachments;
+    let attachments = getNewAttachments(newAttachments);
+    
     let res = await fetch(`${config.url.API_BASE_URL}/problems`, {
         method: 'POST',
         headers: {
@@ -93,7 +119,8 @@ async function create(obj, ocrs) {
         },
         body: JSON.stringify({
             ...obj,
-            ocrResults: ocrs.map(r => r.id)
+            ocrResults: ocrs.map(r => r.id),
+            attachments
         })
     })
     if (!res.ok) {
@@ -104,7 +131,39 @@ async function create(obj, ocrs) {
 }
 
 async function update(id, obj) {
-    const ocrs = await getOCRResults(id);
+    if(!obj.ocrResults) {
+        obj.ocrResults = [];
+    }
+    const existingOCRs = await getOCRResults(id);
+    let ocrs = existingOCRs.concat(obj.ocrResults);
+
+    const problemAttachments = obj.attachments;
+    const existingAttachments = problemAttachments.filter(r => r.metadata);
+    const newAttachments = getNewAttachments(problemAttachments.filter(r => !r.metadata));
+    let attachments = existingAttachments.concat(newAttachments);
+
+    if(obj.deleteOCR) {
+        obj.deleteOCR.forEach((ocr) => {
+            const indexOCRs = ocrs.findIndex(_ocr => _ocr.id === ocr);
+            if(indexOCRs !== -1){
+                ocrs.splice(indexOCRs, 1);
+            }
+
+            const indexAttachments = attachments.findIndex(_attachment => {
+                if(_attachment.metadata.type === "ocr"){
+                    return(_attachment.metadata.ocrId === ocr ? true : false);
+                }
+
+                return false;
+            });
+            if(indexAttachments !== -1){
+                attachments.splice(indexAttachments, 1);
+            }
+        });
+
+        delete obj.deleteOCR;
+    }
+    
     let res = await fetch(`${config.url.API_BASE_URL}/problems/${id}`, {
         method: 'PUT',
         headers: {
@@ -113,7 +172,8 @@ async function update(id, obj) {
         },
         body: JSON.stringify({
             ...obj,
-            ocrResults: ocrs.map(r => r.id)
+            ocrResults: ocrs.map(r => r.id),
+            attachments
         })
     })
     if (!res.ok) {

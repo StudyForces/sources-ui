@@ -15,6 +15,31 @@ export default class OCRCardsInfo {
         this.loadImage = this.loadImage.bind(this);
         this.requestChoose = this.requestChoose.bind(this);
         this.setErrorState = this.setErrorState.bind(this);
+        this.getResults = this.getResults.bind(this);
+    }
+
+    getProblems() {
+        API.problems.list().then(
+            (result) => {
+                this.state.setNewState({problems: result.content});
+            }, (error) => {
+                this.state.setNewState({problems: [], problemError: error});
+            }
+        );
+    }
+
+    getResults() {
+        const {setNewState} = this.state;
+        const requestResult = this.requestChoose();
+
+        Promise.all([requestResult()])
+            .then(
+                (result) => {
+                    const results = result[0];
+                    setNewState({results});
+                },
+                (error) => this.setErrorState(error)
+            );
     }
 
     getOCRCardsInfo() {

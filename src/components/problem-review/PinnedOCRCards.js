@@ -14,23 +14,31 @@ class PinnedOCRCards extends Component {
             isLoaded: false,
             results: [],
             upload: null,
-            images: []
+            images: [],
+            OCRCardsInfoConfig: []
         }
 
         this.content = this.content.bind(this);
         this.handleSave = this.handleSave.bind(this);
         this.onOpenPinnedOCRClick = this.onOpenPinnedOCRClick.bind(this);
         this.onClosePinnedOCRClick = this.onClosePinnedOCRClick.bind(this);
+        this.getOCRCardsInfoObject = this.getOCRCardsInfoObject.bind(this);
     }
 
     componentDidMount() {
+        const _OCRCardsInfo = this.getOCRCardsInfoObject();
+        _OCRCardsInfo.getOCRCardsInfo();
+    }
+
+    getOCRCardsInfoObject() {
         const _OCRCardsInfo = new OCRCardsInfo(
             (newState) => this.setState(newState),
             () => this.state,
             undefined,
             this.props.problemId,
-            "problem_review",);
-        _OCRCardsInfo.getOCRCardsInfo()
+            "problem_review");
+        
+        return _OCRCardsInfo;
     }
 
     onOpenPinnedOCRClick() {
@@ -56,7 +64,9 @@ class PinnedOCRCards extends Component {
     }
 
     content() {
-        let {error, isLoaded, results} = this.state;
+        let {error, isLoaded, results, upload} = this.state;
+
+        const _OCRCardsInfo = this.getOCRCardsInfoObject();
 
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
@@ -69,10 +79,10 @@ class PinnedOCRCards extends Component {
             return <Row xs={1} className="g-4">
                 {
                     results.map(result => <Col key={result.id}>
-                        <OCRResultReviewCard result={result}
+                        <OCRResultReviewCard upload={upload} result={result} updateResults={_OCRCardsInfo.getResults}
+                                             updateProblem={this.props.updateProblem}
                                              image={doneImages ? this.state.images[result.rect.page] : null}
-                                             onSave={this.handleSave} onSelect={() => {
-                        }}/>
+                                             onSave={this.handleSave} onSelect={() => {}} />
                     </Col>)
                 }
             </Row>;
