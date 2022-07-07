@@ -64,7 +64,7 @@ class PinnedOCRCards extends Component {
     }
 
     content() {
-        let {error, isLoaded, results} = this.state;
+        let {error, isLoaded, results, upload} = this.state;
 
         const _OCRCardsInfo = this.getOCRCardsInfoObject();
 
@@ -79,11 +79,10 @@ class PinnedOCRCards extends Component {
             return <Row xs={1} className="g-4">
                 {
                     results.map(result => <Col key={result.id}>
-                        <OCRResultReviewCard result={result} updateResults={_OCRCardsInfo.getResults}
+                        <OCRResultReviewCard upload={upload} result={result} updateResults={_OCRCardsInfo.getResults}
                                              updateProblem={this.props.updateProblem}
                                              image={doneImages ? this.state.images[result.rect.page] : null}
-                                             onSave={this.handleSave} onSelect={() => {
-                        }}/>
+                                             onSave={this.handleSave} onSelect={() => {}} />
                     </Col>)
                 }
             </Row>;

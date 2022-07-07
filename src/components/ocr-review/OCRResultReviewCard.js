@@ -43,7 +43,6 @@ class OCRResultReviewCard extends Component {
             }, (error) => {
                 this.setState({problem: null, unpinning: false})
             });
-        
     }
 
     static getDerivedStateFromProps(props, _) {

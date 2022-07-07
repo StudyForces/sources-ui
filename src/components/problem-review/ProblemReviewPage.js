@@ -13,16 +13,16 @@ class ProblemReviewPage extends Component {
             problem: null,
             submitting: false,
             newProblem: false,
+            upload: null,
             ocrs: [],
-            unsyncPictures: [],
-            upload: null
+            unsyncPictures: []
         };
 
         this.submit = this.submit.bind(this);
-        this.getUnsyncPictures = this.getUnsyncPictures.bind(this);
-        this.getOCRs = this.getOCRs.bind(this);
-        this.getUpload = this.getUpload.bind(this);
         this.getProblem = this.getProblem.bind(this);
+        this.getUpload = this.getUpload.bind(this);
+        this.getOCRs = this.getOCRs.bind(this);
+        this.getUnsyncPictures = this.getUnsyncPictures.bind(this);
         this.syncToCore = this.syncToCore.bind(this);
     }
 
@@ -104,7 +104,8 @@ class ProblemReviewPage extends Component {
 
     getUpload() {
         const {ocrs} = this.state;
-        if(ocrs.length !== 0){
+
+        if(ocrs.length !== 0) {
             API.ocr.getUpload(ocrs[0].id)
                 .then(
                     (result) => {
@@ -119,13 +120,13 @@ class ProblemReviewPage extends Component {
 
     getUnsyncPictures() {
         const {ocrs, problem} = this.state;
+
         const OCRPictures = ocrs.filter(r => r.type === "PICTURE");
-        const OCRAttachmentsID = problem.attachments
-            .filter(r => r.metadata.type === "ocr")
-            .map(r => r.metadata.ocrId);
+        const OCRAttachments = problem.attachments
+            .filter(r => r.metadata.type === "ocr");
 
         let unsyncPictures = OCRPictures.filter(result => 
-            OCRAttachmentsID.indexOf(result.id) === -1
+            OCRAttachments.findIndex(attachment => attachment.metadata.ocrId === result.id) === -1
         );
         
         this.setState({unsyncPictures});
@@ -133,6 +134,7 @@ class ProblemReviewPage extends Component {
 
     syncToCore() {
         const {problem} = this.state;
+
         this.setState({syncing: true});
         API.problems.syncToCore(problem.id)
             .then(r => {
@@ -187,6 +189,7 @@ class ProblemReviewPage extends Component {
                             </Col>
                         </Row>
                 }
+                
                 {this.content()}
             </Container>
         );
