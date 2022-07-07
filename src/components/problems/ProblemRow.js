@@ -70,7 +70,7 @@ class ProblemRow extends React.Component {
                             {ocrResults.length} OCR{ ocrResults.length > 1 ? 's' : null }
                         </Badge> : null
                     }
-                    <ReactKatex output={'mathml'} children={problem.problem}></ReactKatex>
+                    <ReactKatex strict={false} children={problem.problem}></ReactKatex>
                 </td>
                 <td className="align-middle">
                     <Dropdown as={ButtonGroup} size="sm" className="align-middle">

@@ -83,7 +83,7 @@ class OCRResultReviewCard extends Component {
         switch (result.type) {
             case "TEXT":
                 return <>
-                    <ReactKatex output={'mathml'} children={result.data.text}></ReactKatex>
+                    <ReactKatex strict={false} children={result.data.text}></ReactKatex>
                     {
                         editing ? <>
                             <EquationInserter />
@@ -98,7 +98,7 @@ class OCRResultReviewCard extends Component {
 
             case "FORMULA":
                 return <>
-                    <ReactKatex output={'mathml'} displayMode={true} children={`$${result.data.latex}$`}></ReactKatex>
+                    <ReactKatex strict={false} displayMode={true} children={`$${result.data.latex}$`}></ReactKatex>
                     {
                         editing ? <>
                             <EquationInserter />
@@ -136,7 +136,7 @@ class OCRResultReviewCard extends Component {
         this.setState({unpinning: true});
         let updProblem = problem;
         updProblem = {
-            ...updProblem, 
+            ...updProblem,
             deleteOCR: [result.id]
         };
 
@@ -179,24 +179,24 @@ class OCRResultReviewCard extends Component {
                     </Col>
                     <Col md="auto" className="me-3 p-0">
                         {
-                            this.state.problem ? <span/> : 
-                            <ProblemPinner 
+                            this.state.problem ? <span/> :
+                            <ProblemPinner
                                 ocr={result}
                                 upload={this.props.upload}
                                 getProblem={this.getProblem}
-                                problems={this.props.problems} 
+                                problems={this.props.problems}
                                 problemError={this.props.problemError} />
                         }
                     </Col>
                     <Col md="auto" className="m-0 p-0">
                         {
-                            this.state.problem ? 
+                            this.state.problem ?
                             <Row className="m-0 p-0">
                                 <Col className="me-2 p-0">
                                     <Badge
-                                        disabled={this.state.unpinning}  
-                                        bg="danger" 
-                                        style={{cursor: "pointer"}} 
+                                        disabled={this.state.unpinning}
+                                        bg="danger"
+                                        style={{cursor: "pointer"}}
                                         onClick={!this.state.unpinning ? this.unpinOCR : null}>
                                             {!this.state.unpinning ? 'Unpin' : 'Loading...'}
                                     </Badge>
