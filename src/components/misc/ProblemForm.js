@@ -1,8 +1,8 @@
 import React, {Component} from 'react';
 import {Button, Card, Col, Form, Row, Spinner, Stack} from "react-bootstrap";
-import ReactKatex from "@pkasila/react-katex";
 import EquationInserter from './EquationInserter';
 import ProblemAttachmentsForm from "./ProblemAttachmentsForm";
+import ReactKatex from "@pkasila/react-katex";
 
 class ProblemForm extends Component {
     constructor(props) {

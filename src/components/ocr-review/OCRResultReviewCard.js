@@ -1,10 +1,11 @@
 import React, { Component } from 'react';
-import {Badge, Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
+import {Badge, Button, Card, Col, Dropdown, Form, Row, Spinner} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
-import ReactKatex from '@pkasila/react-katex';
 import API from "../../api";
 import cropImage from "../helpers/cropImage";
 import EquationInserter from "../misc/EquationInserter";
+import ProblemPinner from './ProblemPinner';
+import ReactKatex from "@pkasila/react-katex";
 
 class OCRResultReviewCard extends Component {
 
@@ -17,22 +18,31 @@ class OCRResultReviewCard extends Component {
             selected: false,
             problem: null,
             image: null,
-            copied: false
+            copied: false,
+            unpinning: false
         }
 
+        this.getProblem = this.getProblem.bind(this);
         this.enableEditing = this.enableEditing.bind(this);
         this.saveEdit = this.saveEdit.bind(this);
         this.cancelEdit = this.cancelEdit.bind(this);
         this.handleSelection = this.handleSelection.bind(this);
         this.actions = this.actions.bind(this);
         this.copyAction = this.copyAction.bind(this);
+        this.unpinOCR = this.unpinOCR.bind(this);
     }
 
     componentDidMount() {
+        this.getProblem();
+    }
+
+    getProblem() {
         API.ocr.getProblem(this.props.result.id)
-            .then(problem => {
-                this.setState({problem})
-            })
+            .then((problem) => {
+                this.setState({problem, unpinning: false});
+            }, (error) => {
+                this.setState({problem: null, unpinning: false})
+            });
     }
 
     static getDerivedStateFromProps(props, _) {
@@ -120,6 +130,27 @@ class OCRResultReviewCard extends Component {
         }
     }
 
+    unpinOCR() {
+        const {problem, result} = this.state;
+
+        this.setState({unpinning: true});
+        let updProblem = problem;
+        updProblem = {
+            ...updProblem,
+            deleteOCR: [result.id]
+        };
+
+        API.problems.update(updProblem.id, updProblem)
+            .then((r) => {
+                if(this.props.updateResults && this.props.updateProblem){
+                    this.props.updateResults();
+                    this.props.updateProblem();
+                } else {
+                    this.getProblem();
+                }
+            });
+    }
+
     actions() {
         if (this.state.editing) {
             return <>
@@ -146,13 +177,39 @@ class OCRResultReviewCard extends Component {
                     <Col className="m-0 p-0">
                         <Badge bg="primary" className="me-2">{result.type}</Badge>
                     </Col>
+                    <Col md="auto" className="me-3 p-0">
+                        {
+                            this.state.problem ? <span/> :
+                            <ProblemPinner
+                                ocr={result}
+                                upload={this.props.upload}
+                                getProblem={this.getProblem}
+                                problems={this.props.problems}
+                                problemError={this.props.problemError} />
+                        }
+                    </Col>
                     <Col md="auto" className="m-0 p-0">
                         {
-                            this.state.problem ? <NavLink to={`/problems/${this.state.problem.id}`}>
-                                <Badge bg="secondary">
-                                    Problem #{this.state.problem.id}
-                                </Badge>
-                            </NavLink> : <Form.Check type="checkbox" disabled={this.state.editing}
+                            this.state.problem ?
+                            <Row className="m-0 p-0">
+                                <Col className="me-2 p-0">
+                                    <Badge
+                                        disabled={this.state.unpinning}
+                                        bg="danger"
+                                        style={{cursor: "pointer"}}
+                                        onClick={!this.state.unpinning ? this.unpinOCR : null}>
+                                            {!this.state.unpinning ? 'Unpin' : 'Loading...'}
+                                    </Badge>
+                                </Col>
+                                <Col className="m-0 p-0">
+                                    <NavLink to={`/problems/${this.state.problem.id}`}>
+                                        <Badge bg="secondary">
+                                            Problem #{this.state.problem.id}
+                                        </Badge>
+                                    </NavLink>
+                                </Col>
+                            </Row>
+                            : <Form.Check type="checkbox" disabled={this.state.editing}
                                                      checked={this.state.selected}
                                                      onChange={this.handleSelection} />
                         }

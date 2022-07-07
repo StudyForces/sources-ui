@@ -12,10 +12,17 @@ class ProblemReviewPage extends Component {
             isLoaded: false,
             problem: null,
             submitting: false,
-            newProblem: false
+            newProblem: false,
+            upload: null,
+            ocrs: [],
+            unsyncPictures: []
         };
 
         this.submit = this.submit.bind(this);
+        this.getProblem = this.getProblem.bind(this);
+        this.getUpload = this.getUpload.bind(this);
+        this.getOCRs = this.getOCRs.bind(this);
+        this.getUnsyncPictures = this.getUnsyncPictures.bind(this);
         this.syncToCore = this.syncToCore.bind(this);
     }
 
@@ -36,13 +43,17 @@ class ProblemReviewPage extends Component {
             return;
         }
 
+        this.getProblem();
+    }
+
+    getProblem() {
         API.problems.get(parseInt(this.props.match.params.id, 10))
             .then(
                 (result) => {
                     this.setState({
                         isLoaded: true,
                         problem: result,
-                    });
+                    }, () => this.getOCRs());
                 },
                 (error) => {
                     this.setState({
@@ -70,9 +81,60 @@ class ProblemReviewPage extends Component {
         }
     }
 
+    getOCRs() {
+        API.problems.getOCRResults(parseInt(this.props.match.params.id, 10))
+            .then(
+                (result) => {
+                    this.setState({
+                        ocrs: result
+                    }, () => {
+                        this.getUpload();
+                        this.getUnsyncPictures();
+                        
+                    })
+                }, 
+                (error) => {
+                    this.setState({
+                        error,
+                        ocrs: []
+                    });
+                }
+            );
+    }
+
+    getUpload() {
+        const {ocrs} = this.state;
+
+        if(ocrs.length !== 0) {
+            API.ocr.getUpload(ocrs[0].id)
+                .then(
+                    (result) => {
+                        this.setState({upload: result})
+                    }, 
+                    (error) => {
+                        this.setState({error, upload: null});
+                    }
+                );
+        }
+    }
+
+    getUnsyncPictures() {
+        const {ocrs, problem} = this.state;
+
+        const OCRPictures = ocrs.filter(r => r.type === "PICTURE");
+        const OCRAttachments = problem.attachments
+            .filter(r => r.metadata.type === "ocr");
+
+        let unsyncPictures = OCRPictures.filter(result => 
+            OCRAttachments.findIndex(attachment => attachment.metadata.ocrId === result.id) === -1
+        );
+        
+        this.setState({unsyncPictures});
+    }
+
     syncToCore() {
-        console.log();
         const {problem} = this.state;
+
         this.setState({syncing: true});
         API.problems.syncToCore(problem.id)
             .then(r => {
@@ -80,9 +142,11 @@ class ProblemReviewPage extends Component {
                 this.setState({syncing: false});
             });
     }
+    
 
     content() {
-        const {error, isLoaded, problem} = this.state;
+        const {error, isLoaded, problem, unsyncPictures, upload} = this.state;
+
         if (error) {
             return <Alert variant="danger">Error: {error.message}</Alert>;
         } else if (!isLoaded) {
@@ -92,8 +156,8 @@ class ProblemReviewPage extends Component {
         } else {
             const isSynced = !(problem.coreId === null || problem.coreId === undefined) && this.props.match.params.id !== 'new';
             return (
-                <ProblemForm problem={problem} selected={[]} submitting={this.state.submitting}
-                             onSubmit={this.submit}>
+                <ProblemForm problem={problem} selected={unsyncPictures} submitting={this.state.submitting}
+                             onSubmit={this.submit} upload={upload}>
                     {
                         !isSynced ? <Button variant={'secondary'}
                                            onClick={!this.state.syncing ? this.syncToCore : null}
@@ -120,10 +184,12 @@ class ProblemReviewPage extends Component {
                                 <h1 className="m-0">Problem #{this.props.match.params.id}</h1>
                             </Col>
                             <Col className="text-end">
-                                <PinnedOCRCards problemId={this.props.match.params.id}/>
+                                <PinnedOCRCards problemId={this.props.match.params.id} 
+                                    updateProblem={this.getProblem} />
                             </Col>
                         </Row>
                 }
+                
                 {this.content()}
             </Container>
         );

@@ -1,8 +1,8 @@
 import React from 'react';
 import {Badge, Button, ButtonGroup, Dropdown} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
-import ReactKatex from "@pkasila/react-katex";
 import API from "../../api";
+import ReactKatex from "@pkasila/react-katex";
 
 class ProblemRow extends React.Component {
     constructor(props) {
