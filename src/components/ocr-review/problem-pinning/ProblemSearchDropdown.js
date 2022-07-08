@@ -1,7 +1,7 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Spinner, Popover, OverlayTrigger, Badge, Button} from "react-bootstrap";
-import API from "../../api";
-import PaginationComponent from '../misc/PaginationComponent';
+import {Dropdown, Form, Spinner} from "react-bootstrap";
+import API from '../../../api';
+import PaginationComponent from '../../misc/PaginationComponent';
 
 class ProblemSearchDropdown extends Component {
     constructor(props) {
@@ -107,29 +107,11 @@ class ProblemSearchDropdown extends Component {
                         <div className="overflow-scroll"  style={{height: "250px"}}>
                             {this.menuContent()}
                         </div>
-
                     </Dropdown.Menu>
                 </Dropdown>
-
-                
             </>
         )
     }
-
-    // getShowProblems() {
-    //     const {problems, search} = this.state;
-
-    //     this.setState({problemsShow: []}, () => {
-    //         const problemsShow = [];
-    //         problems.forEach((problem) => {
-    //             if(problem.id.toString().includes(search)) {
-    //                 problemsShow.push(problem);
-    //             }
-    //         })
-
-    //         this.setState({problemsShow});
-    //     });
-    // }
 }
 
 export default ProblemSearchDropdown;

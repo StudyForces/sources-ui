@@ -72,7 +72,7 @@ class OCRReviewPage extends Component {
     }
 
     contentResults() {
-        let {error, isLoaded, results, problems, problemError, filteringPage, currentPage, upload} = this.state;
+        let {error, isLoaded, results, filteringPage, currentPage, upload} = this.state;
 
         if (filteringPage) {
             results = results.filter(result => result.rect.page === currentPage);
@@ -90,7 +90,6 @@ class OCRReviewPage extends Component {
                 <Col key={result.id}>
                     <OCRResultReviewCard upload={upload}
                                          result={result} image={doneImages ? this.state.images[result.rect.page] : null}
-                                         problems={problems} problemError={problemError}
                                          selected={this.state.selected.findIndex(r => r === result.id) !== -1}
                                          onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
                 </Col>);

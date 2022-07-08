@@ -1,6 +1,6 @@
 import React, {Component} from 'react';
 import {Offcanvas, Spinner, Col, Row, Button, Modal} from "react-bootstrap";
-import API from "../../api";
+import API from "../../../api";
 import ReactKatex from "@pkasila/react-katex";
 import ProblemSearchDropdown from './ProblemSearchDropdown';
 

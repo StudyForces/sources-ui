@@ -4,7 +4,6 @@ import API from "../../api";
 import PaginationComponent from "../misc/PaginationComponent";
 import ProblemsTable from "./ProblemsTable";
 import {NavLink} from "react-router-dom";
-import CreateUploadButton from "../uploads/CreateUploadButton";
 
 class ProblemsPage extends Component {
     constructor(props) {

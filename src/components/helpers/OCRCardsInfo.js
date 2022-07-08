@@ -18,16 +18,6 @@ export default class OCRCardsInfo {
         this.getResults = this.getResults.bind(this);
     }
 
-    getProblems() {
-        API.problems.list().then(
-            (result) => {
-                this.state.setNewState({problems: result.content});
-            }, (error) => {
-                this.state.setNewState({problems: [], problemError: error});
-            }
-        );
-    }
-
     getResults() {
         const {setNewState} = this.state;
         const requestResult = this.requestChoose();
