@@ -1,6 +1,7 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button, Modal} from "react-bootstrap";
+import {Dropdown, Form, Spinner, Popover, OverlayTrigger, Badge, Button} from "react-bootstrap";
 import API from "../../api";
+import PaginationComponent from '../misc/PaginationComponent';
 
 class ProblemSearchDropdown extends Component {
     constructor(props) {
@@ -10,27 +11,44 @@ class ProblemSearchDropdown extends Component {
             error: null,
             search: "",
             searching: false,
-            problems: []
+            problems: [],
+            currentPage: 0,
+            page: {size: 20, totalElements: 0, totalPages: 0, number: 0}
         }
 
         this.menuContent = this.menuContent.bind(this);
         this.handleSearchChange = this.handleSearchChange.bind(this);
         this.getProblems = this.getProblems.bind(this);
+        this.setPage = this.setPage.bind(this);
     }
 
     componentDidMount() {
         this.getProblems();
     }
 
-    getProblems() {
-        const {search} = this.state;
+    setPage(page) {
+        this.setState({currentPage: page-1}, () => this.getProblems());
+    }
 
-        this.setState({searching: true});
-        API.problems.search(search, 0, 20)
+    getProblems() {
+        const {search, currentPage, page} = this.state;
+
+        this.setState({searching: true}, () => {
+            API.problems.search(search, currentPage, page.size)
             .then(
-                (result) => this.setState({problems: result.content, searching: false}),
+                (result) => this.setState({
+                    problems: result.content, 
+                    searching: false,
+                    page: {
+                        size: result.size,
+                        totalElements: result.totalElements,
+                        totalPages: result.totalPages,
+                        number: result.number
+                    }
+                }),
                 (error) => this.setState({error, problems: [], searching: false})
             )
+        });
     }
 
     handleSearchChange(e) {
@@ -65,18 +83,25 @@ class ProblemSearchDropdown extends Component {
     }
 
     render() {
+        const {currentPage, page} = this.state;
+
         return(
             <>
                 <Dropdown align="end">
                     <Dropdown.Toggle style={{cursor: "pointer"}} as={"a"}>Pin problem</Dropdown.Toggle>
-                    <Dropdown.Menu>
+                    <Dropdown.Menu style={{width: "max-content"}}>
                         <div className="mb-1">
                             <Form className="mb-1">
                                 <Form.Control
-                                    style={{width: "max-content"}}
+                                    style={{width: "100%"}}
                                     onChange={this.handleSearchChange}
                                     placeholder="Enter problem ID" />
                             </Form>
+                            <PaginationComponent
+                                    currentPage={currentPage+1}
+                                    itemsCount={page.totalElements}
+                                    itemsPerPage={page.size}
+                                    setCurrentPage={this.setPage} />
                         </div>
                         <Dropdown.Divider />
                         <div className="overflow-scroll"  style={{height: "250px"}}>
