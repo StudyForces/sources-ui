@@ -17,9 +17,7 @@ class OCRReviewPage extends Component {
             selected: [],
             images: [],
             filteringPage: false,
-            currentPage: 0,
-            problems: [],
-            problemError: null
+            currentPage: 0
         };
 
         this.handleSave = this.handleSave.bind(this);
@@ -37,7 +35,6 @@ class OCRReviewPage extends Component {
             () => this.state,
             id, undefined, "upload_review");
         _OCRCardsInfo.getOCRCardsInfo();
-        _OCRCardsInfo.getProblems();
     }
 
     componentWillUnmount() {
@@ -152,7 +149,7 @@ class OCRReviewPage extends Component {
                         </div>
                         <ProblemSubmissionForm selected={this.state.selected.map(id =>
                             this.state.results.find(r => r.id === id))} {...this.props}
-                                               onSubmit={this.onSubmit} upload={this.state.upload}>
+                                            onSubmit={this.onSubmit} upload={this.state.upload}>
                         </ProblemSubmissionForm>
                     </Col>
                 </Row>

@@ -8,7 +8,6 @@ import ProblemPinner from './ProblemPinner';
 import ReactKatex from "@pkasila/react-katex";
 
 class OCRResultReviewCard extends Component {
-
     constructor(props) {
         super(props);
 
