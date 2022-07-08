@@ -17,9 +17,7 @@ class OCRReviewPage extends Component {
             selected: [],
             images: [],
             filteringPage: false,
-            currentPage: 0,
-            problems: [],
-            problemError: null
+            currentPage: 0
         };
 
         this.handleSave = this.handleSave.bind(this);
@@ -37,7 +35,6 @@ class OCRReviewPage extends Component {
             () => this.state,
             id, undefined, "upload_review");
         _OCRCardsInfo.getOCRCardsInfo();
-        _OCRCardsInfo.getProblems();
     }
 
     componentWillUnmount() {
@@ -75,7 +72,7 @@ class OCRReviewPage extends Component {
     }
 
     contentResults() {
-        let {error, isLoaded, results, problems, problemError, filteringPage, currentPage, upload} = this.state;
+        let {error, isLoaded, results, filteringPage, currentPage, upload} = this.state;
 
         if (filteringPage) {
             results = results.filter(result => result.rect.page === currentPage);
@@ -93,7 +90,6 @@ class OCRReviewPage extends Component {
                 <Col key={result.id}>
                     <OCRResultReviewCard upload={upload}
                                          result={result} image={doneImages ? this.state.images[result.rect.page] : null}
-                                         problems={problems} problemError={problemError}
                                          selected={this.state.selected.findIndex(r => r === result.id) !== -1}
                                          onSave={this.handleSave} onSelect={this.handleSelect}></OCRResultReviewCard>
                 </Col>);
@@ -152,7 +148,7 @@ class OCRReviewPage extends Component {
                         </div>
                         <ProblemSubmissionForm selected={this.state.selected.map(id =>
                             this.state.results.find(r => r.id === id))} {...this.props}
-                                               onSubmit={this.onSubmit} upload={this.state.upload}>
+                                            onSubmit={this.onSubmit} upload={this.state.upload}>
                         </ProblemSubmissionForm>
                     </Col>
                 </Row>

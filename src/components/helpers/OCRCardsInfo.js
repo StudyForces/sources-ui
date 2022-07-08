@@ -18,16 +18,6 @@ export default class OCRCardsInfo {
         this.getResults = this.getResults.bind(this);
     }
 
-    getProblems() {
-        API.problems.list().then(
-            (result) => {
-                this.state.setNewState({problems: result.content});
-            }, (error) => {
-                this.state.setNewState({problems: [], problemError: error});
-            }
-        );
-    }
-
     getResults() {
         const {setNewState} = this.state;
         const requestResult = this.requestChoose();
@@ -50,8 +40,8 @@ export default class OCRCardsInfo {
             .then(
                 (result) => {
                     const results = result[0];
-
-                    Promise.all([API.ocr.getUpload(results[0].id)])
+                    if(results.length !== 0){
+                        Promise.all([API.ocr.getUpload(results[0].id)])
                         .then(
                             (r) => {
                                 setNewState({
@@ -62,6 +52,13 @@ export default class OCRCardsInfo {
                                 this.loadImage(r[0]);
                             }, (error) => this.setErrorState(error)
                         )
+                    } else {
+                        setNewState({
+                            isLoaded: true,
+                            results,
+                            upload: null
+                        });
+                    }
                 },
                 (error) => this.setErrorState(error)
             );

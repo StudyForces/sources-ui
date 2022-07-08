@@ -1,14 +1,13 @@
 import React, { Component } from 'react';
-import {Badge, Button, Card, Col, Dropdown, Form, Row, Spinner} from "react-bootstrap";
+import {Badge, Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
 import API from "../../api";
 import cropImage from "../helpers/cropImage";
 import EquationInserter from "../misc/EquationInserter";
-import ProblemPinner from './ProblemPinner';
+import ProblemPinner from './problem-pinning/ProblemPinner';
 import ReactKatex from "@pkasila/react-katex";
 
 class OCRResultReviewCard extends Component {
-
     constructor(props) {
         super(props);
 
@@ -183,9 +182,7 @@ class OCRResultReviewCard extends Component {
                             <ProblemPinner
                                 ocr={result}
                                 upload={this.props.upload}
-                                getProblem={this.getProblem}
-                                problems={this.props.problems}
-                                problemError={this.props.problemError} />
+                                getProblem={this.getProblem} />
                         }
                     </Col>
                     <Col md="auto" className="m-0 p-0">

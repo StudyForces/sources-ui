@@ -1,7 +1,8 @@
 import React, {Component} from 'react';
-import {Dropdown, Form, Offcanvas, Spinner, Col, Row, Button, Modal} from "react-bootstrap";
-import API from "../../api";
+import {Offcanvas, Spinner, Col, Row, Button, Modal} from "react-bootstrap";
+import API from "../../../api";
 import ReactKatex from "@pkasila/react-katex";
+import ProblemSearchDropdown from './ProblemSearchDropdown';
 
 class ProblemPinner extends Component {
     constructor(props) {
@@ -9,9 +10,6 @@ class ProblemPinner extends Component {
 
         this.state = {
             error: null,
-            search: "",
-            problems: [],
-            problemsShow: [],
             offcanvasProblem: {},
             showProblem: false,
             ocr: props.ocr,
@@ -19,9 +17,6 @@ class ProblemPinner extends Component {
             showErrorPinningModal: false
         }
 
-        this.getShowProblems = this.getShowProblems.bind(this);
-        this.handleSearchChange = this.handleSearchChange.bind(this);
-        this.menuContent = this.menuContent.bind(this);
         this.offcanvas= this.offcanvas.bind(this);
         this.onOpenProblemClick = this.onOpenProblemClick.bind(this);
         this.onCloseProblemClick = this.onCloseProblemClick.bind(this);
@@ -30,21 +25,6 @@ class ProblemPinner extends Component {
         this.onOpenErrorPinningModal = this.onOpenErrorPinningModal.bind(this);
         this.onCloseErrorPinningModal = this.onCloseErrorPinningModal.bind(this);
         this.errorPinningModal = this.errorPinningModal.bind(this);
-    }
-
-    componentDidMount() {
-        let problems = [];
-        if(this.props.problems){
-            problems = this.props.problems;
-        }
-
-        this.setState({problems,
-            problemError: this.props.problemError}, 
-            () => this.getShowProblems());
-    }
-
-    handleSearchChange(e) {
-        this.setState({search: e.target.value}, () => this.getShowProblems());
     }
 
     onOpenProblemClick(problem) {
@@ -61,21 +41,6 @@ class ProblemPinner extends Component {
 
     onCloseErrorPinningModal() {
         this.setState({showErrorPinningModal: false});
-    }
-
-    getShowProblems() {
-        const {problems, search} = this.state;
-
-        this.setState({problemsShow: []}, () => {
-            const problemsShow = [];
-            problems.forEach((problem) => {
-                if(problem.id.toString().includes(search)) {
-                    problemsShow.push(problem);
-                }
-            })
-
-            this.setState({problemsShow});
-        });
     }
 
     checkOCRBeforePinning() {
@@ -181,50 +146,12 @@ class ProblemPinner extends Component {
         )
     }
 
-    menuContent() {
-        const {error, problemsShow} = this.state;
-
-        if(error){
-            return (<Dropdown.Item className="text-center" disabled={true}>
-                        Error: {error.message}
-                    </Dropdown.Item>);
-        } else if(problemsShow.length === 0) {
-            return (<Dropdown.Item className="text-center" disabled={true}>
-                        Nothing was found
-                    </Dropdown.Item>);
-        } else {
-            return(
-                problemsShow.map((problem, index) => 
-                    <Dropdown.Item key={index} onClick={() => this.onOpenProblemClick(problem)}>
-                        {problem.id}
-                    </Dropdown.Item>
-                )
-            )
-        }
-    }
-
     render() {
         return(
             <>
-                <Dropdown align="end">
-                    <Dropdown.Toggle style={{cursor: "pointer"}} as={"a"}>Pin problem</Dropdown.Toggle>
-                    <Dropdown.Menu>
-                        <div className="mb-1">
-                            <Form className="mb-1">
-                                <Form.Control
-                                    style={{width: "max-content"}}
-                                    onChange={this.handleSearchChange}
-                                    placeholder="Enter problem ID" />
-                            </Form>
-                        </div>
-                        <Dropdown.Divider />
-                        <div className="overflow-scroll"  style={{height: "250px"}}>
-                            {this.menuContent()}
-                        </div>
-
-                    </Dropdown.Menu>
-                </Dropdown>
-
+                <ProblemSearchDropdown 
+                    onOpenProblemClick={this.onOpenProblemClick} />
+                
                 {this.offcanvas()}
                 {this.errorPinningModal()}
             </>
