@@ -51,10 +51,14 @@ function ProblemSolveForm(props) {
     }
 
     const setCorrectVariant = (event) => {
-        let _solverMetadata = {...solverMetadata};
-        _solverMetadata.correct.index = parseInt(event.target.id);
+        const index = event.target.id;
+        if(event.target.value === 'on'){
+            let _solverMetadata = {...solverMetadata};
+            _solverMetadata.correct.index = index.length !== 0 ? parseInt(index) : 0;
 
-        setSolverMetadata(_solverMetadata);
+            setSolverMetadata(_solverMetadata);
+        }
+        
     }
 
     const addVariant = () => {
