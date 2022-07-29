@@ -1,5 +1,4 @@
-import { Component } from "react";
-import { Card, Form, Button, Row, Col, InputGroup } from "react-bootstrap";
+import { Card, Form, Button, InputGroup } from "react-bootstrap";
 import ReactKatex from "@pkasila/react-katex";
 import EquationInserter from './EquationInserter';
 
@@ -100,75 +99,78 @@ function ProblemSolveForm(props) {
     }
 
     const solveContent = () => {
-        if (solverMetadata.type === 'FORMULA') {
-            return (
-                <>
-                    <h6>Preview</h6>
-                    <div className="my-2">
-                        <ReactKatex 
-                            strict={false} 
-                            children={`$${solverMetadata.formula ?? ''}$`} />
-                    </div>
-                    <Form.Group controlId="taskSubmission.solveLatex">
-                        <Form.Label as={"h6"}>LaTeX</Form.Label>
-                        <EquationInserter />
-                        <Form.Control 
-                            as="textarea" 
-                            rows={3} 
-                            placeholder='Formula...'
-                            value={solverMetadata.formula ?? ''}
-                            onChange={handleFormulaChange}/>
-                    </Form.Group>
-                </>
-            )
-        } else if (solverMetadata.type === 'CT_A') {
-            const variants = solverMetadata?.variants ?? [];
+        switch (solverMetadata.type) {
+            case 'FORMULA':
+                return(
+                    <>
+                        <h6>Preview</h6>
+                        <div className="my-2">
+                            <ReactKatex 
+                                strict={false} 
+                                children={`$${solverMetadata.formula ?? ''}$`} />
+                        </div>
+                        <Form.Group controlId="taskSubmission.solveLatex">
+                            <Form.Label as={"h6"}>LaTeX</Form.Label>
+                            <EquationInserter />
+                            <Form.Control 
+                                as="textarea" 
+                                rows={3} 
+                                placeholder='Formula...'
+                                value={solverMetadata.formula ?? ''}
+                                onChange={handleFormulaChange}/>
+                        </Form.Group>
+                    </>
+                )
+            case 'CT_A':
+                const variants = solverMetadata?.variants ?? [];
 
-            return (
-                <>
-                    <Form.Group
-                        onChange={setCorrectVariant}>
-                            {
-                                variants.map((variant, index) =>
-                                    <InputGroup className={'mt-2'}>
-                                        <InputGroup.Radio
-                                            id={index}
-                                            checked={solverMetadata.correct?.index === index}
-                                            />
-                                        <Form.Control
-                                            style={{maxWidth: '300px'}}
-                                            defaultValue={variant.string}
-                                            onChange={(e) => handleVariantChange(e, index)}
-                                            placeholder='Variant...' />
-                                        <Button
-                                            variant='outline-danger'
-                                            onClick={() => removeVariant(index)}>
-                                                Remove
-                                        </Button>
-                                    </InputGroup>
-                                )
-                            }
-                    </Form.Group>
-                    <Button
-                        className={'mt-2'}
-                        size={'sm'}
-                        disabled={!(variants.slice(-1)[0]?.string?.length > 0 || variants.length === 0)}
-                        onClick={() => addVariant()}>
-                        Add new option
-                    </Button>
-                </>
-            )
-        } else if (solverMetadata.type === 'CT_B') {
-            return (
-                <>
-                    <Form.Control
-                        type='number'
-                        style={{maxWidth: '300px'}}
-                        placeholder='Number...'
-                        defaultValue={solverMetadata.correct?.number}
-                        onChange={handleNumberChange} />
-                </>
-            )
+                return (
+                    <>
+                        <Form.Group
+                            onChange={setCorrectVariant}>
+                                {
+                                    variants.map((variant, index) =>
+                                        <InputGroup className={'mt-2'}>
+                                            <InputGroup.Radio
+                                                id={index}
+                                                checked={solverMetadata.correct?.index === index}
+                                                />
+                                            <Form.Control
+                                                style={{maxWidth: '300px'}}
+                                                defaultValue={variant.string}
+                                                onChange={(e) => handleVariantChange(e, index)}
+                                                placeholder='Variant...' />
+                                            <Button
+                                                variant='outline-danger'
+                                                onClick={() => removeVariant(index)}>
+                                                    Remove
+                                            </Button>
+                                        </InputGroup>
+                                    )
+                                }
+                        </Form.Group>
+                        <Button
+                            className={'mt-2'}
+                            size={'sm'}
+                            disabled={!(variants.slice(-1)[0]?.string?.length > 0 || variants.length === 0)}
+                            onClick={() => addVariant()}>
+                            Add new option
+                        </Button>
+                    </>
+                );
+            case 'CT_B': 
+                return (
+                    <>
+                        <Form.Control
+                            type='number'
+                            style={{maxWidth: '300px'}}
+                            placeholder='Number...'
+                            defaultValue={solverMetadata.correct?.number}
+                            onChange={handleNumberChange} />
+                    </>
+                )
+            default:
+                return (<>Unknown type</>)
         }
     }
 
