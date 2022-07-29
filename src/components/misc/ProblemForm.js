@@ -3,6 +3,14 @@ import {Button, Card, Col, Form, Row, Spinner, Stack} from "react-bootstrap";
 import EquationInserter from './EquationInserter';
 import ProblemAttachmentsForm from "./ProblemAttachmentsForm";
 import ReactKatex from "@pkasila/react-katex";
+import ProblemSolveForm from './ProblemSolveForm';
+
+const emptySolverMetadata = {
+    type: 'FORMULA',
+    variants: [],
+    correct: null,
+    formula: null
+};
 
 class ProblemForm extends Component {
     constructor(props) {
@@ -11,9 +19,11 @@ class ProblemForm extends Component {
         this.state = {
             problem: null,
             solution: null,
+            solverMetadata: null,
             attachments: null,
             ocrAttachments: [],
             addSolution: null,
+            addSolverMetadata: null,
             addAttachments: null,
             submitting: false
         }
@@ -32,6 +42,7 @@ class ProblemForm extends Component {
         if (problem !== undefined) {
             obj.problem = state.problem || problem.problem;
             obj.solution = state.solution || problem.solution || '';
+            obj.solverMetadata = state.solverMetadata || problem.solverMetadata || emptySolverMetadata;
             obj.attachments = state.attachments || problem.attachments || [];
             if ((obj.solution !== '' && obj.solution !== null) && state.addSolution === null) {
                 obj.addSolution = true;
@@ -43,10 +54,16 @@ class ProblemForm extends Component {
             } else if (state.addAttachments === null) {
                 obj.addAttachments = false;
             }
+            
         } else {
             obj.problem = state.problem || '';
             obj.solution = state.solution || '';
+            obj.solverMetadata = state.solverMetadata || emptySolverMetadata;
             obj.attachments = state.attachments || [];
+        }
+
+        if(!obj.solverMetadata.type) {
+            obj.solverMetadata.type = 'FORMULA';
         }
 
         if (obj.selected.length === 1 && state.problem === '' && obj.selected[0].type === 'TEXT') {
@@ -67,19 +84,23 @@ class ProblemForm extends Component {
             type: 'STATIC',
             problem: this.state.problem,
             solution: this.state.addSolution ? this.state.solution : null,
-            attachments: this.state.addAttachments ? this.state.attachments : []
+            attachments: this.state.addAttachments ? this.state.attachments : [],
+            solverMetadata: this.state.addSolverMetadata ? this.state.solverMetadata : emptySolverMetadata
         }, () => {
             const s = {
                 submitting: false
             };
             if (this.props.problem !== undefined) {
                 s.addSolution = this.props.problem.solution !== '' && this.props.problem.solution !== null;
+                s.addSolverMetadata = this.props.solverMetadata !== null;
                 s.addAttachments = this.props.problem.attachments.length > 0;
             } else {
                 s.problem = '';
                 s.solution = '';
+                s.solverMetadata = emptySolverMetadata;
                 s.attachments = [];
                 s.addSolution = false;
+                s.addSolverMetadata = false;
                 s.addAttachments = false;
             }
             this.setState(s);
@@ -146,6 +167,28 @@ class ProblemForm extends Component {
                                               }}/>
                             </Form.Group>
                         </Card.Body> : null
+                    }
+                </Card>
+            </Col>
+            <Col>
+                <Card>
+                    <Card.Header>
+                        <Row className="m-0 p-0">
+                            <Col className="m-0 p-0">
+                                Solve
+                            </Col>
+                            <Col md="auto" className="m-0 p-0">
+                                <Form.Check type="checkbox" checked={this.state.addSolve}
+                                            onChange={(e) => this.setState({addSolve: e.target.checked})}/>
+                            </Col>
+                        </Row>
+                    </Card.Header>
+                    {
+                        this.state.addSolve ? 
+                            <ProblemSolveForm 
+                                solverMetadata={this.state.solverMetadata} 
+                                setSolverMetadata={(solverMetadata) => this.setState({solverMetadata})} /> 
+                                : null
                     }
                 </Card>
             </Col>
