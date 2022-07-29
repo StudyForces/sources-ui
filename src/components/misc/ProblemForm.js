@@ -54,6 +54,7 @@ class ProblemForm extends Component {
             } else if (state.addAttachments === null) {
                 obj.addAttachments = false;
             }
+            obj.addSolverMetadata=true;
             
         } else {
             obj.problem = state.problem || '';
@@ -80,6 +81,8 @@ class ProblemForm extends Component {
     }
 
     submit() {
+        console.log(this.state.addSolverMetadata);
+        console.log(this.state.solverMetadata);
         this.props.onSubmit({
             type: 'STATIC',
             problem: this.state.problem,
@@ -178,16 +181,16 @@ class ProblemForm extends Component {
                                 Solve
                             </Col>
                             <Col md="auto" className="m-0 p-0">
-                                <Form.Check type="checkbox" checked={this.state.addSolve}
-                                            onChange={(e) => this.setState({addSolve: e.target.checked})}/>
+                                <Form.Check type="checkbox" checked={this.state.addSolverMetadata}
+                                            onChange={(e) => this.setState({addSolverMetadata: e.target.checked})}/>
                             </Col>
                         </Row>
                     </Card.Header>
                     {
-                        this.state.addSolve ? 
+                        this.state.addSolverMetadata ? 
                             <ProblemSolveForm 
                                 solverMetadata={this.state.solverMetadata} 
-                                setSolverMetadata={(solverMetadata) => this.setState({solverMetadata})} /> 
+                                setSolverMetadata={(solverMetadata) => this.setState({solverMetadata}, ()=>console.log(solverMetadata))} /> 
                                 : null
                     }
                 </Card>
