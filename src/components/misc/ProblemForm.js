@@ -54,8 +54,9 @@ class ProblemForm extends Component {
             } else if (state.addAttachments === null) {
                 obj.addAttachments = false;
             }
-            obj.addSolverMetadata=true;
-            
+            if (obj.solverMetadata !== null) {
+                obj.addSolverMetadata = true;
+            }
         } else {
             obj.problem = state.problem || '';
             obj.solution = state.solution || '';
@@ -81,8 +82,6 @@ class ProblemForm extends Component {
     }
 
     submit() {
-        console.log(this.state.addSolverMetadata);
-        console.log(this.state.solverMetadata);
         this.props.onSubmit({
             type: 'STATIC',
             problem: this.state.problem,
@@ -190,7 +189,7 @@ class ProblemForm extends Component {
                         this.state.addSolverMetadata ? 
                             <ProblemSolveForm 
                                 solverMetadata={this.state.solverMetadata} 
-                                setSolverMetadata={(solverMetadata) => this.setState({solverMetadata}, ()=>console.log(solverMetadata))} /> 
+                                setSolverMetadata={(solverMetadata) => this.setState({solverMetadata})} /> 
                                 : null
                     }
                 </Card>

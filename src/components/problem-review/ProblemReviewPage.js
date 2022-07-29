@@ -66,7 +66,6 @@ class ProblemReviewPage extends Component {
     }
 
     submit(problem, cb) {
-        console.log(problem);
         this.setState({submitting: true});
         if (this.state.newProblem) {
             API.problems.create(problem, []).then(p => {
