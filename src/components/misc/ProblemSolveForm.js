@@ -1,9 +1,10 @@
 import { Card, Form, Button, InputGroup } from "react-bootstrap";
 import ReactKatex from "@pkasila/react-katex";
 import EquationInserter from './EquationInserter';
+import { ProblemSolveType, ProblemSolveVariantType } from "../helpers/problem-solve-types";
 
 const emptySolverMetadata = {
-    type: 'FORMULA',
+    type: ProblemSolveType.FORMULA,
     variants: [],
     correct: null,
     formula: null
@@ -30,7 +31,7 @@ function ProblemSolveForm(props) {
         const _solverMetadata = {
             ...solverMetadata,
             correct: {
-                type: 'NUMBER',
+                type: ProblemSolveType.NUMBER,
                 number: input ? parseFloat(input) : null,
                 string: null,
                 index: null
@@ -64,7 +65,7 @@ function ProblemSolveForm(props) {
         let _solverMetadata = {...solverMetadata};
         if(_solverMetadata.variants.length === 0) {
             _solverMetadata.correct = {
-                type: 'INDEX',
+                type: ProblemSolveVariantType.INDEX,
                 number: null,
                 string: null,
                 index: 0
@@ -72,7 +73,7 @@ function ProblemSolveForm(props) {
         }
 
         _solverMetadata.variants.push({
-            type: 'STRING',
+            type: ProblemSolveVariantType.STRING,
             number: null,
             string: "",
             index: null
@@ -88,7 +89,7 @@ function ProblemSolveForm(props) {
             _solverMetadata.correct = null;
         } else {
             _solverMetadata.correct = {
-                type: 'INDEX',
+                type: ProblemSolveVariantType.INDEX,
                 number: null,
                 string: null,
                 index: 0
@@ -100,11 +101,11 @@ function ProblemSolveForm(props) {
 
     const solveContent = () => {
         switch (solverMetadata.type) {
-            case 'FORMULA':
+            case ProblemSolveType.FORMULA:
                 return(
                     <>
                         <h6>Preview</h6>
-                        <div className="my-2">
+                        <div className="mt-2">
                             <ReactKatex 
                                 strict={false} 
                                 children={`$${solverMetadata.formula ?? ''}$`} />
@@ -121,7 +122,7 @@ function ProblemSolveForm(props) {
                         </Form.Group>
                     </>
                 )
-            case 'CT_A':
+            case ProblemSolveType.CT_A:
                 const variants = solverMetadata?.variants ?? [];
 
                 return (
@@ -158,7 +159,7 @@ function ProblemSolveForm(props) {
                         </Button>
                     </>
                 );
-            case 'CT_B': 
+            case ProblemSolveType.CT_B: 
                 return (
                     <>
                         <Form.Control
@@ -177,12 +178,12 @@ function ProblemSolveForm(props) {
     return (
         <Card.Body>
             <Form.Select onChange={setType} value={solverMetadata.type}>
-                <option value='FORMULA'>Formula</option>
-                <option value='CT_A'>ЦТ (часть A)</option>
-                <option value='CT_B'>ЦТ (часть B)</option>
+                <option value={ProblemSolveType.FORMULA}>Formula</option>
+                <option value={ProblemSolveType.CT_A}>ЦТ (часть A)</option>
+                <option value={ProblemSolveType.CT_B}>ЦТ (часть B)</option>
             </Form.Select>
 
-            <div style={{marginTop: '10px'}}>
+            <div className={'mt-2'}>
                 {solveContent()}
             </div>
         </Card.Body>
