@@ -38,11 +38,15 @@ class EquationInserter extends Component {
 
     showEquations() {
         this.setState({equationsShow: []}, () => {
+            const {search, caseSensitive} = this.state;
+
             const equationsShow = [];
             equations.forEach((equation) => {
-                const subEquation = this.state.caseSensitive ?
-                    equation.toLowerCase() : equation;
-                if(subEquation.includes(this.state.search)) {
+                const subEquation = caseSensitive ?
+                equation : equation.toLowerCase();
+                const subSearch = caseSensitive ?
+                search : search.toLowerCase();
+                if(subEquation.includes(subSearch)) {
                     equationsShow.push(equation);
                 }
             });
