@@ -1,5 +1,5 @@
 import React, { Component } from 'react';
-import {Badge, Button, Card, Col, Form, Row, Spinner} from "react-bootstrap";
+import {Badge, Button, Card, Col, Form, Row, Spinner, Modal} from "react-bootstrap";
 import {NavLink} from "react-router-dom";
 import API from "../../api";
 import cropImage from "../helpers/cropImage";
@@ -18,7 +18,8 @@ class OCRResultReviewCard extends Component {
             problem: null,
             image: null,
             copied: false,
-            unpinning: false
+            unpinning: false,
+            showUnpinModal: false
         }
 
         this.getProblem = this.getProblem.bind(this);
@@ -29,6 +30,9 @@ class OCRResultReviewCard extends Component {
         this.actions = this.actions.bind(this);
         this.copyAction = this.copyAction.bind(this);
         this.unpinOCR = this.unpinOCR.bind(this);
+        this.unpinOCRModal = this.unpinOCRModal.bind(this);
+        this.handleOpenUnpinModal = this.handleOpenUnpinModal.bind(this);
+        this.handleCloseUnpinModal = this.handleCloseUnpinModal.bind(this);
     }
 
     componentDidMount() {
@@ -38,9 +42,9 @@ class OCRResultReviewCard extends Component {
     getProblem() {
         API.ocr.getProblem(this.props.result.id)
             .then((problem) => {
-                this.setState({problem, unpinning: false});
+                this.setState({problem, unpinning: false, showUnpinModal: false});
             }, (error) => {
-                this.setState({problem: null, unpinning: false})
+                this.setState({problem: null, unpinning: false, showUnpinModal: false})
             });
     }
 
@@ -150,6 +154,35 @@ class OCRResultReviewCard extends Component {
             });
     }
 
+    handleOpenUnpinModal() {
+        this.setState({showUnpinModal: true});
+    }
+
+    handleCloseUnpinModal() {
+        this.setState({showUnpinModal: false});
+    }
+
+    unpinOCRModal() {
+        return (
+            <Modal show={this.state.showUnpinModal} onHide={this.handleCloseUnpinModal}>
+                <Modal.Header closeButton>
+                    <Modal.Title>Unpin OCR</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>OCR will be unpinned. 
+                    If this OCR has synced attachment, that attachment will not be removed. 
+                    Are you sure, you want to unpin OCR?</Modal.Body>
+                <Modal.Footer>
+                    <Button variant="outline-secondary" onClick={this.handleCloseUnpinModal}>
+                        Cancel
+                    </Button>
+                    <Button variant="outline-danger" onClick={this.unpinOCR}>
+                        {!this.state.unpinning ? 'Unpin' : 'Loading...'}
+                    </Button>
+                </Modal.Footer>
+            </Modal>
+        )
+    }
+
     actions() {
         if (this.state.editing) {
             return <>
@@ -170,68 +203,74 @@ class OCRResultReviewCard extends Component {
     render() {
         const {result} = this.props;
 
-        return <Card key={result.id}>
-            <Card.Header>
-                <Row className="m-0 p-0">
-                    <Col className="m-0 p-0">
-                        <Badge bg="primary" className="me-2">{result.type}</Badge>
-                    </Col>
-                    <Col md="auto" className="me-3 p-0">
+        return (
+            <>
+                <Card key={result.id}>
+                    <Card.Header>
+                        <Row className="m-0 p-0">
+                            <Col className="m-0 p-0">
+                                <Badge bg="primary" className="me-2">{result.type}</Badge>
+                            </Col>
+                            <Col md="auto" className="me-3 p-0">
+                                {
+                                    this.state.problem ? <span/> :
+                                    <ProblemPinner
+                                        ocr={result}
+                                        upload={this.props.upload}
+                                        getProblem={this.getProblem} />
+                                }
+                            </Col>
+                            <Col md="auto" className="m-0 p-0">
+                                {
+                                    this.state.problem ?
+                                    <Row className="m-0 p-0">
+                                        <Col className="me-2 p-0">
+                                            <Badge
+                                                disabled={this.state.unpinning}
+                                                bg="danger"
+                                                style={{cursor: "pointer"}}
+                                                onClick={!this.state.unpinning ? this.handleOpenUnpinModal : null}>
+                                                    {!this.state.unpinning ? 'Unpin' : 'Loading...'}
+                                            </Badge>
+                                        </Col>
+                                        <Col className="m-0 p-0">
+                                            <NavLink to={`/problems/${this.state.problem.id}`}>
+                                                <Badge bg="secondary">
+                                                    Problem #{this.state.problem.id}
+                                                </Badge>
+                                            </NavLink>
+                                        </Col>
+                                    </Row>
+                                    : <Form.Check type="checkbox" disabled={this.state.editing}
+                                                            checked={this.state.selected}
+                                                            onChange={this.handleSelection} />
+                                }
+                            </Col>
+                        </Row>
+                    </Card.Header>
+                    <Card.Body>
                         {
-                            this.state.problem ? <span/> :
-                            <ProblemPinner
-                                ocr={result}
-                                upload={this.props.upload}
-                                getProblem={this.getProblem} />
+                            this.state.image !== null ? <img src={this.state.image}
+                                                            style={{width: "100%", maxHeight: "300px", objectFit: 'contain'}}
+                                                            alt="Rect"></img> :
+                                <Spinner animation="border" role="status" size="sm">
+                                    <span className="visually-hidden">Loading...</span>
+                                </Spinner>
                         }
-                    </Col>
-                    <Col md="auto" className="m-0 p-0">
                         {
-                            this.state.problem ?
-                            <Row className="m-0 p-0">
-                                <Col className="me-2 p-0">
-                                    <Badge
-                                        disabled={this.state.unpinning}
-                                        bg="danger"
-                                        style={{cursor: "pointer"}}
-                                        onClick={!this.state.unpinning ? this.unpinOCR : null}>
-                                            {!this.state.unpinning ? 'Unpin' : 'Loading...'}
-                                    </Badge>
-                                </Col>
-                                <Col className="m-0 p-0">
-                                    <NavLink to={`/problems/${this.state.problem.id}`}>
-                                        <Badge bg="secondary">
-                                            Problem #{this.state.problem.id}
-                                        </Badge>
-                                    </NavLink>
-                                </Col>
-                            </Row>
-                            : <Form.Check type="checkbox" disabled={this.state.editing}
-                                                     checked={this.state.selected}
-                                                     onChange={this.handleSelection} />
+                            this.content()
                         }
-                    </Col>
-                </Row>
-            </Card.Header>
-            <Card.Body>
-                {
-                    this.state.image !== null ? <img src={this.state.image}
-                                                     style={{width: "100%", maxHeight: "300px", objectFit: 'contain'}}
-                                                     alt="Rect"></img> :
-                        <Spinner animation="border" role="status" size="sm">
-                            <span className="visually-hidden">Loading...</span>
-                        </Spinner>
-                }
-                {
-                    this.content()
-                }
-                <div className="mt-3">
-                    {
-                        this.actions()
-                    }
-                </div>
-            </Card.Body>
-        </Card>;
+                        <div className="mt-3">
+                            {
+                                this.actions()
+                            }
+                        </div>
+                    </Card.Body>
+                </Card>
+
+                {this.unpinOCRModal()}
+            </>
+        );
     }
 }
 
