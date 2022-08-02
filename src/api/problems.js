@@ -152,17 +152,6 @@ async function update(id, obj) {
             if(indexOCRs !== -1){
                 ocrs.splice(indexOCRs, 1);
             }
-
-            const indexAttachments = attachments.findIndex(_attachment => {
-                if(_attachment.metadata.type === "ocr"){
-                    return(_attachment.metadata.ocrId === ocr ? true : false);
-                }
-
-                return false;
-            });
-            if(indexAttachments !== -1){
-                attachments.splice(indexAttachments, 1);
-            }
         });
 
         delete obj.deleteOCR;
