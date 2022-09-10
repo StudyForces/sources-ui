@@ -81,7 +81,7 @@ class ProblemPinner extends Component {
 
     pinOCR() {
         const {offcanvasProblem, ocr} = this.state;
-
+        
         let problem = offcanvasProblem;
         problem = {...problem, ocrResults: [ocr]};
         API.problems.update(problem.id, problem)
