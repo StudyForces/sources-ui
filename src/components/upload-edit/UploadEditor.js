@@ -1,5 +1,5 @@
 import React, {Component} from 'react';
-import {Button, Spinner, Card, Row, Col, ButtonGroup} from 'react-bootstrap';
+import {Button, Spinner, Card, Row, Col, ButtonGroup, Badge} from 'react-bootstrap';
 import cropImage from '../helpers/cropImage'
 import ReactCrop from 'react-image-crop';
 import 'react-image-crop/dist/ReactCrop.css';
@@ -181,7 +181,8 @@ class UploadEditor extends Component {
             const rectSrc = this.cropImage(result.rect);
             const rect = {
                 page: result.rect.page,
-                src: rectSrc
+                src: rectSrc,
+                type: result.type
             }
 
             existingRects.push(rect);
@@ -209,6 +210,7 @@ class UploadEditor extends Component {
 
             this.state.existingRects.map((rect, index) => rectsShow.push({
                 id: index,
+                type: rect.type,
                 src: rect.src
             }));
 
@@ -226,6 +228,7 @@ class UploadEditor extends Component {
                 if (rect.page === this.state.currentPage) {
                     rectsShow.push({
                         id: index,
+                        type: rect.type,
                         src: rect.src
                     });
                 }
@@ -368,6 +371,7 @@ class UploadEditor extends Component {
                                              alt="Rect"/>
                                     </Card.Body>
                                     <Card.Footer className="text-muted">
+                                        <Badge bg="primary" className="me-2">{rect.type}</Badge>
                                         <Button
                                             variant="outline-danger"
                                             onClick={() => this.handleDeleteResult(index)}
