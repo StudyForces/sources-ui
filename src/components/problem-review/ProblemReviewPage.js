@@ -123,7 +123,7 @@ class ProblemReviewPage extends Component {
 
         const OCRPictures = ocrs.filter(r => r.type === "PICTURE");
         const OCRAttachments = problem.attachments
-            .filter(r => r.metadata.type === "ocr");
+            .filter(r => r.metadata !== null && r.metadata.type === "ocr");
 
         let unsyncPictures = OCRPictures.filter(result => 
             OCRAttachments.findIndex(attachment => attachment.metadata.ocrId === result.id) === -1
