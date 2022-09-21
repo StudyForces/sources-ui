@@ -1,7 +1,6 @@
 import { Card, Form, Button, InputGroup } from "react-bootstrap";
-import ReactKatex from "@pkasila/react-katex";
-import EquationInserter from './EquationInserter';
 import { ProblemSolveType, ProblemSolveVariantType } from "../helpers/problem-solve-types";
+import AegoliusFormulaInput from "./AegoliusFormulaInput";
 
 const emptySolverMetadata = {
     type: ProblemSolveType.FORMULA,
@@ -20,8 +19,8 @@ function ProblemSolveForm(props) {
         setSolverMetadata(_solverMetadata);
     }
 
-    const handleFormulaChange = (event) => {
-        let _solverMetadata = {...solverMetadata, formula: event.target.value}
+    const handleFormulaChange = (formula) => {
+        let _solverMetadata = {...solverMetadata, formula}
 
         setSolverMetadata(_solverMetadata);
     }
@@ -58,7 +57,7 @@ function ProblemSolveForm(props) {
 
             setSolverMetadata(_solverMetadata);
         }
-        
+
     }
 
     const addVariant = () => {
@@ -104,21 +103,9 @@ function ProblemSolveForm(props) {
             case ProblemSolveType.FORMULA:
                 return(
                     <>
-                        <h6>Preview</h6>
-                        <div className="mt-2">
-                            <ReactKatex 
-                                strict={false} 
-                                children={`$${solverMetadata.formula ?? ''}$`} />
-                        </div>
                         <Form.Group controlId="taskSubmission.solveLatex">
-                            <Form.Label as={"h6"}>LaTeX</Form.Label>
-                            <EquationInserter />
-                            <Form.Control 
-                                as="textarea" 
-                                rows={3} 
-                                placeholder='Formula...'
-                                value={solverMetadata.formula ?? ''}
-                                onChange={handleFormulaChange}/>
+                            <Form.Label as={"h6"}>Formula</Form.Label>
+                            <AegoliusFormulaInput formula={solverMetadata.formula ?? ''} onChange={handleFormulaChange}></AegoliusFormulaInput>
                         </Form.Group>
                     </>
                 )
@@ -159,7 +146,7 @@ function ProblemSolveForm(props) {
                         </Button>
                     </>
                 );
-            case ProblemSolveType.CT_B: 
+            case ProblemSolveType.CT_B:
                 return (
                     <>
                         <Form.Control
