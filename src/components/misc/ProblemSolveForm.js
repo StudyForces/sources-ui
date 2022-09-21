@@ -25,17 +25,50 @@ function ProblemSolveForm(props) {
         setSolverMetadata(_solverMetadata);
     }
 
-    const handleNumberChange = (event) => {
-        const input = event.target.value;
+
+    const handleOpenAnswerTypeChange = (e) => {
+        const input = e.target.value;
+
+        if (input === solverMetadata.correct.type) {
+            return;
+        }
+
         const _solverMetadata = {
             ...solverMetadata,
             correct: {
-                type: ProblemSolveType.NUMBER,
-                number: input ? parseFloat(input) : null,
-                string: null,
-                index: null
+                type: input,
             }
         };
+
+        switch (input) {
+            case ProblemSolveVariantType.STRING:
+                _solverMetadata.correct.string = solverMetadata.correct.number.toString();
+                break;
+            case ProblemSolveVariantType.NUMBER:
+                _solverMetadata.correct.number = !isNaN(parseFloat(solverMetadata.correct.string)) ? parseFloat(solverMetadata.correct.string) : null;
+                break;
+            default:
+                break;
+        }
+
+        setSolverMetadata(_solverMetadata);
+    }
+
+
+    const handleOpenAnswerChange = (e) => {
+        const input = e.target.value;
+        const _solverMetadata = {
+            ...solverMetadata,
+            correct: {
+                type: solverMetadata.correct.type ?? ProblemSolveVariantType.NUMBER
+            }
+        };
+
+        if (_solverMetadata.correct.type === ProblemSolveVariantType.NUMBER) {
+            _solverMetadata.correct.number = input ? parseFloat(e.target.value) : null
+        } else {
+            _solverMetadata.correct.string = input;
+        }
 
         setSolverMetadata(_solverMetadata);
     }
@@ -148,14 +181,17 @@ function ProblemSolveForm(props) {
                 );
             case ProblemSolveType.CT_B:
                 return (
-                    <>
+                    <div className={'row px-3'}>
+                        <Form.Select style={{width: '200px'}} value={solverMetadata.correct?.type} onChange={handleOpenAnswerTypeChange}>
+                            <option value={ProblemSolveVariantType.NUMBER}>Number</option>
+                            <option value={ProblemSolveVariantType.STRING}>String</option>
+                        </Form.Select>
                         <Form.Control
-                            type='number'
                             style={{maxWidth: '300px'}}
-                            placeholder='Number...'
+                            placeholder='Answer...'
                             defaultValue={solverMetadata.correct?.number}
-                            onChange={handleNumberChange} />
-                    </>
+                            onChange={handleOpenAnswerChange} />
+                    </div>
                 )
             default:
                 return (<>Unknown type</>)
